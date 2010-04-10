@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% load i18n sitevars utils markup ct_groups_tags forms %}
+
+{% block title %}{{ object.name }}: {% trans 'Edit settings' %}{% endblock %}
+{% block breadcrumbs %}
+  <a href="/">{% trans 'home' %}</a>  &gt;
+  <a href="/groups">{% trans 'groups' %}</a>  &gt;
+  <a href="{{ object.get_absolute_url }}">{{ object.name }}</a>
+{% endblock %}
+
+
+{% block content %}
+
+{% if object|group_access:user %}
+    
+	<h1>{% blocktrans with object.name as name %}Settings for {{ name }}{% endblocktrans %}</h1>
+
+    {% if object|group_edit:user %}
+        <h2>{% trans 'Group settings' %}</h2>
+        
+        {% if object.groupmembership_set.all %}
+         {% regroup object.groupmembership_set.all|dictsort:"member_type" by member_type as grouped %}
+            {% for group in grouped %}
+              <h4>{% trans group.grouper %}</h4>
+              <ul class="simpleList">
+                    {% for item in group.list|dictsort:"user_last_name" %}
+                    
+                    <li{% ifequal user item.user %} class="currentitem"{% endifequal %}>
+                      
+                        {{ item.user.last_name }}, {{ item.user.first_name }} -&nbsp;
+                        {% ifequal group.grouper item.EDITORS  %}
+                            <form class="inline" action="{{ object.get_absolute_url }}remove-editor/{{ item.id }}/" method="post">{% csrf_token %}
+                                <button type="submit" class="link"><span>{% trans 'Remove' %}</span></button>
+                            </form>
+                        {% else %}
+                            <form class="inline" action="{{ object.get_absolute_url }}make-editor/{{ item.id }}/" method="post">{% csrf_token %}
+                                <button type="submit" class="link"><span>{% trans 'Make editor' %}</span></button>
+                            </form>
+                        {% endifequal %}
+                    </li>
+                    {% endfor %}
+              </ul>
+            {% endfor %}
+        {% else %}
+            <p>- {% trans 'No members yet' %} -</p>
+        {% endif %}
+        <form action="{{ object.get_absolute_url }}note/" method="post" class="wider">{% csrf_token %}
+            <fieldset>
+                <legend><span>{% trans 'Group note' %}:</span></legend>
+            <ol><li><textarea name="note" rows="10">{{ object.note }}</textarea></li></ol> 
+            </fieldset>
+
+            <fieldset class="submit">
+                <input type="submit" name="result" value="{% trans 'Save note' %}">&nbsp;&nbsp;
+            </fieldset>
+
+        </form>
+        
+        <p>&nbsp;</p>
+        
+    {% endif %}
+
+    {% if membership %}
+
+        <form name="checkprofile" action="" method="post" class="wider">{% csrf_token %}
+             <fieldset>
+                <legend><span>{% trans 'Your preferences for this group' %}:</span></legend>
+                <ol>
+                     {% show_errors membershipform.non_field_errors %}
+                     {% for field in membershipform %}
+                          {% show_field field "li" %}
+                     {% endfor %}
+                </ol>
+             </fieldset>
+             <fieldset class="submit">
+                <input type="submit" name="result" value="{% trans 'Save details' %}"><br>
+                <input type="submit" name="result" value="{% trans 'Cancel' %}">
+            </fieldset>
+        </form>
+    
+        {% if not object|group_edit:user %}
+            <p><a class="action" href="{% url leave-group object.id %}">{% trans 'Leave this group' %}.</a></p>
+        {% endif %}
+    {% else %}
+    
+        <h2>{% trans 'You are not a member of this group' %}</n2>
+    
+        <p><a class="action" href="{% url join-group object.id %}">{% trans 'Join this group' %}.</a></p>
+        
+    {% endif %}
+
+
+    <p>&nbsp;</p>
+
+{% else %}
+
+    <p>&nbsp;</p>
+    <h2>{% trans 'You do not have access to this group' %}.</h2>
+    <p>&nbsp;</p>
+{% endif %}
+
+{% endblock %}
+

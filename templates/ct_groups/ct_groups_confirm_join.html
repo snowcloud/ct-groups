@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans 'Joined group' %}{% endblock %}
+
+
+{% block content %}
+<p>&nbsp;</p>
+
+<h3>{% blocktrans with group.name as name %}You have now joined the '{{ name }}' group{% endblocktrans %}.</h3>
+
+<p><a href="{% url group group.slug %}">{% trans 'Continue' %}</a> - {% trans 'you will see your name in the list of group members' %}.</p>
+
+<p>&nbsp;</p>
+
+{% endblock %}

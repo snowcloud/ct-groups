@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+{% load i18n sitevars utils markup tagging_tags ct_groups_tags comments %}
+
+{% block title %}{{ object.name }}{% endblock %}
+{% block breadcrumbs %}
+  <a href="/">{% trans 'home' %}</a>  &gt;
+  <a href="/groups">{% trans 'groups' %}</a>
+{% endblock %}
+
+{% block content-class %}span-22{% endblock %}
+
+{% block content %}
+
+    <div class="column span-6 append-1">
+
+        <div class="box-section">
+        <h2>{% trans 'Group pages' %}</h2>
+        {% wiki_pages for object as pages %}
+        {% if pages %}
+        <div class="menu-list">
+            <ul>
+            {% for page in pages %}
+                <li><a href="{{ page.get_absolute_url }}">{{ page.summary }}</a></li>
+            {% endfor %}
+            </ul>
+        </div>
+            {% else %}
+                <p>- {% trans 'no pages' %} -</p>
+            {% endif %}
+            {{ object|wiki_new_page:user }}
+        </div>
+
+        <div class="box-section">
+        <h2>{% trans 'Resources' %}</h2>
+        {% if object|resource_access:user %}
+            
+            <ul>
+            {% for o in object.ctmapping_set.all %}
+                <li><a href="{{ o.get_absolute_url }}">{{ o.name }}</a></li>
+                
+            {% endfor %}
+            </ul>
+        {% else %}
+            {% if user.is_authenticated %}
+                <p>{% trans "Sorry, you don't have access to this group's resources" %}.</p>
+            {% else %}
+                <p><a href="{% site_base %}accounts/login/?next={{ REQ_FULL_PATH|nologout }}">{% trans 'Log in' %}</a> {% trans 'for access to tools' %}</p>
+            {% endif %}
+        {% endif %}
+            
+        </div>
+
+        <div class="box-section">
+        <h2>{% trans 'Group members' %}</h2>
+
+
+        {% if object|has_member:user %}
+            <p><a class="action" href="{% url leave-group object.id %}">{% trans 'Leave this group' %}.</a></p>
+        {% else %}
+            <p><a class="action" href="{% url join-group object.id %}">{% trans 'Join this group' %}.</a></p>
+        {% endif %}
+        {% if object.groupmembership_set.all %}
+         {% regroup object.groupmembership_set.all|dictsort:"member_type" by member_type as grouped %}
+            <ul>
+            {% for group in grouped %}
+              <li>{% trans group.grouper %}
+              <div >
+                <ul class="menu-list">
+                    {% for item in group.list|dictsort:"user_last_name" %}
+                        <li {% ifequal user item.user %}class="current-item"{% endifequal %}>{{ item.user.get_full_name }}</li>
+                    {% endfor %}
+                </ul>
+              </div>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>- {% trans 'None yet' %} -</p>
+        {% endif %}
+        </div>
+    </div>
+
+    <div class="column span-15 last">
+        <div class="main last">
+            <h1>{{ object.name }}</h1>
+
+            {{ object.note|textile }}
+
+            <br>
+            <div class="entry-descr">
+                {% tags_for_object object as tag_list %}                          
+                <ul>
+                    {% if tag_list %}
+                        <li class="entry-tags">
+                        <ul class="tags">
+                            {% for tag in tag_list %}
+                                <li><a href="{% url tag tag.name %}">{{ tag.name }}</a></li>
+                            {% endfor %}
+                        </ul>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+        <div class="column span-15 last">
+            <hr>
+            <div class="column span-10">
+                <h2>{% trans 'Recent discussion posts' %}</h2>
+              
+                {% if object|blog_access:user %}
+
+                  {% get_latest_group_posts 5 for object as latest_post_list %}
+
+                  {{ object|blog_new_post:user }}
+              
+                  {% if latest_post_list %}
+
+                      {% for post in latest_post_list %}
+
+                      <div class="entry">
+                          <h3><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h3>
+                          <div class="entry-descr">
+                              {% get_comment_count for post as comment_count %}
+                              <ul>
+                                  <li class="entry-author">{{ post.author.get_full_name }}</li>
+                                  <li class="entry-date">{{ post.publish|date:"j M Y" }}</li>
+                                  <li class="entry-comments"><a href="{{ post.get_absolute_url }}#comments">{%blocktrans count comment_count as counter%}{{ counter }} comment{%plural%}{{ counter }} comments{%endblocktrans%}</a></li>
+                              </ul>
+                                  {% if post.ctpost.ct_group %}
+                                  <p>{% trans 'in' %} <a href="{% url group post.ctpost.ct_group.slug %}">{{ post.ctpost.ct_group.name }}</a></p>
+                                  {% endif %}
+                          </div>
+                      
+                          {{ post.summary|truncatewords:50|textile }}   
+                               
+                          <div class="entry-descr">
+                              {% tags_for_object post as tag_list %}                          
+                              <ul>
+                                  <li class="entry-more"><a href="{{ post.get_absolute_url }}">{% trans 'Read more' %}...</a></li>
+                                  {% if tag_list %}
+                                      <li class="entry-tags">
+                                          <ul class="tags">
+                                              {% for tag in tag_list %}
+                                                  <li><a href="{% url tag tag.name %}">{{ tag.name }}</a></li>
+                                              {% endfor %}
+                                          </ul>
+                                      </li>
+                                  {% endif %}
+                              </ul>
+                          </div>
+                      </div>      
+                    {% endfor %}
+                  {% else %}
+                    <p>- none yet -</p>
+                  {% endif %}
+                {% else %}
+                    <p>{% trans "Sorry, you don't have access to this group's posts" %}.</p>
+                {% endif %}
+            
+            </div>
+        
+            <div class="column span-5 last">
+                <h2>{% trans 'Recent comments' %}</h2>
+                {% if object|comment_access:user %}
+
+                    {% get_latest_group_comments 6 for object as latest_comment_list %}
+            
+                    {% for comment in latest_comment_list %}
+                        <div class="entry-descr">
+                        <p><strong>{{ comment.user.get_full_name }}</strong>:
+                            <a href="{{ comment.content_object.get_absolute_url }}#comments">
+                            {{comment.comment|truncatewords:7}}</a></p>
+                            <p>in "{{ comment.content_object.title }}"</p>
+                        </div>
+                
+                    {% empty %}
+                        <p>- {% trans 'No comments yet' %} -</p>
+                    {% endfor %}
+                {% else %}
+                    <p>{% trans "Sorry, you don't have access to this group's comments" %}.</p>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

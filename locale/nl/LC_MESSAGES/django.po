@@ -1,0 +1,384 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-04-05 20:29+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: forms.py:13
+msgid "Title"
+msgstr "Titel"
+
+#: models.py:21
+msgid "slug"
+msgstr "slug"
+
+#: models.py:151
+msgid "No updates"
+msgstr ""
+
+#: models.py:151
+msgid "Single emails"
+msgstr ""
+
+#: models.py:151
+msgid "Daily digest"
+msgstr ""
+
+#: models.py:169
+#, fuzzy
+msgid "email discussion alerts"
+msgstr "Recente bijdragen aan de discussie"
+
+#: models.py:170
+#, fuzzy
+msgid "email tool comments"
+msgstr "Er zijn geen commentaren"
+
+#: models.py:179
+msgid "Editors"
+msgstr "Editors"
+
+#: models.py:179
+msgid "Managers"
+msgstr "Managers"
+
+#: models.py:179
+msgid "Members"
+msgstr "Leden"
+
+#: models.py:179
+msgid "Not currently active"
+msgstr ""
+
+#: registration_backends.py:25
+msgid "Username"
+msgstr "Gebruikersnaam"
+
+#: registration_backends.py:26
+msgid "This value must contain only letters, numbers and underscores."
+msgstr ""
+"Deze waarde mag alleen letters, getallen en onderstrepen (underscore) "
+"bevatten"
+
+#: registration_backends.py:29
+msgid "Email address"
+msgstr "E-mail adres"
+
+#: registration_backends.py:31
+#, fuzzy
+msgid "first name"
+msgstr "Voornaam"
+
+#: registration_backends.py:32
+#, fuzzy
+msgid "last name"
+msgstr "Achternaam"
+
+#: registration_backends.py:62
+msgid "'username' should be one word, with no spaces or punctuation."
+msgstr ""
+"De gebruikersnaam mag slechts uit een woord bestaan zonder spaties of punten."
+
+#: templates/blog/post_add.html:10
+msgid "Add a new post"
+msgstr "Verstuur een nieuw bericht"
+
+#: templates/blog/post_add.html:14
+msgid "Post content:"
+msgstr "Berichtinhoud:"
+
+#: templates/blog/post_add.html:23
+msgid "Submit"
+msgstr "Verzend"
+
+#: templates/blog/post_detail.html:33 templates/blog/post_list.html:28
+#: templates/ct_groups/ct_groups_detail.html:126
+#, python-format
+msgid "%(counter)s comment"
+msgid_plural "%(counter)s comments"
+msgstr[0] "%(counter)s commentaar"
+msgstr[1] "%(counter)s commentaren"
+
+#: templates/blog/post_detail.html:36 templates/blog/post_list.html:24
+#: templates/ct_groups/ct_groups_detail.html:129
+msgid "in"
+msgstr "in de"
+
+#: templates/blog/post_detail.html:67 templates/ct_groups/comments.html:4
+msgid "Comments"
+msgstr "Commentaren"
+
+#: templates/blog/post_detail.html:90
+msgid "Comments are closed"
+msgstr "Het is niet meer mogelijk nieuwe commentaren te verzenden"
+
+#: templates/blog/post_detail.html:91
+msgid "Comments have been close for this post"
+msgstr "Het is niet meer mogelijk commentaren te verzenden voor dit onderwerp"
+
+#: templates/blog/post_detail.html:95
+msgid "You might be able to comment on this post if you log in"
+msgstr "U kunt commentaar leveren op dit onderwerp als u inlogt"
+
+#: templates/blog/post_detail.html:99
+#: templates/ct_groups/ct_groups_detail.html:179
+msgid "Sorry, you don't have access to this group's comments"
+msgstr "Sorry, u hebt geen toegang tot de commentaren van deze groep"
+
+#: templates/ct_groups/comments.html:7
+#: templates/ct_groups/ct_groups_detail.html:6
+#: templates/ct_groups/ct_groups_edit.html:6
+#, fuzzy
+msgid "home"
+msgstr "Homepage"
+
+#: templates/ct_groups/comments.html:8
+#: templates/ct_groups/ct_groups_detail.html:7
+#: templates/ct_groups/ct_groups_edit.html:7
+#, fuzzy
+msgid "groups"
+msgstr "Groepen"
+
+#: templates/ct_groups/comments.html:14
+#, python-format
+msgid "Comments for %(name)s"
+msgstr "Commentaren voor %(name)s"
+
+#: templates/ct_groups/comments.html:19 templates/ct_groups/comments.html:21
+#: templates/ct_groups/comments.html:41 templates/ct_groups/comments.html:43
+#, fuzzy
+msgid "earlier"
+msgstr "Eerdere"
+
+#: templates/ct_groups/comments.html:23 templates/ct_groups/comments.html:45
+#, fuzzy
+msgid "comments"
+msgstr "Commentaren"
+
+#: templates/ct_groups/comments.html:25 templates/ct_groups/comments.html:26
+#: templates/ct_groups/comments.html:47 templates/ct_groups/comments.html:48
+#, fuzzy
+msgid "later"
+msgstr "Latere"
+
+#: templates/ct_groups/comments.html:68
+msgid "There are no comments"
+msgstr "Er zijn geen commentaren"
+
+#: templates/ct_groups/ct_groups_confirm_join.html:4
+msgid "Joined group"
+msgstr "Lid geworden van deze groep"
+
+#: templates/ct_groups/ct_groups_confirm_join.html:10
+#, python-format
+msgid "You have now joined the '%(name)s' group"
+msgstr "U bent nu lid van de groep '%(name)s' "
+
+#: templates/ct_groups/ct_groups_confirm_join.html:12
+#: templates/ct_groups/ct_groups_confirm_leave.html:12
+msgid "Continue"
+msgstr "Doorgaan"
+
+#: templates/ct_groups/ct_groups_confirm_join.html:12
+#, fuzzy
+msgid "you will see your name in the list of group members"
+msgstr "U ziet nu uw naam in de lijst van groepsleden"
+
+#: templates/ct_groups/ct_groups_confirm_leave.html:4
+msgid "Left group"
+msgstr "Geen lid meer van deze groep"
+
+#: templates/ct_groups/ct_groups_confirm_leave.html:10
+#, python-format
+msgid "You have now left the '%(name)s' group"
+msgstr "U bent geen lid meer van de groep '%(name)s' "
+
+#: templates/ct_groups/ct_groups_detail.html:17
+msgid "Group pages"
+msgstr "Groep pagina's"
+
+#: templates/ct_groups/ct_groups_detail.html:28
+#, fuzzy
+msgid "no pages"
+msgstr "Geen pagina's"
+
+#: templates/ct_groups/ct_groups_detail.html:34
+msgid "Resources"
+msgstr "Materialen"
+
+#: templates/ct_groups/ct_groups_detail.html:45
+msgid "Sorry, you don't have access to this group's resources"
+msgstr "Sorry, u heeft geen toegang tot de materialen van deze groep "
+
+#: templates/ct_groups/ct_groups_detail.html:47
+msgid "Log in"
+msgstr "Aanmelden"
+
+#: templates/ct_groups/ct_groups_detail.html:47
+msgid "for access to tools"
+msgstr "voor toegang tot hulpmiddelen"
+
+#: templates/ct_groups/ct_groups_detail.html:54
+msgid "Group members"
+msgstr "Groepsleden"
+
+#: templates/ct_groups/ct_groups_detail.html:58
+#: templates/ct_groups/ct_groups_edit.html:82
+msgid "Leave this group"
+msgstr "Beeindig deelname aan deze groep"
+
+#: templates/ct_groups/ct_groups_detail.html:60
+#: templates/ct_groups/ct_groups_edit.html:88
+msgid "Join this group"
+msgstr "Neem deel aan deze groep"
+
+#: templates/ct_groups/ct_groups_detail.html:77 templates/wiki/view.html:31
+msgid "None yet"
+msgstr "Nog geen"
+
+#: templates/ct_groups/ct_groups_detail.html:107
+msgid "Recent discussion posts"
+msgstr "Recente bijdragen aan de discussie"
+
+#: templates/ct_groups/ct_groups_detail.html:138
+msgid "Read more"
+msgstr "Lees meer"
+
+#: templates/ct_groups/ct_groups_detail.html:156
+msgid "Sorry, you don't have access to this group's posts"
+msgstr "Sorry, u heeft geen toegang tot de berichten van deze groep"
+
+#: templates/ct_groups/ct_groups_detail.html:162
+msgid "Recent comments"
+msgstr "Er zijn geen commentaren"
+
+#: templates/ct_groups/ct_groups_detail.html:176
+msgid "No comments yet"
+msgstr "Nog geen commentaren"
+
+#: templates/ct_groups/ct_groups_edit.html:4
+msgid "Edit settings"
+msgstr "Bewerk de instellingen"
+
+#: templates/ct_groups/ct_groups_edit.html:16
+#, python-format
+msgid "Settings for %(name)s"
+msgstr "Instellingen voor %(name)s"
+
+#: templates/ct_groups/ct_groups_edit.html:19
+msgid "Group settings"
+msgstr "Groepsinstellingen"
+
+#: templates/ct_groups/ct_groups_edit.html:33
+msgid "Remove"
+msgstr "Verwijder"
+
+#: templates/ct_groups/ct_groups_edit.html:37
+msgid "Make editor"
+msgstr "Maak editor"
+
+#: templates/ct_groups/ct_groups_edit.html:45
+msgid "No members yet"
+msgstr "Nog geen leden"
+
+#: templates/ct_groups/ct_groups_edit.html:49
+msgid "Group note"
+msgstr "Groep notitie"
+
+#: templates/ct_groups/ct_groups_edit.html:54
+msgid "Save note"
+msgstr "Sla notitie op"
+
+#: templates/ct_groups/ct_groups_edit.html:67
+msgid "Your preferences for this group"
+msgstr "Uw voorkeuren voor deze groep"
+
+#: templates/ct_groups/ct_groups_edit.html:76
+msgid "Save details"
+msgstr "Sla de details op"
+
+#: templates/ct_groups/ct_groups_edit.html:77
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: templates/ct_groups/ct_groups_edit.html:86
+msgid "You are not a member of this group"
+msgstr "U bent geen lid van deze groep"
+
+#: templates/ct_groups/ct_groups_edit.html:98
+msgid "You do not have access to this group"
+msgstr "U hebt geen toegang tot deze groep"
+
+#: templates/ct_groups/ct_groups_index.html:4 templates/wiki/view.html:11
+msgid "Groups"
+msgstr "Groepen"
+
+#: templates/ct_groups/ct_groups_index.html:12
+#, python-format
+msgid "%(name)s Groups"
+msgstr "Groep %(name)s"
+
+#: templates/ct_groups/ct_groups_index.html:17
+msgid "All Groups"
+msgstr "Alle groepen"
+
+#: templates/ct_groups/ct_groups_index.html:30
+msgid "No groups found"
+msgstr "Geen groepen gevonden"
+
+#: templates/wiki/edit.html:5
+msgid "Editing article"
+msgstr "Bewerk uw bijdrage"
+
+#: templates/wiki/edit.html:9
+msgid "Edit"
+msgstr "Bewerk"
+
+#: templates/wiki/edit.html:14
+msgid "Page content"
+msgstr "Inhoud van de pagina"
+
+#: templates/wiki/edit.html:23
+msgid "Save"
+msgstr "Opslaan"
+
+#: templates/wiki/index.html:4 templates/wiki/index.html.py:7
+msgid "Index"
+msgstr "Index"
+
+#: templates/wiki/view.html:10
+msgid "Home"
+msgstr "Homepage"
+
+#: templates/wiki/view.html:20
+msgid "Pages"
+msgstr "Pagina's"
+
+#: templatetags/ct_groups_tags.py:124
+msgid "New post"
+msgstr "Nieuw bericht  "
+
+#: templatetags/ct_groups_tags.py:138
+msgid "Edit this post"
+msgstr "Bewerk dit bericht"
+
+#: templatetags/ct_groups_tags.py:182
+msgid "New page"
+msgstr "Nieuwe pagina"
+
+#: templatetags/ct_groups_tags.py:190
+msgid "Edit this page"
+msgstr "Bewerk deze pagina"

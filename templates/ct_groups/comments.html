@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load i18n markup sitevars %}
+
+{% block title %}{{ group.name }}: {% trans 'Comments' %}{% endblock %}
+{% block section %}groups{% endblock %}
+{% block breadcrumbs %}
+  <a href="{% site_base %}">{% trans 'home' %}</a>  &gt;
+  <a href="{% site_base %}groups/">{% trans 'groups' %}</a>  &gt;
+  <a href="{% site_base %}groups/{{ group.id }}/">{{ group.name }}</a>
+{% endblock %}
+
+{% block content %}
+
+<h2>{% blocktrans with group.name as name %}Comments for {{ name }}{% endblocktrans %}</h2>
+
+{% if object_list %}
+    <ul class="subnav">
+    {% if has_previous %}                            
+      <li><a href="?page={{ previous }}"><< {% trans 'earlier' %}</a></li>
+    {% else %}
+    	<li><< {% trans 'earlier' %}</li>
+    {% endif %}
+    	<li>[ {% trans 'comments' %} {{ from }} - {{ to }} ]</li>
+    {% if has_next %}                            
+       <li> <a href="?page={{ next }}">{% trans 'later' %} >></a></li>
+    {% else %}<li> {% trans 'later' %} >></li>
+    {% endif %}
+		</ul>
+
+    <ul>
+    {% for object in object_list %}
+		<div class="ct_comments">
+				<div class="ct_comment_info">{{ object.person_name|escape }} - {{ object.submit_date|date:"j F Y, H:i" }}</div>
+				<div class="ct_comment">{{ object.comment|escape|textile }}</div>
+		</div>
+    {% endfor %}
+    </ul>
+
+    <ul class="subnav">
+    {% if has_previous %}                            
+      <li><a href="?page={{ previous }}"><< {% trans 'earlier' %}</a></li>
+    {% else %}
+    	<li><< {% trans 'earlier' %}</li>
+    {% endif %}
+    	<li>[ {% trans 'comments' %} {{ from }} - {{ to }} ]</li>
+    {% if has_next %}                            
+       <li> <a href="?page={{ next }}">{% trans 'later' %} >></a></li>
+    {% else %}<li> {% trans 'later' %} >></li>
+    {% endif %}
+		</ul>
+
+	{% comment %}    
+	is_paginated: {{ is_paginated }}<br/>
+	results_per_page: {{ results_per_page }}<br/>
+	has_next: {{ has_next }}<br/>
+	has_previous: {{ has_previous }}<br/>
+	page: {{ page }}<br/>
+	next: {{ next }}<br/>
+	previous: {{ previous }}<br/>
+	pages: {{ pages }}<br/>
+	hits: {{ hits }}<br/>
+	from: {{ from }}<br/>
+	to: {{ to }} <br/>
+	{% endcomment %}    
+
+
+{% else %}
+    <p>{% trans 'There are no comments' %}.</p>
+{% endif %}
+
+
+{% endblock %}

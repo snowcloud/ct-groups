@@ -1,0 +1,27 @@
+{% extends 'wiki/base.html' %}
+{% load i18n forms %}
+
+{% block title %}
+    {% trans "Editing article" %}
+{% endblock %}
+
+{% block content %}
+	<h1>{% trans "Edit" %}</h1>
+
+	<form action="" method="post">{% csrf_token %}
+
+         <fieldset>
+            <legend><span>{% trans "Page content" %}</span></legend>
+            <ol>
+                 {% show_errors form.non_field_errors %}
+                 {% for field in form %}
+                      {% show_field field "li" %}
+                 {% endfor %}
+            </ol>
+         </fieldset>
+         <fieldset class="submit">
+            <input type="submit" name="result" value="{% trans "Save" %}">
+        </fieldset>
+
+	</form>
+{% endblock %}

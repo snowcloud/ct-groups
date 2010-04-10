@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% load i18n blog inlines markup comments forms tagging_tags sitevars ct_groups_tags %}
+
+
+{% block title %}{{ object.title }}{% endblock %}
+{% block body_id %}post_detail_page{% endblock %}
+
+
+{% block content %}
+
+{% comment %}
+    
+  <p class="other_posts">
+    {% if object.get_previous_by_publish %}
+    <a class="previous" href="{{ object.get_previous_post.get_absolute_url }}">&laquo; {{ object.get_previous_post }}</a>
+    {% endif %}
+    {% if object.get_next_by_publish %}
+    | <a class="next" href="{{ object.get_next_post.get_absolute_url }}">{{ object.get_next_post }} &raquo;</a> 
+    {% endif %}
+  </p>
+
+{{ object|get_previous_post }}  
+
+{% endcomment %}
+
+<div class="entry">
+    <h2>{{ object.title }}</h2>
+    <div class="entry-descr">
+        {% get_comment_count for object.ctpost as comment_count %}
+        <ul>
+            <li class="entry-author">{{ object.ctpost.author.get_full_name }}</li>
+            <li class="entry-date">{{ object.ctpost.publish|date:"j M Y" }}</li>
+            <li class="entry-comments"><a href="{{ object.ctpost.get_absolute_url }}#comments">{%blocktrans count comment_count as counter%}{{ counter }} comment{%plural%}{{ counter }} comments{%endblocktrans%}</a></li>
+        </ul>
+            {% if object.ctpost.ct_group %}
+            <p>{% trans 'in' %} <a href="{% url group object.ctpost.ct_group.slug %}">{{ object.ctpost.ct_group.name }}</a></p>
+            {% endif %}
+    </div>
+    
+    {{ object.tease|textile }}            
+    {{ object.body|render_inlines|textile }}      
+             
+    <div class="entry-descr">
+        {% tags_for_object object.ctpost as tag_list %}
+        {% if tag_list %}
+            <ul>
+                <li class="entry-tags">
+                    <ul class="tags">
+                        {% for tag in tag_list %}
+                            <li><a href="{% url tag tag.name %}">{{ tag.name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            </ul>
+        {% endif %}
+    </div>
+</div>      
+
+
+  {{ object.ctpost|blog_edit:user }}
+
+{% if object.ctpost.ct_group|comment_access:user %}
+
+    {% get_comment_list for object.ctpost as comment_list %}
+    {% if comment_list %}
+      <div id="comments">
+        <h3 class="comments_title">{% trans 'Comments' %}</h3>
+        {% for comment in comment_list reversed %}
+          {% if comment.is_public %}
+          <div class="commententry {% cycle 'row1' 'row2' %}">
+            <h5 class="name">
+              {% if comment.user_url %}<a href="{{ comment.user_url }}">{{ comment.user_name }}</a>{% else %}{{ comment.user_name }}{% endif %} -
+              {{ comment.submit_date|date:"j F Y, H:i" }}
+            </h5>
+            {{ comment.comment|urlizetrunc:"60"|textile }}
+          </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    {% endif %}
+  
+    {% if object.ctpost.ct_group|can_comment:user %}
+  
+        {% if object.allow_comments %}
+    
+        {% render_comment_form for object.ctpost %}
+ 
+        {% else %}
+        <div id="comment_form">
+          <h3>{% trans 'Comments are closed' %}.</h3>
+          <p>{% trans 'Comments have been close for this post' %}.</p>
+        </div>
+        {% endif %}
+    {% else %}
+		<p>{% trans 'You might be able to comment on this post if you log in' %}.</p>
+
+    {% endif %}
+{% else %}
+    <p>{% trans "Sorry, you don't have access to this group's comments" %}.</p>
+{% endif %}
+
+
+{% endblock %}

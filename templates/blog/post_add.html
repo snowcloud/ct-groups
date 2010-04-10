@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load i18n markup sitevars comments forms %}
+
+{% block title %}new blog post{% endblock %}
+{% block breadcrumbs %}<a href="/blogs/{{ blog.slug }}">{{ blog.name }}</a> > new post {% endblock %}
+
+{% block content %}
+
+
+    <h1>{% trans 'Add a new post' %}</h1>
+
+    <form action="." method="POST">{% csrf_token %}
+        <fieldset>
+            <legend><span>{% trans 'Post content:' %}</span></legend>
+            <ol>
+                 {% show_errors form.non_field_errors %}
+                 {% for field in form %}
+                      {% show_field field "li" %}
+                 {% endfor %}
+            </ol>
+        </fieldset>
+         <fieldset class="submit">
+            <input type="submit" name="result" value="{% trans 'Submit' %}">
+        </fieldset>
+    </form>
+
+
+{% endblock %}
+

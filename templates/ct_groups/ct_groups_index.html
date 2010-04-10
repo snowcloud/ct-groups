@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load i18n markup sitevars utils ct_groups_tags %}
+
+{% block title %}{% trans 'Groups' %}{% endblock %}
+{% block section %}groups{% endblock %}
+
+{% block content %}
+
+
+{% if select %}
+
+<h2>{% blocktrans with select|title as name %}{{ name }} Groups{% endblocktrans %}</h2>
+
+{{ "/groups/%s/"|flatpage:select|textile }}
+
+{% else %}
+<h2>{% trans 'All Groups' %}</h2>
+{% endif %}
+
+
+{% if object_list %}
+  <ul>
+    {% for o in object_list %}
+        {% if o|group_access:user or o.is_public  %}
+            <li><a href="{% url group o.slug %}">{{ o.name }}</a></li>
+        {% endif %}
+    {% endfor %}
+  </ul>
+{% else %}
+    <p>{% trans 'No groups found' %}.</p>
+{% endif %}
+
+{% endblock %}

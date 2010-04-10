@@ -1,0 +1,50 @@
+{% extends "wiki/base.html" %}
+{% load markup tagging_tags ct_groups_tags comments %}
+{% load i18n wiki %}
+
+{% block title %}
+    {{ article.title }}
+{% endblock %}
+
+{% block breadcrumbs %}
+  <a href="/">{% trans 'Home' %}</a>  &gt;
+  <a href="/groups">{% trans 'Groups' %}</a>
+{% endblock %}
+
+{% block content-class %}span-22{% endblock %}
+
+{% block content %}
+
+<p>&gt; <a href="{{ article.group.get_absolute_url }}">{{ article.group.name }}</a>
+    <div class="column span-6 box-section">
+        <h2>{% trans 'Pages' %}</h2>
+    
+        {% wiki_pages for article as pages %}
+        {% if pages %}
+        <div class="menu-list">
+            <ul>
+            {% for page in pages %}
+                <li{% ifequal page article  %} class="current-item"{% endifequal %}><a href="{{ page.get_absolute_url }}">{{ page.summary }}</a></li>
+            {% endfor %}
+            </ul>
+            {% else %}
+                <p>- {% trans 'None yet' %} -</p>
+            {% endif %}
+        </div>
+        {{ article.group|wiki_new_page:user }}
+        
+    </div>
+
+    <div class="column span-14 box-section  last">
+        <h1>{{ article.summary }}</h1>
+
+        {% render_content article %}
+
+        <p>&nbsp;</p>
+        {{ article|wiki_edit:user }}
+        
+
+    </div>
+
+{% endblock %}
+
