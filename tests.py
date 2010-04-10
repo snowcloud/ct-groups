@@ -2,7 +2,8 @@ from django.core import mail
 from django.template.defaultfilters import slugify
 from django.test import TestCase
 from django.contrib.auth.models import User
-from ct_groups.models import CTGroup, GroupMembership, CTPost
+from ct_groups.models import CTGroup, GroupMembership, CTPost, \
+	PERM_CHOICE_EDITOR, PERM_CHOICE_GROUP_MEMBER
 import datetime
 
 class CTGroupTest(TestCase):
@@ -29,15 +30,31 @@ class CTGroupTest(TestCase):
 			)
 		return user
 	
-	def _make_membership(self, user, group, is_active=True):
+	def _make_membership(self, user, group, is_active=True, is_editor=False, post_updates='single'):
 		"""docstring for _make_membership"""
 		member = GroupMembership(user=user, group=group)
 		member.is_active = is_active
+		member.is_editor = is_editor
+		member.post_updates = post_updates
 		member.save()
 		return member
 
 	def setUp(self):
-		group = self._make_group('group one')
+		group1 = self._make_group('test group one')
+		group2 = self._make_group('test group two')
+		group3 = self._make_group('test group three')
+		user = self._make_user('shuggie')
+		member = self._make_membership(user, group1, False)
+		user = self._make_user('francie')
+		member = self._make_membership(user, group2, False)
+		user = self._make_user('ella')
+		member = self._make_membership(user, group2, True, True)
+		member = self._make_membership(user, group3)
+		user = self._make_user('josie')
+		member = self._make_membership(user, group1, True, True, 'digest')
+		member = self._make_membership(user, group2, True, True, 'digest')
+		user = self._make_user('hubert')
+		member = self._make_membership(user, group2, True, False, 'digest')
 		
 	# def tearDown(self):
 	# 	pass
@@ -46,40 +63,96 @@ class CTGroupTest(TestCase):
 		"""
 		.
 		"""
-		# print mapping
-		group = self._make_group('group two')
 		count = CTGroup.objects.count()
-		self.failUnlessEqual(count, 2)
+		self.failUnlessEqual(count, 3)
+		group1 = CTGroup.objects.get(name='test group one')
+		# group.set_permission('blog', read=PERM_CHOICE_EDITOR)
+		user = self._make_user('bernie')
+		member = self._make_membership(user, group1)
+		post = CTPost(
+			ct_group=group1,
+			title = 'post one', 
+			slug = slugify('post one'),
+			author = user,
+			body = "some text's here...",
+			publish = datetime.datetime.now()
+	    )
+		post.save()
+		group2 = CTGroup.objects.get(name='test group two')
+		group2.set_permission('blog', read=PERM_CHOICE_EDITOR)
+		user = self._make_user('chic')
+		member = self._make_membership(user, group2)
+		post = CTPost(
+			ct_group=group2,
+			title = 'post one', 
+			slug = slugify('post one'),
+			author = user,
+			body = "some text's here...",
+			publish = datetime.datetime.now()
+	    )
+		post.save()
+		post.save() # checks not emailed twice
+		post = CTPost(
+			ct_group=group2,
+			title = 'post two', 
+			slug = slugify('post two'),
+			author = user,
+			body = "some text here for this's draft post...",
+			publish = datetime.datetime.now(),
+			status = 1
+	    )
+		post.save()
+		self.assertEquals(len(mail.outbox), 2)
+		post.status = 2
+		post.save()
+		self.assertEquals(len(mail.outbox), 3)
+		self.assertEquals(mail.outbox[0].subject, '[example.com] test group one update')
+		self.assertEquals(len(mail.outbox[0].bcc), 1)
 
-		user = self._make_user('francie')
-		member = self._make_membership(user, group, False)
-		user = self._make_user('josie')
-		member = self._make_membership(user, group)
+		mail.outbox = []
+		for group in CTGroup.objects.all():
+			group.email_digests()
+		self.assertEquals(len(mail.outbox), 2)
+		print mail.outbox[0].bcc
+		print mail.outbox[1].bcc
+
+
+	def test_digest(self):
+		"""
+		.
+		"""
+		group = CTGroup.objects.get(name='test group two')
+		group3 = CTGroup.objects.get(name='test group three')
+		group.set_permission('blog', read=PERM_CHOICE_GROUP_MEMBER)
 		user = self._make_user('chic')
 		member = self._make_membership(user, group)
 		post = CTPost(
 			ct_group=group,
-			title = 'post one', 
+			title = 'digest post one', 
 			slug = slugify('post one'),
 			author = user,
-			body = 'some text here...',
+			body = "some text's here for post 1...",
 			publish = datetime.datetime.now()
 	    )
 		post.save()
-		self.assertEquals(len(mail.outbox), 1)
-		self.assertEquals(mail.outbox[0].subject, '[example.com] group two update')
-		print mail.outbox[0].bcc
-		print mail.outbox[0].body
+		post = CTPost(
+			ct_group=group,
+			title = 'digest post two', 
+			slug = slugify('post two'),
+			author = user,
+			body = "some text's here for post 2...",
+			publish = datetime.datetime.now()
+	    )
+		post.save()
+		self.assertEquals(len(mail.outbox), 2)
+		self.assertEquals(mail.outbox[0].subject, '[example.com] test group two update')
+		self.assertEquals(len(mail.outbox[0].bcc), 2)
 
-	def test_group2(self):
-		"""
-		.
-		"""
-		print
-		group = self._make_group('group threeeeee')
-		print group.name
-		count = CTGroup.objects.count()
-		self.failUnlessEqual(count, 2)
+		mail.outbox = []
+		for group in CTGroup.objects.all():
+			group.email_digests()
+		self.assertEquals(len(mail.outbox), 1)
+		print mail.outbox[0].bcc
 		
 	# def test_get_mapitem(self):
 	#	  """
