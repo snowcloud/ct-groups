@@ -157,3 +157,9 @@ def group_detail(request, group_slug):
     group = get_object_or_404(CTGroup, slug=group_slug)
     return render_to_response('ct_groups/ct_groups_detail.html',
         RequestContext( request, {'object': group,  }))
+
+def email_digests(request):
+	"""docstring for email_digests"""
+	for group in CTGroup.objects.all():
+		group.email_digests()
+	return HttpResponse('OK')

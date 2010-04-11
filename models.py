@@ -4,6 +4,7 @@
 from django.contrib.auth.models import User
 from django.contrib.comments.models import Comment
 from django.contrib.sites.models import Site
+from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import Manager, signals, get_model
@@ -14,6 +15,8 @@ from django.utils.translation import ugettext_lazy as _
 from tagging.fields import TagField
 import tagging
 import datetime
+import string
+import os
 
 
 class CTGroup(models.Model):
@@ -22,6 +25,8 @@ class CTGroup(models.Model):
 	note = models.TextField(blank=True)
 	tags = TagField()
 	is_public = models.BooleanField(default=True)
+	# moderate_membership = models.BooleanField(default=False)
+	# show_join_link = models.BooleanField(default=True)
 	members = models.ManyToManyField(User, through='GroupMembership')
 	logo = models.ImageField(upload_to="groups", null=True, blank=True, help_text="60 H x 400 W (max)")
 	
@@ -60,13 +65,23 @@ class CTGroup(models.Model):
 					group = self
 					)
 				new_p.save()
-				
-			# print name, p
-		# print perms
-		# if not self.class_code:
-		#	  self.class_code = self.id
-		#	  super(SMGClass, self).save(*args, **kwargs)
-		
+						
+	def get_permission(self, perm_type):
+		"""docstring for get_permission"""
+		try:
+			perm = CTGroupPermission.objects.get(group=self, name=perm_type)
+			return perm
+		except CTGroupPermission.DoesNotExist:
+			return None
+
+	def set_permission(self, perm_type, read=None, write=None):
+		"""docstring for set_permission"""
+		perm, created = CTGroupPermission.objects.get_or_create(group=self, name=perm_type)
+		if read:
+			perm.read_permission = read
+		if write:
+			perm.write_permission = write
+		perm.save()
 	
 	def save(self, *args, **kwargs):
 		super(CTGroup, self).save(*args, **kwargs)
@@ -89,6 +104,77 @@ class CTGroup(models.Model):
 			return False
 		else:
 			return u.is_manager
+
+	def email_digests(self):
+		"""docstring for email_digests"""
+		# leave here - recursive load problem
+		from ct_groups.decorators import check_permission
+		
+		fname = '%s/email-digest-%s.txt' % (settings.TMP_PATH, self.slug)
+		if os.path.exists(fname):
+			digest_file = open(fname, 'r')
+		
+			# add file contents to body
+			body = ''.join(digest_file.readlines())
+			# print body
+			# print ''.join(body)
+		
+			digest_file.close()
+			os.remove(fname)
+		
+			# now get comments from last 24 hours
+			# add to body
+		
+			# IF GOING TO USE PERMISSIONS TO SEND POST COMMENTS, 
+			# NEED SEP DIGESTS FOR POST COMMENTS, TOOL COMMENTS
+		
+			# get members with digest option
+			# make email
+			# send email
+			members = self.groupmembership_set.all()
+			rec_list = list(member.user.email for member in members if (getattr(member, 'post_updates') == 'digest') and 
+				member.is_active and 
+				check_permission(member.user, self, 'blog', 'r'))
+			if rec_list:
+				email = EmailMessage(
+					#subject, body, from_email, to, bcc, connection)
+					'[%s] %s updates (daily digest)' % (Site.objects.get_current().name, self.name), 
+					body, 
+					'do not reply <%s>' % settings.DEFAULT_FROM_EMAIL,
+					[settings.DEFAULT_FROM_EMAIL],
+					rec_list )
+				email.send()
+		
+		
+		
+		
+		###############################################################
+		
+		# print self.name
+		# make datetimes for midnight, mn - 24 hours
+		# exclude lte prev mn, gt mn
+		# or should be all not notified but published ???
+		
+		# NOTIFY DOESN'T WORK COS SET BY SINGLE EMAIL
+		
+		# posts = [post.notified for post in self.ctpost_set.published().filter(ct_group=self)]
+		# print posts
+		# today = datetime.datetime.now()
+		# day_start = datetime.datetime(today.year, today.month, today.day)
+		# day_end = day_start - datetime.timedelta(days=1)
+		# print today, day_start, day_end
+		
+		# datetime.year
+		# Between MINYEAR and MAXYEAR inclusive.
+		# datetime.month
+		# Between 1 and 12 inclusive.
+		# datetime.day
+		# Between 1 and the number of days in the given month of the given year.
+		# datetime.hour
+		# In range(24).
+		# datetime.minute
+		# In range(60).
+		# datetime.second
 
 # this is buggy- corrupting fields in admin
 # tagging.register(CTGroup)
@@ -146,8 +232,6 @@ class CTGroupPermission(models.Model):
 			return level >= int(self.read_permission)
 		return False
 
-# def POST_UPDATE_CHOICES():
-# 	return (('none', _('no updates')), ('single', _('single emails')), ('digest', _('daily digest')))
 POST_UPDATE_CHOICES= (('none', _('No updates')), ('single', _('Single emails')), ('digest', _('Daily digest')))
 TOOL_UPDATE_CHOICES = POST_UPDATE_CHOICES
 POST_UPDATE_CHOICES_DEFAULT = TOOL_UPDATE_CHOICES_DEFAULT = 'single'
@@ -219,6 +303,7 @@ class PublicManager(Manager):
 
 class CTPost(Post):
 	ct_group = models.ForeignKey(CTGroup, blank=True, null=True)
+	notified = models.BooleanField(default=False)
 	objects = PublicManager()
 	
 	class Admin:
@@ -233,8 +318,8 @@ class CTPost(Post):
 	
 def email_post(sender, instance, **kwargs):
 	"""docstring for email_post"""
-	if kwargs.get('created', False):
-		if instance.publish and instance.publish <= datetime.datetime.now():
+	if not instance.notified:
+		if instance.status > 1 and instance.publish and instance.publish <= datetime.datetime.now():
 			group = instance.ct_group
 			if group:
 				content = render_to_string('ct_groups/email_post_comment_content.txt', {
@@ -245,10 +330,13 @@ def email_post(sender, instance, **kwargs):
 					'comment': instance.summary,
 					'url': '%s%s' % ( settings.APP_BASE[:-1], instance.get_absolute_url())
 				})			  
-				_email_notify(group, content, 'notify_post_updates')
+				email = _email_notify(group, content, 'post_updates', 'blog')
+				add_to_digest(group, email)
+				
+			instance.notified = True
+			instance.save()
 		
 def email_comment(sender, instance, **kwargs):
-	import string
 	# TODO: need a more generic mechanism
 	# either do with django-notification (needs notices set up for each group member)
 	# or do something where object can be queried for notifiable content
@@ -268,7 +356,8 @@ def email_comment(sender, instance, **kwargs):
 						'comment': instance.comment,
 						'url': '%s%s#comments' % ( settings.APP_BASE[:-1], post.get_absolute_url()) 
 					})			  
-					_email_notify(group, content, 'notify_post_updates')
+					email = _email_notify(group, content, 'post_updates', 'comment')
+					add_to_digest(group, email)
 		elif (instance.content_type.model == 'mapitem'):
 			mapitem = instance.content_object
 			if mapitem:
@@ -282,16 +371,19 @@ def email_comment(sender, instance, **kwargs):
 						'comment': instance.comment,
 						'url': '%s%s#comments' % ( settings.APP_BASE[:-1], mapitem.get_absolute_url()) 
 					})			  
-					_email_notify(group, content, 'notify_tool_updates')
+					email = _email_notify(group, content, 'tool_updates', 'resource')
+					add_to_digest(group, email)
+					
 
-def _email_notify(group, content, update_func):
-	import string
-	import datetime
-	from django.core.mail import EmailMessage
-
+def _email_notify(group, content, update_func, perm):
+	# leave here - recursive load problem
+	from ct_groups.decorators import check_permission
+	
 	members = group.groupmembership_set.all()
-	add_list = list(member.user.email for member in members if getattr(member, update_func) and member.is_active)
-	# print add_list
+	add_list = list(member.user.email for member in members if (getattr(member, update_func) == 'single') and 
+		member.is_active and 
+		check_permission(member.user, group, perm, 'r'))
+	
 	if len(add_list) == 0:
 		return
 	site = Site.objects.get_current().name
@@ -304,10 +396,28 @@ def _email_notify(group, content, update_func):
 		#subject, body, from_email, to, bcc, connection)
 		'[%s] %s update' % (site, group.name), 
 		body, 
-		'do not reply <do_not_reply@clintemplate.org>',
-		['do_not_reply@clintemplate.org'],
+		'do not reply <%s>' % settings.DEFAULT_FROM_EMAIL,
+		[settings.DEFAULT_FROM_EMAIL],
 		add_list )
 	email.send()
+	# add_to_digest(group, email)
+	return email
+
+def	add_to_digest(group, email):
+	"""
+	docstring for 	add_to_digest(group, email)
+	"""
+	# print group.name
+	# print email.subject
+	# print email.body
+	sep = '***********************************************************\n'
+	path = settings.TMP_PATH
+	outfile = open('%s/email-digest-%s.txt' % (path, group.slug), 'a')
+	outfile.write(email.subject + '\n')
+	outfile.write(email.body)
+	outfile.write(sep)
+	outfile.close()
+	
 
 signals.post_save.connect(email_comment, sender=Comment)
 signals.post_save.connect(email_post, sender=CTPost)
