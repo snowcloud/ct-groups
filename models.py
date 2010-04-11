@@ -108,43 +108,46 @@ class CTGroup(models.Model):
 	def email_digests(self):
 		"""docstring for email_digests"""
 		# leave here - recursive load problem
-		from ct_groups.decorators import check_permission
 		
-		fname = '%s/email-digest-%s.txt' % (settings.TMP_PATH, self.slug)
-		if os.path.exists(fname):
-			digest_file = open(fname, 'r')
+		pass
 		
-			# add file contents to body
-			body = ''.join(digest_file.readlines())
-			# print body
-			# print ''.join(body)
-		
-			digest_file.close()
-			os.remove(fname)
-		
-			# now get comments from last 24 hours
-			# add to body
-		
-			# IF GOING TO USE PERMISSIONS TO SEND POST COMMENTS, 
-			# NEED SEP DIGESTS FOR POST COMMENTS, TOOL COMMENTS
-		
-			# get members with digest option
-			# make email
-			# send email
-			members = self.groupmembership_set.all()
-			rec_list = list(member.user.email for member in members if (getattr(member, 'post_updates') == 'digest') and 
-				member.is_active and 
-				check_permission(member.user, self, 'blog', 'r'))
-			if rec_list:
-				email = EmailMessage(
-					#subject, body, from_email, to, bcc, connection)
-					'[%s] %s updates (daily digest)' % (Site.objects.get_current().name, self.name), 
-					body, 
-					'do not reply <%s>' % settings.DEFAULT_FROM_EMAIL,
-					[settings.DEFAULT_FROM_EMAIL],
-					rec_list )
-				email.send()
-		
+		# from ct_groups.decorators import check_permission
+		# 
+		# fname = '%s/email-digest-%s.txt' % (settings.TMP_PATH, self.slug)
+		# if os.path.exists(fname):
+		# 	digest_file = open(fname, 'r')
+		# 
+		# 	# add file contents to body
+		# 	body = ''.join(digest_file.readlines())
+		# 	# print body
+		# 	# print ''.join(body)
+		# 
+		# 	digest_file.close()
+		# 	os.remove(fname)
+		# 
+		# 	# now get comments from last 24 hours
+		# 	# add to body
+		# 
+		# 	# IF GOING TO USE PERMISSIONS TO SEND POST COMMENTS, 
+		# 	# NEED SEP DIGESTS FOR POST COMMENTS, TOOL COMMENTS
+		# 
+		# 	# get members with digest option
+		# 	# make email
+		# 	# send email
+		# 	members = self.groupmembership_set.all()
+		# 	rec_list = list(member.user.email for member in members if (getattr(member, 'post_updates') == 'digest') and 
+		# 		member.is_active and 
+		# 		check_permission(member.user, self, 'blog', 'r'))
+		# 	if rec_list:
+		# 		email = EmailMessage(
+		# 			#subject, body, from_email, to, bcc, connection)
+		# 			'[%s] %s updates (daily digest)' % (Site.objects.get_current().name, self.name), 
+		# 			body, 
+		# 			'do not reply <%s>' % settings.DEFAULT_FROM_EMAIL,
+		# 			[settings.DEFAULT_FROM_EMAIL],
+		# 			rec_list )
+		# 		email.send()
+		# 
 		
 		
 		
@@ -331,7 +334,7 @@ def email_post(sender, instance, **kwargs):
 					'url': '%s%s' % ( settings.APP_BASE[:-1], instance.get_absolute_url())
 				})			  
 				email = _email_notify(group, content, 'post_updates', 'blog')
-				add_to_digest(group, email)
+				# add_to_digest(group, email)
 				
 			instance.notified = True
 			instance.save()
@@ -357,7 +360,7 @@ def email_comment(sender, instance, **kwargs):
 						'url': '%s%s#comments' % ( settings.APP_BASE[:-1], post.get_absolute_url()) 
 					})			  
 					email = _email_notify(group, content, 'post_updates', 'comment')
-					add_to_digest(group, email)
+					# add_to_digest(group, email)
 		elif (instance.content_type.model == 'mapitem'):
 			mapitem = instance.content_object
 			if mapitem:
@@ -372,7 +375,7 @@ def email_comment(sender, instance, **kwargs):
 						'url': '%s%s#comments' % ( settings.APP_BASE[:-1], mapitem.get_absolute_url()) 
 					})			  
 					email = _email_notify(group, content, 'tool_updates', 'resource')
-					add_to_digest(group, email)
+					# add_to_digest(group, email)
 					
 
 def _email_notify(group, content, update_func, perm):
@@ -380,7 +383,7 @@ def _email_notify(group, content, update_func, perm):
 	from ct_groups.decorators import check_permission
 	
 	members = group.groupmembership_set.all()
-	add_list = list(member.user.email for member in members if (getattr(member, update_func) == 'single') and 
+	add_list = list(member.user.email for member in members if (getattr(member, update_func) != 'none') and 
 		member.is_active and 
 		check_permission(member.user, group, perm, 'r'))
 	
@@ -400,7 +403,6 @@ def _email_notify(group, content, update_func, perm):
 		[settings.DEFAULT_FROM_EMAIL],
 		add_list )
 	email.send()
-	# add_to_digest(group, email)
 	return email
 
 def	add_to_digest(group, email):
@@ -410,13 +412,16 @@ def	add_to_digest(group, email):
 	# print group.name
 	# print email.subject
 	# print email.body
-	sep = '***********************************************************\n'
-	path = settings.TMP_PATH
-	outfile = open('%s/email-digest-%s.txt' % (path, group.slug), 'a')
-	outfile.write(email.subject + '\n')
-	outfile.write(email.body)
-	outfile.write(sep)
-	outfile.close()
+	
+	pass
+	
+	# sep = '***********************************************************\n'
+	# path = settings.TMP_PATH
+	# outfile = open('%s/email-digest-%s.txt' % (path, group.slug), 'a')
+	# outfile.write(email.subject + '\n')
+	# outfile.write(email.body)
+	# outfile.write(sep)
+	# outfile.close()
 	
 
 signals.post_save.connect(email_comment, sender=Comment)
