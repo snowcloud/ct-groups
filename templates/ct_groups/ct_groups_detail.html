@@ -57,7 +57,10 @@
         {% if object|has_member:user %}
             <p><a class="action" href="{% url leave-group object.id %}">{% trans 'Leave this group' %}.</a></p>
         {% else %}
-            <p><a class="action" href="{% url join-group object.id %}">{% trans 'Join this group' %}.</a></p>
+			{% if object.show_join_link %}
+	            <p><a class="action" href="{% url join-group object.id %}">{% trans 'Join this group' %}.</a></p>
+			{% endif %}
+
         {% endif %}
         {% if object.groupmembership_set.all %}
          {% regroup object.groupmembership_set.all|dictsort:"member_type" by member_type as grouped %}
