@@ -2,8 +2,10 @@ from django.core import mail
 from django.template.defaultfilters import slugify
 from django.test import TestCase
 from django.contrib.auth.models import User
-from ct_groups.models import CTGroup, GroupMembership, CTPost, \
-	PERM_CHOICE_EDITOR, PERM_CHOICE_GROUP_MEMBER
+from django.contrib.comments.models import Comment
+from django.contrib.sites.models import Site
+from ct_groups.models import CTGroup, GroupMembership, CTPost, CTEvent, \
+	PERM_CHOICE_EDITOR, PERM_CHOICE_GROUP_MEMBER, email_digests
 import datetime
 
 class CTGroupTest(TestCase):
@@ -53,6 +55,7 @@ class CTGroupTest(TestCase):
 		user = self._make_user('josie')
 		member = self._make_membership(user, group1, True, True, 'digest')
 		member = self._make_membership(user, group2, True, True, 'digest')
+		member = self._make_membership(user, group3, True, True, 'digest')
 		user = self._make_user('hubert')
 		member = self._make_membership(user, group2, True, False, 'digest')
 		
@@ -106,21 +109,26 @@ class CTGroupTest(TestCase):
 		post.status = 2
 		post.save()
 		self.assertEquals(len(mail.outbox), 3)
-		self.assertEquals(mail.outbox[0].subject, '[example.com] test group one update')
-		self.assertEquals(len(mail.outbox[0].bcc), 1)
+		# self.assertEquals(mail.outbox[0].subject, '[example.com] test group one update')
+		# self.assertEquals(len(mail.outbox[0].bcc), 1)
 
-		mail.outbox = []
-		for group in CTGroup.objects.all():
-			group.email_digests()
-		self.assertEquals(len(mail.outbox), 2)
-		print mail.outbox[0].bcc
-		print mail.outbox[1].bcc
+		# mail.outbox = []
+		# for group in CTGroup.objects.all():
+		# 	group.email_digests()
+		# self.assertEquals(len(mail.outbox), 2)
+		# print mail.outbox[0].bcc
+		# print mail.outbox[0].body
+		# print mail.outbox[1].bcc
+		count = CTEvent.objects.count()
+		self.failUnlessEqual(count, 3)
+		
 
 
 	def test_digest(self):
 		"""
 		.
 		"""
+		site = Site.objects.get_current()
 		group = CTGroup.objects.get(name='test group two')
 		group3 = CTGroup.objects.get(name='test group three')
 		group.set_permission('blog', read=PERM_CHOICE_GROUP_MEMBER)
@@ -135,6 +143,14 @@ class CTGroupTest(TestCase):
 			publish = datetime.datetime.now()
 	    )
 		post.save()
+		c = Comment(
+			content_object=post,
+			site= site,
+			user = user,
+			comment = 'comment...',
+			submit_date= datetime.datetime.now()
+		)
+		c.save()
 		post = CTPost(
 			ct_group=group,
 			title = 'digest post two', 
@@ -144,15 +160,61 @@ class CTGroupTest(TestCase):
 			publish = datetime.datetime.now()
 	    )
 		post.save()
-		self.assertEquals(len(mail.outbox), 2)
+		post = CTPost(
+			ct_group=group3,
+			title = 'digest post one', 
+			slug = slugify('post one'),
+			author = user,
+			body = "some text's here for post 1...",
+			publish = datetime.datetime.now()
+	    )
+		post.save()
+		post = CTPost(
+			ct_group=group3,
+			title = 'digest post two', 
+			slug = slugify('post two'),
+			author = user,
+			body = "some text's here for post 2...",
+			publish = datetime.datetime.now(),
+			notified = True
+	    )
+		post.save()
+		c = Comment(
+			content_object=post,
+			site= site,
+			user = user,
+			comment = 'comment 1...',
+			submit_date= datetime.datetime.now()
+		)
+		c.save()
+		t = datetime.datetime.now() + datetime.timedelta(seconds=1)
+		while t > datetime.datetime.now():
+			pass
+			
+		c = Comment(
+			content_object=post,
+			site= site,
+			user = user,
+			comment = 'comment 2...',
+			submit_date= datetime.datetime.now()
+		)
+		c.save()
+		self.assertEquals(len(mail.outbox), 6)
 		self.assertEquals(mail.outbox[0].subject, '[example.com] test group two update')
 		self.assertEquals(len(mail.outbox[0].bcc), 2)
 
 		mail.outbox = []
-		for group in CTGroup.objects.all():
-			group.email_digests()
-		self.assertEquals(len(mail.outbox), 1)
+		self.failUnlessEqual(Comment.objects.count(), 3)
+		self.failUnlessEqual(CTEvent.objects.count(), 6)
+		email_digests()
+		self.assertEquals(len(mail.outbox), 2)
 		print mail.outbox[0].bcc
+		print mail.outbox[0].body
+		print mail.outbox[1].bcc
+		print mail.outbox[1].body
+		
+		# events should be cleared
+		self.failUnlessEqual(CTEvent.objects.count(), 0)
 		
 	# def test_get_mapitem(self):
 	#	  """

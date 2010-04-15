@@ -27,7 +27,13 @@ class CTGroupPermissionAdmin(admin.ModelAdmin):
 class CTPostAdmin(admin.ModelAdmin):
     pass
 
+class CTEventAdmin(admin.ModelAdmin):
+    list_display = ('last_updated', 'group', 'event_type', 'content_type', 'object_id', 'status', )
+    ordering = ('last_updated', 'group', )    
+
+
 admin.site.register(CTGroup, GroupAdmin)
 admin.site.register(GroupMembership, GroupMembershipAdmin)
 admin.site.register(CTGroupPermission, CTGroupPermissionAdmin)
 admin.site.register(CTPost, CTPostAdmin)
+admin.site.register(CTEvent, CTEventAdmin)

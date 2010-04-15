@@ -1,0 +1,16 @@
+{%load i18n %}{% trans 'This is an automatic email from ClinicalTemplates.org - PLEASE DO NOT REPLY' %}
+
+Your digest email for the last 24 hours for
+{{ group }}
+
+{{ content }}
+
+
+{% trans 'best wishes' %}
+{{ site }}
+
+***********************************************************
+{% trans "Don't want these emails? Change your group settings here:" %}
+{{ settings_url }}
+
+{{ dummy }}

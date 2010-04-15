@@ -3,6 +3,8 @@
 """
 from django.contrib.auth.models import User
 from django.contrib.comments.models import Comment
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes import generic
 from django.contrib.sites.models import Site
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
@@ -105,79 +107,6 @@ class CTGroup(models.Model):
 		else:
 			return u.is_manager
 
-	def email_digests(self):
-		"""docstring for email_digests"""
-		# leave here - recursive load problem
-		
-		pass
-		
-		# from ct_groups.decorators import check_permission
-		# 
-		# fname = '%s/email-digest-%s.txt' % (settings.TMP_PATH, self.slug)
-		# if os.path.exists(fname):
-		# 	digest_file = open(fname, 'r')
-		# 
-		# 	# add file contents to body
-		# 	body = ''.join(digest_file.readlines())
-		# 	# print body
-		# 	# print ''.join(body)
-		# 
-		# 	digest_file.close()
-		# 	os.remove(fname)
-		# 
-		# 	# now get comments from last 24 hours
-		# 	# add to body
-		# 
-		# 	# IF GOING TO USE PERMISSIONS TO SEND POST COMMENTS, 
-		# 	# NEED SEP DIGESTS FOR POST COMMENTS, TOOL COMMENTS
-		# 
-		# 	# get members with digest option
-		# 	# make email
-		# 	# send email
-		# 	members = self.groupmembership_set.all()
-		# 	rec_list = list(member.user.email for member in members if (getattr(member, 'post_updates') == 'digest') and 
-		# 		member.is_active and 
-		# 		check_permission(member.user, self, 'blog', 'r'))
-		# 	if rec_list:
-		# 		email = EmailMessage(
-		# 			#subject, body, from_email, to, bcc, connection)
-		# 			'[%s] %s updates (daily digest)' % (Site.objects.get_current().name, self.name), 
-		# 			body, 
-		# 			'do not reply <%s>' % settings.DEFAULT_FROM_EMAIL,
-		# 			[settings.DEFAULT_FROM_EMAIL],
-		# 			rec_list )
-		# 		email.send()
-		# 
-		
-		
-		
-		###############################################################
-		
-		# print self.name
-		# make datetimes for midnight, mn - 24 hours
-		# exclude lte prev mn, gt mn
-		# or should be all not notified but published ???
-		
-		# NOTIFY DOESN'T WORK COS SET BY SINGLE EMAIL
-		
-		# posts = [post.notified for post in self.ctpost_set.published().filter(ct_group=self)]
-		# print posts
-		# today = datetime.datetime.now()
-		# day_start = datetime.datetime(today.year, today.month, today.day)
-		# day_end = day_start - datetime.timedelta(days=1)
-		# print today, day_start, day_end
-		
-		# datetime.year
-		# Between MINYEAR and MAXYEAR inclusive.
-		# datetime.month
-		# Between 1 and 12 inclusive.
-		# datetime.day
-		# Between 1 and the number of days in the given month of the given year.
-		# datetime.hour
-		# In range(24).
-		# datetime.minute
-		# In range(60).
-		# datetime.second
 
 # this is buggy- corrupting fields in admin
 # tagging.register(CTGroup)
@@ -241,6 +170,8 @@ POST_UPDATE_CHOICES_DEFAULT = TOOL_UPDATE_CHOICES_DEFAULT = 'single'
 MODERATION_CHOICES = (('none', 'None'), ('pending', 'Pending'), ('refused', 'Refused'), )
 MODERATION_CHOICES_DEFAULT = 'none'
 
+NOTIFY_ATTRS = { 'blog': 'post_updates', 'resource': 'tool_updates'}
+
 class GroupMembership(models.Model):
 	#name = models.CharField(max_length=64, core=True)
 	note = models.CharField(max_length=64, blank=True)
@@ -286,6 +217,10 @@ class GroupMembership(models.Model):
 		return self.user.last_name
 	user_last_name = property(_get_user_last_name)
 
+	def notify_pref(self, perm):
+		return getattr(self, NOTIFY_ATTRS[perm])
+
+		
 # from basic.blog.models import Post
 Post = get_model('blog', 'post')
 
@@ -306,8 +241,20 @@ class CTPost(Post):
 	notified = models.BooleanField(default=False)
 	objects = PublicManager()
 	
-	class Admin:
-		pass
+	def save(self, *args, **kwargs):
+		super(CTPost, self).save(*args, **kwargs)
+		if not self.notified:
+			if self.status > 1 and self.publish and self.publish <= datetime.datetime.now():
+				if self.ct_group:
+					group_notify(self)
+				self.notified = True
+				super(CTPost, self).save(*args, **kwargs)
+
+	def get_ct_group(self):
+		"""kludge cos field should be just group to be same as other models
+			TODO: change field name and update all references"""
+		return self.ct_group
+	group = property(get_ct_group)
 
 	def _summary(self):	   
 		if self.tease:
@@ -316,71 +263,96 @@ class CTPost(Post):
 			return truncatewords(self.body, 80)
 	summary = property(_summary)
 	
-def email_post(sender, instance, **kwargs):
-	"""docstring for email_post"""
-	if not instance.notified:
-		if instance.status > 1 and instance.publish and instance.publish <= datetime.datetime.now():
-			group = instance.ct_group
-			if group:
-				content = render_to_string('ct_groups/email_post_comment_content.txt', {
-					'line_1': 'A discussion post has been added to %s.' % group.name,
-					'line_2': '',
-					'author': instance.author.get_full_name(), 
-					'review_date': instance.publish.strftime("%d/%m/%Y, %H.%M"),
-					'comment': instance.summary,
-					'url': '%s%s' % ( settings.APP_BASE[:-1], instance.get_absolute_url())
-				})			  
-				email = _email_notify(group, content, 'post_updates', 'blog')
-				# add_to_digest(group, email)
-				
-			instance.notified = True
-			instance.save()
-		
-def email_comment(sender, instance, **kwargs):
-	# TODO: need a more generic mechanism
-	# either do with django-notification (needs notices set up for each group member)
-	# or do something where object can be queried for notifiable content
-	# then check for user membership settings for this group and permissions
-	
-	if kwargs.get('created', False):
-		if (instance.content_type.model == 'ctpost'):
-			post = instance.content_object
-			if post:
-				group = post.ct_group
-				if group:
-					content = render_to_string('ct_groups/email_post_comment_content.txt', {
-						'line_1': 'A comment has been added to %s.' % group.name,
-						'line_2': '',
-						'author': instance.user.get_full_name(), 
-						'review_date': instance.submit_date.strftime("%d/%m/%Y, %H.%M"),
-						'comment': instance.comment,
-						'url': '%s%s#comments' % ( settings.APP_BASE[:-1], post.get_absolute_url()) 
-					})			  
-					email = _email_notify(group, content, 'post_updates', 'comment')
-					# add_to_digest(group, email)
-		elif (instance.content_type.model == 'mapitem'):
-			mapitem = instance.content_object
-			if mapitem:
-				group = mapitem.section.mapping.group
-				if group:
-					content = render_to_string('ct_groups/email_post_comment_content.txt', {
-						'line_1': 'A comment has been added to %s.\n%s' % (group.name, mapitem),
-						'line_2': '',
-						'author': instance.user.get_full_name(), 
-						'review_date': instance.submit_date.strftime("%d/%m/%Y, %H.%M"),
-						'comment': instance.comment,
-						'url': '%s%s#comments' % ( settings.APP_BASE[:-1], mapitem.get_absolute_url()) 
-					})			  
-					email = _email_notify(group, content, 'tool_updates', 'resource')
-					# add_to_digest(group, email)
+	def get_notify_content(self, comment=False):
+		"""docstring for get_notify_content"""
+		if comment:
+			line_1 = 'A comment has been added to %s.' % self.group.name,
+			url = '%s%s#comment' % ( settings.APP_BASE[:-1], self.get_absolute_url())			
+		else:
+			line_1 = 'A discussion post has been added to %s.' % self.group.name,
+			url = '%s%s' % ( settings.APP_BASE[:-1], self.get_absolute_url())
 					
+		content = render_to_string('ct_groups/email_post_comment_content.txt', {
+			'line_1': 'A discussion post has been added to %s.' % self.group.name,
+			'line_2': '',
+			'author': self.author.get_full_name(), 
+			'review_date': self.publish.strftime("%d/%m/%Y, %H.%M"),
+			'comment': self.summary,
+			'url': '%s%s' % ( settings.APP_BASE[:-1], self.get_absolute_url())
+		})	  
+		return (True, content)
 
-def _email_notify(group, content, update_func, perm):
+EVENT_TYPE_CHOICES = (('notify', 'notify'), ('notify_comment', 'notify comment'))
+EVENT_TYPE_DEFAULT = 'notify'
+EVENT_STATUS_CHOICES = (('todo', 'todo'), ('repeat', 'repeat'), ('failed', 'failed'), ('done', 'done'), )
+EVENT_STATUS_DEFAULT = 'todo'
+
+class CTEvent(models.Model):
+	"""docstring for CTEvent"""
+	last_updated = models.DateTimeField(blank=True, null=True)
+	group = models.ForeignKey(CTGroup, blank=True, null=True)
+	event_type = models.CharField(max_length=16, choices=EVENT_TYPE_CHOICES, default=EVENT_TYPE_DEFAULT)
+	content_type = models.ForeignKey(ContentType)
+	object_id = models.PositiveIntegerField()
+	content_object = generic.GenericForeignKey()
+	data = models.CharField(max_length=48, blank=True, null=True)
+	notify_setting = models.CharField(max_length=16, blank=True, null=True)
+	perm = models.CharField(max_length=16, blank=True, null=True)
+	status = models.CharField(max_length=16, choices=EVENT_STATUS_CHOICES, default=EVENT_STATUS_DEFAULT)
+	
+	def __unicode__(self):
+		"""docstring for __unicode__"""
+		return 'CTEvent: %s, %s, %s|%s (%s)' % (self.group, self.event_type,
+			self.content_type, self.object_id, self.last_updated)
+			
+	def save(self, *args, **kwargs):
+		self.last_updated = datetime.datetime.now()
+		# self.log_state()		
+		super(CTEvent, self).save(*args, **kwargs)
+
+	def done(self, status='done'):
+		"""docstring for done"""
+		self.status = status
+		self.save()
+
+def group_notify(obj):
+	"""docstring for group_email"""
+	if hasattr(obj, 'get_notify_content'):
+		enabled, content = obj.get_notify_content()
+		if enabled:
+			_email_notify(obj.group, content, 'blog')
+			add_notify_event(obj, 'notify', 'blog')
+	else:
+		print 'obj does not provide notify content'
+
+def email_comment(sender, instance, **kwargs):
+	if kwargs.get('created', False):
+		obj = instance.content_object
+		if hasattr(obj, 'get_notify_content'):
+			enabled, content = obj.get_notify_content(comment=True)
+			_email_notify(obj.group, content, 'blog')
+			add_notify_event(obj, 'notify_comment', 'blog', instance.id)
+		else:
+			print 'obj does not provide notify content'
+	
+def add_notify_event(obj, event_type, perm, data=None):
+	"""docstring for add_notify_event"""
+	ev = CTEvent(
+		group = obj.group,
+		event_type = event_type,
+		content_object = obj,
+		# notify_setting = '-----',
+		perm = perm,
+		data = data
+	)
+	ev.save()
+
+def _email_notify(group, content, perm):
 	# leave here - recursive load problem
 	from ct_groups.decorators import check_permission
 	
 	members = group.groupmembership_set.all()
-	add_list = list(member.user.email for member in members if (getattr(member, update_func) != 'none') and 
+	add_list = list(member.user.email for member in members if (member.notify_pref(perm) == 'single') and 
 		member.is_active and 
 		check_permission(member.user, group, perm, 'r'))
 	
@@ -400,26 +372,126 @@ def _email_notify(group, content, update_func, perm):
 		[settings.DEFAULT_FROM_EMAIL],
 		add_list )
 	email.send()
-	return email
 
-def	add_to_digest(group, email):
-	"""
-	docstring for 	add_to_digest(group, email)
-	"""
-	# print group.name
-	# print email.subject
-	# print email.body
+def email_digests():
+	"""docstring for email_digests"""
+	# leave here - recursive load problem
+	from ct_groups.decorators import check_permission
 	
-	pass
+	events = CTEvent.objects.order_by('last_updated', 'content_type', 'object_id')
+	event_dict = { }
+	for event in events:
+		group = event_dict.setdefault(event.group, {})
+		perm = group.setdefault(event.perm, {})
+		# perm['notify_setting'] = event.notify_setting
+		obj_type = perm.setdefault(event.content_type, {})
+		obj_data = obj_type.setdefault(event.content_object, {})
+		if event.event_type == 'notify':
+			obj_data['obj'] = True
+		elif event.event_type == 'notify_comment':
+			comments = obj_data.setdefault('comments', [])
+			comments.append(event.data)
+		else:
+			raise Exception('unrecognised event_type')
+		event.done()
+			
+	site = Site.objects.get_current().name
+	for group, digest in event_dict.iteritems():
+		print '*** group', group
+		print digest
+		for perm in digest:
+			print perm
+			members = group.groupmembership_set.all()
+			add_list = list(member.user.email for member in members if (member.notify_pref(perm) == 'digest') and 
+				member.is_active and 
+				check_permission(member.user, group, perm, 'r'))
+			print add_list
+
+			if len(add_list):
+				content = 'blah...'
+				
+				body = render_to_string('ct_groups/email_digest_body.txt',
+					{ 'group': group.name, 'content': content, 'site': site, 'dummy': datetime.datetime.now().strftime("%H:%M"),
+						'settings_url': '%s%s' % ( settings.APP_BASE[:-1], reverse('group-edit', kwargs={'group_slug': group.slug}))})
+				body = body.replace("&#39;", "'")
+				body = body.replace("&gt;", "")
+				email = EmailMessage(
+					#subject, body, from_email, to, bcc, connection)
+					'[%s] %s update' % (site, group.name), 
+					body, 
+					'do not reply <%s>' % settings.DEFAULT_FROM_EMAIL,
+					[settings.DEFAULT_FROM_EMAIL],
+					add_list )
+				email.send()
+
+	CTEvent.objects.filter(status='done').delete()
 	
-	# sep = '***********************************************************\n'
-	# path = settings.TMP_PATH
-	# outfile = open('%s/email-digest-%s.txt' % (path, group.slug), 'a')
-	# outfile.write(email.subject + '\n')
-	# outfile.write(email.body)
-	# outfile.write(sep)
-	# outfile.close()
+	# from ct_groups.decorators import check_permission
+	# 
+	# fname = '%s/email-digest-%s.txt' % (settings.TMP_PATH, self.slug)
+	# if os.path.exists(fname):
+	#	digest_file = open(fname, 'r')
+	# 
+	#	# add file contents to body
+	#	body = ''.join(digest_file.readlines())
+	#	# print body
+	#	# print ''.join(body)
+	# 
+	#	digest_file.close()
+	#	os.remove(fname)
+	# 
+	#	# now get comments from last 24 hours
+	#	# add to body
+	# 
+	#	# IF GOING TO USE PERMISSIONS TO SEND POST COMMENTS, 
+	#	# NEED SEP DIGESTS FOR POST COMMENTS, TOOL COMMENTS
+	# 
+	#	# get members with digest option
+	#	# make email
+	#	# send email
+	#	members = self.groupmembership_set.all()
+	#	rec_list = list(member.user.email for member in members if (getattr(member, 'post_updates') == 'digest') and 
+	#		member.is_active and 
+	#		check_permission(member.user, self, 'blog', 'r'))
+	#	if rec_list:
+	#		email = EmailMessage(
+	#			#subject, body, from_email, to, bcc, connection)
+	#			'[%s] %s updates (daily digest)' % (Site.objects.get_current().name, self.name), 
+	#			body, 
+	#			'do not reply <%s>' % settings.DEFAULT_FROM_EMAIL,
+	#			[settings.DEFAULT_FROM_EMAIL],
+	#			rec_list )
+	#		email.send()
+	# 
 	
+	
+	
+	###############################################################
+	
+	# print self.name
+	# make datetimes for midnight, mn - 24 hours
+	# exclude lte prev mn, gt mn
+	# or should be all not notified but published ???
+	
+	# NOTIFY DOESN'T WORK COS SET BY SINGLE EMAIL
+	
+	# posts = [post.notified for post in self.ctpost_set.published().filter(ct_group=self)]
+	# print posts
+	# today = datetime.datetime.now()
+	# day_start = datetime.datetime(today.year, today.month, today.day)
+	# day_end = day_start - datetime.timedelta(days=1)
+	# print today, day_start, day_end
+	
+	# datetime.year
+	# Between MINYEAR and MAXYEAR inclusive.
+	# datetime.month
+	# Between 1 and 12 inclusive.
+	# datetime.day
+	# Between 1 and the number of days in the given month of the given year.
+	# datetime.hour
+	# In range(24).
+	# datetime.minute
+	# In range(60).
+	# datetime.second
 
 signals.post_save.connect(email_comment, sender=Comment)
-signals.post_save.connect(email_post, sender=CTPost)
