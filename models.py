@@ -399,15 +399,15 @@ def email_digests():
 			
 	site = Site.objects.get_current().name
 	for group, digest in event_dict.iteritems():
-		print '*** group', group
-		print digest
+		# print '*** group', group
+		# print digest
 		for perm, items in digest.iteritems():
 			# print perm
 			members = group.groupmembership_set.all()
 			add_list = list(member.user.email for member in members if (member.notify_pref(perm) == 'digest') and 
 				member.is_active and 
 				check_permission(member.user, group, perm, 'r'))
-			print add_list
+			# print add_list
 
 			if len(add_list):
 				content = ''

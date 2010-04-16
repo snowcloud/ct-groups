@@ -8,6 +8,11 @@ from ct_groups.models import CTGroup, GroupMembership, CTPost, CTEvent, \
 	PERM_CHOICE_EDITOR, PERM_CHOICE_GROUP_MEMBER, email_digests
 import datetime
 
+def _delay(seconds):
+	t = datetime.datetime.now() + datetime.timedelta(seconds=seconds)
+	while t > datetime.datetime.now():
+		pass
+
 class CTGroupTest(TestCase):
 
 	def _make_group(self, name, is_public=True):
@@ -90,6 +95,7 @@ class CTGroupTest(TestCase):
 			submit_date= datetime.datetime.now()
 		)
 		c.save()
+		_delay(1)
 		c = Comment(
 			content_object=post,
 			site= site,
@@ -203,10 +209,7 @@ class CTGroupTest(TestCase):
 			submit_date= datetime.datetime.now()
 		)
 		c.save()
-		t = datetime.datetime.now() + datetime.timedelta(seconds=1)
-		while t > datetime.datetime.now():
-			pass
-			
+		_delay(1)
 		c = Comment(
 			content_object=post,
 			site= site,
