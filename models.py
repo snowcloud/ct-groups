@@ -266,11 +266,11 @@ class CTPost(Post):
 	def get_notify_content(self, comment=None):
 		"""docstring for get_notify_content"""
 		if comment:
-			line_1 = 'A comment has been added to %s.' % self.title
+			line_1 = _("A comment has been added to: %s.") % self.title
 			content = comment.comment
 			url = '%s%s#comment' % ( settings.APP_BASE[:-1], self.get_absolute_url())			
 		else:
-			line_1 = 'A discussion post has been added to %s.' % self.group.name
+			line_1 = _('A discussion post has been added to: %s.') % self.group.name
 			content = '%s\n%s' % (self.title, self.summary)
 			url = '%s%s' % ( settings.APP_BASE[:-1], self.get_absolute_url())
 					
@@ -375,12 +375,12 @@ def _email_notify(group, content, perm):
 		add_list )
 	email.send()
 
-def email_digests():
+def process_digests():
 	"""docstring for email_digests"""
 	# leave here - recursive load problem
 	from ct_groups.decorators import check_permission
 	
-	events = CTEvent.objects.order_by('last_updated', 'content_type', 'object_id')
+	events = CTEvent.objects.filter(status='todo').order_by('last_updated', 'content_type', 'object_id')
 	event_dict = { }
 	for event in events:
 		group = event_dict.setdefault(event.group, {})
@@ -427,6 +427,7 @@ def email_digests():
 				body = render_to_string('ct_groups/email_digest_body.txt',
 					{ 'group': group.name, 'content': content, 'site': site, 'dummy': datetime.datetime.now().strftime("%H:%M"),
 						'settings_url': '%s%s' % ( settings.APP_BASE[:-1], reverse('group-edit', kwargs={'group_slug': group.slug}))})
+				body = body.replace("&amp;", "&")
 				body = body.replace("&#39;", "'")
 				body = body.replace("&gt;", "")
 				email = EmailMessage(

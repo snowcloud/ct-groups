@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.comments.models import Comment
 from django.contrib.sites.models import Site
 from ct_groups.models import CTGroup, GroupMembership, CTPost, CTEvent, \
-	PERM_CHOICE_EDITOR, PERM_CHOICE_GROUP_MEMBER, email_digests
+	PERM_CHOICE_EDITOR, PERM_CHOICE_GROUP_MEMBER, process_digests
 import datetime
 
 def _delay(seconds):
@@ -225,7 +225,7 @@ class CTGroupTest(TestCase):
 		mail.outbox = []
 		self.failUnlessEqual(Comment.objects.count(), 3)
 		self.failUnlessEqual(CTEvent.objects.count(), 6)
-		email_digests()
+		process_digests()
 		self.assertEquals(len(mail.outbox), 2)
 		# print
 		# print mail.outbox[0].bcc

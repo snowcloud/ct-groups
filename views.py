@@ -3,14 +3,14 @@
 """
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.shortcuts import get_object_or_404
 from django.template import RequestContext
 from django.template.defaultfilters import slugify
 from django.contrib.auth.decorators import login_required
 from ct_groups.decorators import check_permission
-from ct_groups.models import CTGroup, GroupMembership, CTPost
+from ct_groups.models import CTGroup, GroupMembership, CTPost, process_digests
 from ct_groups.forms import BlogPostForm, GroupMembershipForm
 from basic.blog.models import Category
 import datetime
@@ -158,8 +158,7 @@ def group_detail(request, group_slug):
     return render_to_response('ct_groups/ct_groups_detail.html',
         RequestContext( request, {'object': group,  }))
 
-def email_digests(request):
+def do_digests(request):
 	"""docstring for email_digests"""
-	for group in CTGroup.objects.all():
-		group.email_digests()
+	process_digests()
 	return HttpResponse('OK')
