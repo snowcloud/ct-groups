@@ -42,9 +42,9 @@ class CTGroupTest(TestCase):
 		return member
 
 	def setUp(self):
-		group1 = self._make_group('test group one')
-		group2 = self._make_group('test group two')
-		group3 = self._make_group('test group three')
+		group1 = self._make_group('Test group one')
+		group2 = self._make_group('Test group two')
+		group3 = self._make_group('Test group three')
 		user = self._make_user('shuggie')
 		member = self._make_membership(user, group1, False)
 		user = self._make_user('francie')
@@ -68,26 +68,26 @@ class CTGroupTest(TestCase):
 		"""
 		count = CTGroup.objects.count()
 		self.failUnlessEqual(count, 3)
-		group1 = CTGroup.objects.get(name='test group one')
+		group1 = CTGroup.objects.get(name='Test group one')
 		# group.set_permission('blog', read=PERM_CHOICE_EDITOR)
 		user = self._make_user('bernie')
 		member = self._make_membership(user, group1)
 		post = CTPost(
 			ct_group=group1,
-			title = 'post one', 
+			title = 'Post one', 
 			slug = slugify('post one'),
 			author = user,
 			body = "some text's here...",
 			publish = datetime.datetime.now()
 	    )
 		post.save()
-		group2 = CTGroup.objects.get(name='test group two')
+		group2 = CTGroup.objects.get(name='Test group two')
 		group2.set_permission('blog', read=PERM_CHOICE_EDITOR)
 		user = self._make_user('chic')
 		member = self._make_membership(user, group2)
 		post = CTPost(
 			ct_group=group2,
-			title = 'post one', 
+			title = 'Post one', 
 			slug = slugify('post one'),
 			author = user,
 			body = "some text's here...",
@@ -97,7 +97,7 @@ class CTGroupTest(TestCase):
 		post.save() # checks not emailed twice
 		post = CTPost(
 			ct_group=group2,
-			title = 'post two', 
+			title = 'Post two', 
 			slug = slugify('post two'),
 			author = user,
 			body = "some text here for this's draft post...",
@@ -129,8 +129,8 @@ class CTGroupTest(TestCase):
 		.
 		"""
 		site = Site.objects.get_current()
-		group = CTGroup.objects.get(name='test group two')
-		group3 = CTGroup.objects.get(name='test group three')
+		group = CTGroup.objects.get(name='Test group two')
+		group3 = CTGroup.objects.get(name='Test group three')
 		group.set_permission('blog', read=PERM_CHOICE_GROUP_MEMBER)
 		user = self._make_user('chic')
 		member = self._make_membership(user, group)
@@ -139,7 +139,7 @@ class CTGroupTest(TestCase):
 			title = 'digest post one', 
 			slug = slugify('post one'),
 			author = user,
-			body = "some text's here for post 1...",
+			body = "Some text's here for post 1...",
 			publish = datetime.datetime.now()
 	    )
 		post.save()
@@ -147,7 +147,7 @@ class CTGroupTest(TestCase):
 			content_object=post,
 			site= site,
 			user = user,
-			comment = 'comment...',
+			comment = 'Comment...',
 			submit_date= datetime.datetime.now()
 		)
 		c.save()
@@ -156,7 +156,7 @@ class CTGroupTest(TestCase):
 			title = 'digest post two', 
 			slug = slugify('post two'),
 			author = user,
-			body = "some text's here for post 2...",
+			body = "Some text's here for post 2...",
 			publish = datetime.datetime.now()
 	    )
 		post.save()
@@ -165,7 +165,7 @@ class CTGroupTest(TestCase):
 			title = 'digest post one', 
 			slug = slugify('post one'),
 			author = user,
-			body = "some text's here for post 1...",
+			body = "Some text's here for post 1...",
 			publish = datetime.datetime.now()
 	    )
 		post.save()
@@ -174,7 +174,7 @@ class CTGroupTest(TestCase):
 			title = 'digest post two', 
 			slug = slugify('post two'),
 			author = user,
-			body = "some text's here for post 2...",
+			body = "Some text's here for post 2...",
 			publish = datetime.datetime.now(),
 			notified = True
 	    )
@@ -183,7 +183,7 @@ class CTGroupTest(TestCase):
 			content_object=post,
 			site= site,
 			user = user,
-			comment = 'comment 1...',
+			comment = 'Comment 1...',
 			submit_date= datetime.datetime.now()
 		)
 		c.save()
@@ -195,12 +195,12 @@ class CTGroupTest(TestCase):
 			content_object=post,
 			site= site,
 			user = user,
-			comment = 'comment 2...',
+			comment = 'Comment 2...',
 			submit_date= datetime.datetime.now()
 		)
 		c.save()
 		self.assertEquals(len(mail.outbox), 6)
-		self.assertEquals(mail.outbox[0].subject, '[example.com] test group two update')
+		self.assertEquals(mail.outbox[0].subject, '[example.com] Test group two update')
 		self.assertEquals(len(mail.outbox[0].bcc), 2)
 
 		mail.outbox = []
@@ -208,6 +208,7 @@ class CTGroupTest(TestCase):
 		self.failUnlessEqual(CTEvent.objects.count(), 6)
 		email_digests()
 		self.assertEquals(len(mail.outbox), 2)
+		print
 		print mail.outbox[0].bcc
 		print mail.outbox[0].body
 		print mail.outbox[1].bcc

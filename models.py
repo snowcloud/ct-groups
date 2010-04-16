@@ -399,8 +399,8 @@ def email_digests():
 	for group, digest in event_dict.iteritems():
 		print '*** group', group
 		print digest
-		for perm in digest:
-			print perm
+		for perm, items in digest.iteritems():
+			# print perm
 			members = group.groupmembership_set.all()
 			add_list = list(member.user.email for member in members if (member.notify_pref(perm) == 'digest') and 
 				member.is_active and 
@@ -408,7 +408,16 @@ def email_digests():
 			print add_list
 
 			if len(add_list):
-				content = 'blah...'
+				content = ''
+				
+				for content_type in items.itervalues():
+					for obj, data in content_type.iteritems():
+						# print data
+						if data.get('obj', False):
+							content += '%s\n' % str(obj)
+						comments = data.get('comments', False)
+						if comments:
+							content += 'comments on: %s\ncomments: %s\n\n' % (obj, str(comments))
 				
 				body = render_to_string('ct_groups/email_digest_body.txt',
 					{ 'group': group.name, 'content': content, 'site': site, 'dummy': datetime.datetime.now().strftime("%H:%M"),
