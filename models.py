@@ -263,22 +263,24 @@ class CTPost(Post):
 			return truncatewords(self.body, 80)
 	summary = property(_summary)
 	
-	def get_notify_content(self, comment=False):
+	def get_notify_content(self, comment=None):
 		"""docstring for get_notify_content"""
 		if comment:
-			line_1 = 'A comment has been added to %s.' % self.group.name,
+			line_1 = 'A comment has been added to %s.' % self.title
+			content = comment.comment
 			url = '%s%s#comment' % ( settings.APP_BASE[:-1], self.get_absolute_url())			
 		else:
-			line_1 = 'A discussion post has been added to %s.' % self.group.name,
+			line_1 = 'A discussion post has been added to %s.' % self.group.name
+			content = '%s\n%s' % (self.title, self.summary)
 			url = '%s%s' % ( settings.APP_BASE[:-1], self.get_absolute_url())
 					
 		content = render_to_string('ct_groups/email_post_comment_content.txt', {
-			'line_1': 'A discussion post has been added to %s.' % self.group.name,
+			'line_1': line_1,
 			'line_2': '',
 			'author': self.author.get_full_name(), 
 			'review_date': self.publish.strftime("%d/%m/%Y, %H.%M"),
-			'comment': self.summary,
-			'url': '%s%s' % ( settings.APP_BASE[:-1], self.get_absolute_url())
+			'content': content,
+			'url': url
 		})	  
 		return (True, content)
 
@@ -329,7 +331,7 @@ def email_comment(sender, instance, **kwargs):
 	if kwargs.get('created', False):
 		obj = instance.content_object
 		if hasattr(obj, 'get_notify_content'):
-			enabled, content = obj.get_notify_content(comment=True)
+			enabled, content = obj.get_notify_content(comment=instance)
 			_email_notify(obj.group, content, 'blog')
 			add_notify_event(obj, 'notify_comment', 'blog', instance.id)
 		else:
@@ -414,10 +416,13 @@ def email_digests():
 					for obj, data in content_type.iteritems():
 						# print data
 						if data.get('obj', False):
-							content += '%s\n' % str(obj)
-						comments = data.get('comments', False)
-						if comments:
-							content += 'comments on: %s\ncomments: %s\n\n' % (obj, str(comments))
+							dummy, txt = obj.get_notify_content()
+							content += txt
+						comment_ids = data.get('comments', False)
+						if comment_ids:
+							for comment in [Comment.objects.get(pk=c) for c in comment_ids]:
+								dummy, txt = obj.get_notify_content(comment=comment)
+								content += txt
 				
 				body = render_to_string('ct_groups/email_digest_body.txt',
 					{ 'group': group.name, 'content': content, 'site': site, 'dummy': datetime.datetime.now().strftime("%H:%M"),
@@ -435,72 +440,5 @@ def email_digests():
 
 	CTEvent.objects.filter(status='done').delete()
 	
-	# from ct_groups.decorators import check_permission
-	# 
-	# fname = '%s/email-digest-%s.txt' % (settings.TMP_PATH, self.slug)
-	# if os.path.exists(fname):
-	#	digest_file = open(fname, 'r')
-	# 
-	#	# add file contents to body
-	#	body = ''.join(digest_file.readlines())
-	#	# print body
-	#	# print ''.join(body)
-	# 
-	#	digest_file.close()
-	#	os.remove(fname)
-	# 
-	#	# now get comments from last 24 hours
-	#	# add to body
-	# 
-	#	# IF GOING TO USE PERMISSIONS TO SEND POST COMMENTS, 
-	#	# NEED SEP DIGESTS FOR POST COMMENTS, TOOL COMMENTS
-	# 
-	#	# get members with digest option
-	#	# make email
-	#	# send email
-	#	members = self.groupmembership_set.all()
-	#	rec_list = list(member.user.email for member in members if (getattr(member, 'post_updates') == 'digest') and 
-	#		member.is_active and 
-	#		check_permission(member.user, self, 'blog', 'r'))
-	#	if rec_list:
-	#		email = EmailMessage(
-	#			#subject, body, from_email, to, bcc, connection)
-	#			'[%s] %s updates (daily digest)' % (Site.objects.get_current().name, self.name), 
-	#			body, 
-	#			'do not reply <%s>' % settings.DEFAULT_FROM_EMAIL,
-	#			[settings.DEFAULT_FROM_EMAIL],
-	#			rec_list )
-	#		email.send()
-	# 
-	
-	
-	
-	###############################################################
-	
-	# print self.name
-	# make datetimes for midnight, mn - 24 hours
-	# exclude lte prev mn, gt mn
-	# or should be all not notified but published ???
-	
-	# NOTIFY DOESN'T WORK COS SET BY SINGLE EMAIL
-	
-	# posts = [post.notified for post in self.ctpost_set.published().filter(ct_group=self)]
-	# print posts
-	# today = datetime.datetime.now()
-	# day_start = datetime.datetime(today.year, today.month, today.day)
-	# day_end = day_start - datetime.timedelta(days=1)
-	# print today, day_start, day_end
-	
-	# datetime.year
-	# Between MINYEAR and MAXYEAR inclusive.
-	# datetime.month
-	# Between 1 and 12 inclusive.
-	# datetime.day
-	# Between 1 and the number of days in the given month of the given year.
-	# datetime.hour
-	# In range(24).
-	# datetime.minute
-	# In range(60).
-	# datetime.second
 
 signals.post_save.connect(email_comment, sender=Comment)

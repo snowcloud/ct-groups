@@ -1,6 +1,5 @@
 {%load i18n %}{% trans 'This is an automatic email from ClinicalTemplates.org - PLEASE DO NOT REPLY' %}
 
-
 {{ content }}
 
 {% trans 'best wishes' %}

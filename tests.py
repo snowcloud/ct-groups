@@ -66,6 +66,7 @@ class CTGroupTest(TestCase):
 		"""
 		.
 		"""
+		site = Site.objects.get_current()
 		count = CTGroup.objects.count()
 		self.failUnlessEqual(count, 3)
 		group1 = CTGroup.objects.get(name='Test group one')
@@ -81,6 +82,22 @@ class CTGroupTest(TestCase):
 			publish = datetime.datetime.now()
 	    )
 		post.save()
+		c = Comment(
+			content_object=post,
+			site= site,
+			user = user,
+			comment = 'Comment 1...',
+			submit_date= datetime.datetime.now()
+		)
+		c.save()
+		c = Comment(
+			content_object=post,
+			site= site,
+			user = user,
+			comment = 'Comment 2...',
+			submit_date= datetime.datetime.now()
+		)
+		c.save()
 		group2 = CTGroup.objects.get(name='Test group two')
 		group2.set_permission('blog', read=PERM_CHOICE_EDITOR)
 		user = self._make_user('chic')
@@ -105,22 +122,21 @@ class CTGroupTest(TestCase):
 			status = 1
 	    )
 		post.save()
-		self.assertEquals(len(mail.outbox), 2)
+		self.assertEquals(len(mail.outbox), 4)
 		post.status = 2
 		post.save()
-		self.assertEquals(len(mail.outbox), 3)
-		# self.assertEquals(mail.outbox[0].subject, '[example.com] test group one update')
-		# self.assertEquals(len(mail.outbox[0].bcc), 1)
-
-		# mail.outbox = []
-		# for group in CTGroup.objects.all():
-		# 	group.email_digests()
-		# self.assertEquals(len(mail.outbox), 2)
+		self.assertEquals(len(mail.outbox), 5)
+		# for m in mail.outbox:
+		# 	print
+		# 	print m.bcc
+		# 	print m.subject
+		# 	print m.body
+			
 		# print mail.outbox[0].bcc
 		# print mail.outbox[0].body
 		# print mail.outbox[1].bcc
 		count = CTEvent.objects.count()
-		self.failUnlessEqual(count, 3)
+		self.failUnlessEqual(count, 5)
 		
 
 
@@ -208,11 +224,14 @@ class CTGroupTest(TestCase):
 		self.failUnlessEqual(CTEvent.objects.count(), 6)
 		email_digests()
 		self.assertEquals(len(mail.outbox), 2)
-		print
-		print mail.outbox[0].bcc
-		print mail.outbox[0].body
-		print mail.outbox[1].bcc
-		print mail.outbox[1].body
+		# print
+		# print mail.outbox[0].bcc
+		# print mail.outbox[0].subject
+		# print mail.outbox[0].body
+		# print
+		# print mail.outbox[1].bcc
+		# print mail.outbox[1].subject
+		# print mail.outbox[1].body
 		
 		# events should be cleared
 		self.failUnlessEqual(CTEvent.objects.count(), 0)
