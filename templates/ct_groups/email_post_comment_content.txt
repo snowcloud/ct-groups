@@ -1,8 +1,9 @@
-{%load i18n %}{{ line_1 }}
+{%load i18n %}
+{{ line_1 }}
 {{ line_2 }}
 {{ author }}, {{ review_date }}:
 -----------
-{{ comment }}
+{{ content }}
 
 -----------
 {% trans 'See it here' %}:
