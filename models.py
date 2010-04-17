@@ -2,7 +2,7 @@
 
 """
 from django.contrib.auth.models import User
-from django.contrib.comments.models import Comment
+# from django.contrib.comments.models import Comment
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.contrib.sites.models import Site
@@ -221,8 +221,8 @@ class GroupMembership(models.Model):
 		return getattr(self, NOTIFY_ATTRS[perm])
 
 		
-# from basic.blog.models import Post
-Post = get_model('blog', 'post')
+from basic.blog.models import Post
+# Post = get_model('blog', 'post')
 
 class PublicManager(Manager):
 	"""Returns published posts that are not in the future."""
@@ -379,7 +379,8 @@ def process_digests():
 	"""docstring for email_digests"""
 	# leave here - recursive load problem
 	from ct_groups.decorators import check_permission
-	
+	from django.contrib.comments.models import Comment
+		
 	events = CTEvent.objects.filter(status='todo').order_by('last_updated', 'content_type', 'object_id')
 	event_dict = { }
 	for event in events:
@@ -440,6 +441,3 @@ def process_digests():
 				email.send()
 
 	CTEvent.objects.filter(status='done').delete()
-	
-
-signals.post_save.connect(email_comment, sender=Comment)

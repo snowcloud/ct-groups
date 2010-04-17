@@ -1,6 +1,8 @@
 """ urls.py for ct_groups app
 
 """
+from django.contrib.comments.models import Comment
+signals.post_save.connect(email_comment, sender=Comment)
 
 from django.conf.urls.defaults import *
 from ct_groups.models import CTGroup
