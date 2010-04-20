@@ -267,17 +267,19 @@ class CTPost(Post):
 		"""docstring for get_notify_content"""
 		if comment:
 			line_1 = _("A comment has been added to: %s.") % self.title
+			author= comment.user.get_full_name()
 			content = comment.comment
 			url = '%s%s#comment' % ( settings.APP_BASE[:-1], self.get_absolute_url())			
 		else:
 			line_1 = _('A discussion post has been added to: %s.') % self.group.name
+			author= self.author.get_full_name()
 			content = '%s\n%s' % (self.title, self.summary)
 			url = '%s%s' % ( settings.APP_BASE[:-1], self.get_absolute_url())
 					
 		content = render_to_string('ct_groups/email_post_comment_content.txt', {
 			'line_1': line_1,
 			'line_2': '',
-			'author': self.author.get_full_name(), 
+			'author': author, 
 			'review_date': self.publish.strftime("%d/%m/%Y, %H.%M"),
 			'content': content,
 			'url': url
