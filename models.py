@@ -346,11 +346,12 @@ def email_comment(sender, instance, **kwargs):
 def add_notify_event(obj, event_type, perm, data=None):
 	"""docstring for add_notify_event"""
 	
-	if hasattr(obj.group, 'multiple_groups'):
-		all_groups = obj.group.multiple_groups
+	if hasattr(obj, 'multi_groups'):
+		all_groups = obj.multi_groups
 	else:
 		all_groups = [obj.group]
 	
+	# print obj, all_groups
 	for group in all_groups:
 		ev = CTEvent(
 			group = group,
