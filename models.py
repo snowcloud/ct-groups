@@ -265,7 +265,11 @@ class CTPost(Post):
 	
 	def get_notify_content(self, comment=None):
 		"""docstring for get_notify_content"""
+		from django.contrib.comments.models import Comment
+		
 		if comment:
+			if not isinstance(comment, Comment):
+				comment = Comment.objects.get(pk=comment)
 			line_1 = _("A comment has been added to: %s.") % self.title
 			author= comment.user.get_full_name()
 			content = comment.comment
@@ -324,7 +328,7 @@ def group_notify(obj):
 	if hasattr(obj, 'get_notify_content'):
 		enabled, content = obj.get_notify_content()
 		if enabled:
-			_email_notify(obj.group, content, 'blog')
+			email_notify([obj.group], content, 'blog')
 			add_notify_event(obj, 'notify', 'blog')
 	else:
 		print 'obj does not provide notify content'
@@ -334,32 +338,40 @@ def email_comment(sender, instance, **kwargs):
 		obj = instance.content_object
 		if hasattr(obj, 'get_notify_content'):
 			enabled, content = obj.get_notify_content(comment=instance)
-			_email_notify(obj.group, content, 'blog')
+			email_notify([obj.group], content, 'blog')
 			add_notify_event(obj, 'notify_comment', 'blog', instance.id)
 		else:
 			print 'obj does not provide notify content'
 	
 def add_notify_event(obj, event_type, perm, data=None):
 	"""docstring for add_notify_event"""
-	ev = CTEvent(
-		group = obj.group,
-		event_type = event_type,
-		content_object = obj,
-		# notify_setting = '-----',
-		perm = perm,
-		data = data
-	)
-	ev.save()
+	
+	if hasattr(obj.group, 'multiple_groups'):
+		all_groups = obj.group.multiple_groups
+	else:
+		all_groups = [obj.group]
+	
+	for group in all_groups:
+		ev = CTEvent(
+			group = group,
+			event_type = event_type,
+			content_object = obj,
+			perm = perm,
+			data = data
+		)
+		ev.save()
 
-def _email_notify(group, content, perm):
+def email_notify(groups, content, perm):
 	# leave here - recursive load problem
 	from ct_groups.decorators import check_permission
 	
-	members = group.groupmembership_set.all()
-	add_list = list(member.user.email for member in members if (member.notify_pref(perm) == 'single') and 
-		member.is_active and 
-		check_permission(member.user, group, perm, 'r'))
-	
+	all_memberships = []
+	for group in groups:
+		all_memberships.extend([member for member in group.groupmembership_set.all() if (member.notify_pref(perm) == 'single') and 
+			member.is_active and 
+			check_permission(member.user, group, perm, 'r')])
+
+	add_list = list(frozenset([member.user.email for member in all_memberships]))
 	if len(add_list) == 0:
 		return
 	site = Site.objects.get_current().name
@@ -381,7 +393,6 @@ def process_digests():
 	"""docstring for email_digests"""
 	# leave here - recursive load problem
 	from ct_groups.decorators import check_permission
-	from django.contrib.comments.models import Comment
 		
 	events = CTEvent.objects.filter(status='todo').order_by('last_updated', 'content_type', 'object_id')
 	event_dict = { }
@@ -423,8 +434,10 @@ def process_digests():
 							content += txt
 						comment_ids = data.get('comments', False)
 						if comment_ids:
-							for comment in [Comment.objects.get(pk=c) for c in comment_ids]:
-								dummy, txt = obj.get_notify_content(comment=comment)
+							# TODO just pass comment id, not comment, so template can use
+							# for comment in [Comment.objects.get(pk=c) for c in comment_ids]:
+							for c_id in comment_ids:
+								dummy, txt = obj.get_notify_content(comment=c_id)
 								content += txt
 				
 				body = render_to_string('ct_groups/email_digest_body.txt',
