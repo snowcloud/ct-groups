@@ -368,9 +368,10 @@ def email_notify(groups, content, perm):
 	
 	all_memberships = []
 	for group in groups:
-		all_memberships.extend([member for member in group.groupmembership_set.all() if (member.notify_pref(perm) == 'single') and 
-			member.is_active and 
-			check_permission(member.user, group, perm, 'r')])
+		if group:
+			all_memberships.extend([member for member in group.groupmembership_set.all() if (member.notify_pref(perm) == 'single') and 
+				member.is_active and 
+				check_permission(member.user, group, perm, 'r')])
 
 	add_list = list(frozenset([member.user.email for member in all_memberships]))
 	if len(add_list) == 0:
