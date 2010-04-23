@@ -353,14 +353,15 @@ def add_notify_event(obj, event_type, perm, data=None):
 	
 	# print obj, all_groups
 	for group in all_groups:
-		ev = CTEvent(
-			group = group,
-			event_type = event_type,
-			content_object = obj,
-			perm = perm,
-			data = data
-		)
-		ev.save()
+		if group:
+			ev = CTEvent(
+				group = group,
+				event_type = event_type,
+				content_object = obj,
+				perm = perm,
+				data = data
+			)
+			ev.save()
 
 def email_notify(groups, content, perm):
 	# leave here - recursive load problem
