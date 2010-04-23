@@ -28,6 +28,7 @@ class CTGroup(models.Model):
 	tags = TagField()
 	is_public = models.BooleanField(default=True)
 	moderate_membership = models.BooleanField(default=False)
+	language = models.CharField(max_length=8, choices=settings.LANGUAGES, blank=True, null=True)
 	show_join_link = models.BooleanField(default=True)
 	members = models.ManyToManyField(User, through='GroupMembership')
 	logo = models.ImageField(upload_to="groups", null=True, blank=True, help_text="60 H x 400 W (max)")
