@@ -144,6 +144,24 @@ class CTGroupTest(TestCase):
 		count = CTEvent.objects.count()
 		self.failUnlessEqual(count, 5)
 		
+	def test_permissions(self):
+		"""test_permissions"""
+		from ct_groups.decorators import check_permission
+		
+		group1 = CTGroup.objects.get(name='Test group one')
+		user = User.objects.get(pk=1)
+		# member = self._make_membership(user, group1)
+		
+		# check_permission(user=None, group=None, perm_type=None, access=None )
+		self.failUnlessEqual(check_permission(user, group1, 'blog', 'r'), True)
+		# passing in a 'group' which isn't CTGroup should return None
+		self.failUnlessEqual(check_permission(user, user, 'blog', 'r'), False)
+		self.failUnless(check_permission(user, None, 'blog', 'r'))
+		self.failUnlessEqual(check_permission(user, None, 'wiki', 'r'), False)
+		self.failUnlessEqual(check_permission(user, None, None, None), False)
+		self.failUnlessEqual(check_permission(None, None, None, None), False)
+		self.failUnlessEqual(check_permission(None, None, 'blog', 'r'), True)
+		self.failUnlessEqual(check_permission(None, group1, 'blog', 'r'), False)
 
 
 	def test_digest(self):

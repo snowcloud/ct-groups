@@ -68,6 +68,11 @@ class CTGroup(models.Model):
 					group = self
 					)
 				new_p.save()
+
+	def get_ct_group(self):
+		"""provides a common interface across ct models"""
+		return self
+	group = property(get_ct_group)
 						
 	def get_permission(self, perm_type):
 		"""docstring for get_permission"""
@@ -127,6 +132,7 @@ PERM_CHOICE_EDITOR = '40'
 PERM_CHOICE_GROUP_MEMBER = '30'
 PERM_CHOICE_REG_USER = '20'
 PERM_CHOICE_PUBLIC ='10'
+NON_GROUP_PERMS = { 'blog': ('r',) }
 
 class CTGroupPermission(models.Model):
 	name = models.CharField(max_length=64)
@@ -137,6 +143,10 @@ class CTGroupPermission(models.Model):
 	class Admin:
 		pass
 
+	def __unicode__(self):
+		"""docstring for __unicode__"""
+		return "CTGroupPermission: %s for %s" % (self.name, self.group)
+		
 	def check_permission(self, user, type):
 		if self.name == 'group' and type == 'r' and self.group.is_public:
 			return True
