@@ -15,6 +15,9 @@ class GroupAdmin(admin.ModelAdmin):
         GroupMembershipInline, CTGroupPermissionInline
     ]
 
+class ModerationAdmin(admin.ModelAdmin):
+    pass
+    
 class GroupMembershipAdmin(admin.ModelAdmin):
     list_display = ('user', 'group', 'is_manager', 'is_editor', 'is_active', 'post_updates', 'tool_updates')
     ordering = ('user', 'group')    
@@ -33,6 +36,7 @@ class CTEventAdmin(admin.ModelAdmin):
 
 
 admin.site.register(CTGroup, GroupAdmin)
+admin.site.register(Moderation, ModerationAdmin)
 admin.site.register(GroupMembership, GroupMembershipAdmin)
 admin.site.register(CTGroupPermission, CTGroupPermissionAdmin)
 admin.site.register(CTPost, CTPostAdmin)

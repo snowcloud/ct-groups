@@ -30,9 +30,7 @@ class CTGroup(models.Model):
     is_public = models.BooleanField(default=True)
     moderate_membership = models.CharField(max_length=8, choices=GROUP_MODERATE_OPTIONS, default='closed')
     moderated_message = models.TextField(blank=True, null=True)
-    # moderate_membership = models.BooleanField(default=False)
     language = models.CharField(max_length=8, choices=settings.LANGUAGES, blank=True, null=True)
-    # show_join_link = models.BooleanField(default=True)
     members = models.ManyToManyField(User, through='GroupMembership')
     logo = models.ImageField(upload_to="groups", null=True, blank=True, help_text="60 H x 400 W (max)")
     
@@ -180,27 +178,39 @@ class CTGroupPermission(models.Model):
             return level >= int(self.read_permission)
         return False
 
+MODERATION_CHOICES = (('pending', 'Pending'), ('accepted', 'Accepted'), ('refused', 'Refused'), )
+MODERATION_CHOICES_DEFAULT = 'pending'
+
+class Moderation(models.Model):
+    """docstring for Moderation"""
+    date_requested = models.DateTimeField(default=datetime.datetime.now)
+    status = models.CharField(max_length=8, choices=MODERATION_CHOICES, default=MODERATION_CHOICES_DEFAULT)
+    moderator = models.ForeignKey(User, null=True, blank=True)
+    moderation_date = models.DateTimeField(null=True, blank=True)
+    response_text = models.TextField(null=True, blank=True)
+    
+    
+    class Admin:
+        pass
+        
+
+
 POST_UPDATE_CHOICES= (('none', _('No updates')), ('single', _('Single emails')), ('digest', _('Daily digest')))
 TOOL_UPDATE_CHOICES = POST_UPDATE_CHOICES
 POST_UPDATE_CHOICES_DEFAULT = TOOL_UPDATE_CHOICES_DEFAULT = 'single'
-# MODERATION_CHOICES = (('none', 'None'), ('pending', 'Pending'), ('refused', 'Refused'), )
-# MODERATION_CHOICES_DEFAULT = 'none'
 
 NOTIFY_ATTRS = { 'blog': 'post_updates', 'resource': 'tool_updates'}
 
 class GroupMembership(models.Model):
-    #name = models.CharField(max_length=64, core=True)
     note = models.CharField(max_length=64, blank=True)
     is_active = models.BooleanField('active', blank=False, default=1)
     is_manager = models.BooleanField('manager', blank=True)
-    # is_champion = models.BooleanField('editor', blank=True)
     is_editor = models.BooleanField('editor', blank=True)
     user = models.ForeignKey(User)
     group = models.ForeignKey(CTGroup)
     post_updates = models.CharField(_('email discussion alerts') ,max_length=8, choices=POST_UPDATE_CHOICES, default=POST_UPDATE_CHOICES_DEFAULT)
     tool_updates = models.CharField(_('email tool comments'), max_length=8, choices=TOOL_UPDATE_CHOICES, default=TOOL_UPDATE_CHOICES_DEFAULT)
-    # moderation = models.CharField(max_length=8, choices=MODERATION_CHOICES, default=MODERATION_CHOICES_DEFAULT)
-    # moderation_refusal_text = models.TextField(blank=True, null=True)
+    moderation = models.ForeignKey(Moderation, null=True, blank=True)
     
     # need these strings stable across translation to allow matching
     EDITORS = 'Editors'
