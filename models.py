@@ -115,7 +115,7 @@ class CTGroup(models.Model):
             return u.is_manager
             
     def show_join_link(self):
-        return self.moderate_membership is not 'closed'
+        return self.moderate_membership != 'closed'
 
 # this is buggy- corrupting fields in admin
 # tagging.register(CTGroup)
