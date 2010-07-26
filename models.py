@@ -178,16 +178,17 @@ class CTGroupPermission(models.Model):
             return level >= int(self.read_permission)
         return False
 
-MODERATION_CHOICES = (('pending', 'Pending'), ('accepted', 'Accepted'), ('refused', 'Refused'), )
+MODERATION_CHOICES = (('pending', _('Pending')), ('accepted', _('Accepted')), ('refused', _('Refused')), )
 MODERATION_CHOICES_DEFAULT = 'pending'
 
 class Moderation(models.Model):
     """docstring for Moderation"""
     date_requested = models.DateTimeField(default=datetime.datetime.now)
     status = models.CharField(max_length=8, choices=MODERATION_CHOICES, default=MODERATION_CHOICES_DEFAULT)
-    moderator = models.ForeignKey(User, null=True, blank=True)
+    moderator = models.ForeignKey(User, null=True, blank=True, verbose_name=_('Group manager'))
     moderation_date = models.DateTimeField(null=True, blank=True)
-    response_text = models.TextField(null=True, blank=True)
+    applicants_text = models.TextField(_('Reason for joining group'), null=True, blank=True)
+    response_text = models.TextField(_('Group manager\'s reply'), null=True, blank=True)
     
     
     class Admin:
