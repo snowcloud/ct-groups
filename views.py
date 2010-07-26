@@ -23,7 +23,7 @@ def detail(request, object_id):
     o = get_object_or_404(CTGroup, pk=object_id)
     u = request.user
     is_member = u.is_authenticated and o.has_member(u)
-    print "is_member"
+    # print "is_member"
     is_manager = is_member and o.has_manager(u)
     
     return render_to_response(
