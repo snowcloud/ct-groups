@@ -28,15 +28,34 @@
                     <li{% ifequal user item.user %} class="currentitem"{% endifequal %}>
                       
                         {{ item.user.last_name }}, {{ item.user.first_name }} -&nbsp;
-                        {% ifequal group.grouper item.EDITORS  %}
-                            <form class="inline" action="{{ object.get_absolute_url }}remove-editor/{{ item.id }}/" method="post">{% csrf_token %}
-                                <button type="submit" class="link"><span>{% trans 'Remove' %}</span></button>
-                            </form>
+                        
+                        {% if item.status == 'accepted' %}
+                            {% ifequal group.grouper item.EDITORS  %}
+                                <form class="inline" action="{{ object.get_absolute_url }}remove-editor/{{ item.id }}/" method="post">{% csrf_token %}
+                                    <button type="submit" class="link"><span>{% trans 'Remove' %}</span></button>
+                                </form>
+                            {% else %}
+                                <form class="inline" action="{{ object.get_absolute_url }}make-editor/{{ item.id }}/" method="post">{% csrf_token %}
+                                    <button type="submit" class="link"><span>{% trans 'Make editor' %}</span></button>
+                                </form>
+                            {% endifequal %}
+                        
                         {% else %}
-                            <form class="inline" action="{{ object.get_absolute_url }}make-editor/{{ item.id }}/" method="post">{% csrf_token %}
-                                <button type="submit" class="link"><span>{% trans 'Make editor' %}</span></button>
-                            </form>
-                        {% endifequal %}
+                            {% if item.status == 'pending' %}
+                                <strong>{% trans 'Waiting for approval' %}</strong>
+                                <form class="inline" action="{{ object.get_absolute_url }}moderate-accept/{{ item.id }}/" method="post">{% csrf_token %}
+                                    <button type="submit" class="link"><span>{% trans 'Accept' %}</span></button>
+                                </form>
+                                <form class="inline" action="{{ object.get_absolute_url }}moderate-refuse/{{ item.id }}/" method="post">{% csrf_token %}
+                                    <button type="submit" class="link"><span>{% trans 'Refuse' %}</span></button>
+                                </form>
+                                <div class="info">{{ item.moderation.applicants_text|default:"-"|linebreaks }}</div>
+                            {% else %}
+                                <strong>refused</strong>
+                            {% endif %}
+                        {% endif %}
+                        
+                        
                     </li>
                     {% endfor %}
               </ul>

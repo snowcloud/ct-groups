@@ -206,6 +206,9 @@ class Moderation(models.Model):
     
     class Admin:
         pass
+    
+    def __str__(self):
+        return '%s group: %s - %s' % (self.groupmembership.group.name, self.groupmembership.user.get_full_name(), self.status)
         
     def save(self, *args, **kwargs):
         if self.id is None:
@@ -221,18 +224,13 @@ class Moderation(models.Model):
 
     def get_notify_content(self, comment=None):
         """docstring for get_notify_content"""
-        line_1 = _('Request to join group: %s.') % self.group.name
-        user = self.groupmembership.user.get_full_name()
-        # content = '%s\n%s' % (self.title, self.summary)
-        # url = '%s%s' % ( settings.APP_BASE[:-1], self.get_absolute_url())
-
         content = render_to_string('ct_groups/email_post_comment_content.txt', {
-            'line_1': line_1,
+            'line_1': _('Request to join group: %s.') % self.group.name,
             'line_2': '',
-            'author': user, 
+            'author': self.groupmembership.user.get_full_name(), 
             'review_date': self.date_requested.strftime("%d/%m/%Y, %H.%M"),
             'content': self.applicants_text,
-            'url': 'url'
+            'url': '%s%s' % ( settings.APP_BASE[:-1], reverse('group-edit', kwargs={'group_slug': self.groupmembership.group.slug}))
         })    
         return (True, content)
 
