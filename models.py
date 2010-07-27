@@ -230,7 +230,7 @@ class GroupMembership(models.Model):
         choices=POST_UPDATE_CHOICES, default=POST_UPDATE_CHOICES_DEFAULT)
     tool_updates = models.CharField(_('email tool comments'), max_length=8,
         choices=TOOL_UPDATE_CHOICES, default=TOOL_UPDATE_CHOICES_DEFAULT)
-    moderation = models.ForeignKey(Moderation, null=True, blank=True)
+    moderation = models.OneToOneField(Moderation, null=True, blank=True)
     status = models.CharField(max_length=8, choices=MODERATION_CHOICES, default=STATUS_CHOICES_DEFAULT)
     
     # need these strings stable across translation to allow matching
@@ -258,6 +258,14 @@ class GroupMembership(models.Model):
         print self.status
         super(GroupMembership, self).save(*args, **kwargs)
     
+    def save(self, *args, **kwargs):
+        if self.moderation:
+            self.status = self.moderation.status
+        else:
+            self.status = STATUS_CHOICES_DEFAULT
+        print self.status
+        super(GroupMembership, self).save(*args, **kwargs)
+
     def _get_member_type(self):
         if self.is_editor: return self.EDITORS
         if self.is_manager: return self.MANAGERS
