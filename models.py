@@ -9,7 +9,7 @@ from django.contrib.sites.models import Site
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.db.models import Manager, signals, get_model
+from django.db.models import Manager, get_model
 from django.conf import settings
 from django.template.defaultfilters import truncatewords
 from django.template.loader import render_to_string
@@ -208,10 +208,34 @@ class Moderation(models.Model):
         pass
         
     def save(self, *args, **kwargs):
+        if self.id is None:
+            group_notify(self, True)
         super(Moderation, self).save(*args, **kwargs)
         memb = self.groupmembership
         memb.status = self.status
         memb.save()
+
+    def _get_group(self):
+        return self.groupmembership.group
+    group = property(_get_group)
+
+    def get_notify_content(self, comment=None):
+        """docstring for get_notify_content"""
+        line_1 = _('Request to join group: %s.') % self.group.name
+        user = self.groupmembership.user.get_full_name()
+        # content = '%s\n%s' % (self.title, self.summary)
+        # url = '%s%s' % ( settings.APP_BASE[:-1], self.get_absolute_url())
+
+        content = render_to_string('ct_groups/email_post_comment_content.txt', {
+            'line_1': line_1,
+            'line_2': '',
+            'author': user, 
+            'review_date': self.date_requested.strftime("%d/%m/%Y, %H.%M"),
+            'content': self.applicants_text,
+            'url': 'url'
+        })    
+        return (True, content)
+
 
 POST_UPDATE_CHOICES= (('none', _('No updates')), ('single', _('Single emails')), ('digest', _('Daily digest')))
 TOOL_UPDATE_CHOICES = POST_UPDATE_CHOICES
@@ -255,16 +279,12 @@ class GroupMembership(models.Model):
             self.status = self.moderation.status
         else:
             self.status = STATUS_CHOICES_DEFAULT
-        print self.status
         super(GroupMembership, self).save(*args, **kwargs)
     
-    def save(self, *args, **kwargs):
+    def delete(self, *args, **kwargs):
         if self.moderation:
-            self.status = self.moderation.status
-        else:
-            self.status = STATUS_CHOICES_DEFAULT
-        print self.status
-        super(GroupMembership, self).save(*args, **kwargs)
+            self.moderation.delete()
+        super(GroupMembership, self).delete(*args, **kwargs)
 
     def _get_member_type(self):
         if self.is_editor: return self.EDITORS
@@ -387,13 +407,15 @@ class CTEvent(models.Model):
         self.status = status
         self.save()
 
-def group_notify(obj):
+def group_notify(obj, managers=False):
     """docstring for group_email"""
     if hasattr(obj, 'get_notify_content'):
         enabled, content = obj.get_notify_content()
         if enabled:
-            email_notify([obj.group], content, 'blog')
-            add_notify_event(obj, 'notify', 'blog')
+            email_notify([obj.group], content, 'blog', managers)
+            # email to managers will go straight away, so no need to digest
+            if not managers:
+                add_notify_event(obj, 'notify', 'blog')
     else:
         print 'obj does not provide notify content'
 
@@ -427,16 +449,22 @@ def add_notify_event(obj, event_type, perm, data=None):
             )
             ev.save()
 
-def email_notify(groups, content, perm):
+def email_notify(groups, content, perm, managers):
     # leave here - recursive load problem
     from ct_groups.decorators import check_permission
     
     all_memberships = []
     for group in groups:
         if group:
-            all_memberships.extend([member for member in group.groupmembership_set.all() if (member.notify_pref(perm) == 'single') and 
-                member.is_active and 
-                check_permission(member.user, group, perm, 'r')])
+            if managers: 
+                # ignore settings and send to all managers at once
+                all_memberships.extend([member for member in group.groupmembership_set.all() 
+                    if member.is_manager])
+            else:
+                all_memberships.extend([member for member in group.groupmembership_set.all() 
+                    if (member.notify_pref(perm) == 'single') and 
+                        member.is_active and 
+                        check_permission(member.user, group, perm, 'r')])
 
     add_list = list(frozenset([member.user.email for member in all_memberships]))
     if len(add_list) == 0:
