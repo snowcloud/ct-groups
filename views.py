@@ -8,10 +8,11 @@ from django.shortcuts import render_to_response
 from django.shortcuts import get_object_or_404
 from django.template import RequestContext
 from django.template.defaultfilters import slugify
+from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 from ct_groups.decorators import check_permission
-from ct_groups.models import CTGroup, GroupMembership, CTPost, process_digests
-from ct_groups.forms import BlogPostForm, GroupMembershipForm
+from ct_groups.models import CTGroup, Moderation, GroupMembership, CTPost, process_digests
+from ct_groups.forms import BlogPostForm, GroupJoinForm, GroupMembershipForm
 from basic.blog.models import Category
 import datetime
 
@@ -100,12 +101,47 @@ def make_editor(request, group_slug, object_id):
 def join(request, object_id):
     group = get_object_or_404(CTGroup, pk=object_id)
     u = request.user
+    form = memb = None
+    
     try:
-        gm = GroupMembership.objects.get(user=u, group=group)
+        memb = GroupMembership.objects.get(user=u, group=group)
     except GroupMembership.DoesNotExist:
-        gm = GroupMembership(user=u, group=group)
-        gm.save()
-    return render_to_response('ct_groups/ct_groups_confirm_join.html', RequestContext( request, {'group': group, }))
+        
+        # moderate_membership = 'open', 'mod', 'closed'
+        if not group.is_closed:
+            mod = None
+            if group.moderate_membership == 'mod':
+                
+                if request.method == 'POST':
+                    
+                    if request.POST['result'] == _('Cancel'):
+                        return HttpResponseRedirect(reverse('group',kwargs={'group_slug': group.slug}))
+                    #     redirect to group
+                    
+                    form = GroupJoinForm(request.POST)
+                    if form.is_valid():
+                        mod = Moderation(status='pending', applicants_text=form.cleaned_data['reason_for_joining'])
+                        mod.save()
+                        memb = GroupMembership(user=u, group=group, moderation=mod)
+                        memb.save()
+                        
+                        
+                        return HttpResponseRedirect(reverse('join-group',kwargs={'object_id': group.id}))
+                    
+                    # else, reshow form
+                    pass
+                    
+                    mod = None
+                else:
+                    form = GroupJoinForm()
+                    # a GET, so make form
+    
+    
+    
+            
+    return render_to_response('ct_groups/ct_groups_confirm_join.html', 
+        RequestContext( request, {'group': group, 'memb': memb, 'form': form }))
+
 
 @login_required
 def leave(request, object_id):

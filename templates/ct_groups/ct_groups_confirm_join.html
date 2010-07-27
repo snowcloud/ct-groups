@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n forms %}
 
 {% block title %}{% trans 'Joined group' %}{% endblock %}
 
@@ -7,9 +7,62 @@
 {% block content %}
 <p>&nbsp;</p>
 
-<h3>{% blocktrans with group.name as name %}You have now joined the '{{ name }}' group{% endblocktrans %}.</h3>
+{% if memb %}
+    {% if memb.moderation %}
+        {% if memb.moderation.status == 'pending' %}
+            <h2>{% trans 'Your group membership request is waiting for approval' %}</h2>
+        {% endif %}
+        {% if memb.moderation.status == 'refused' %}
+            <h2>{% trans 'Your group membership has not been approved.' %}</h2>
+            {{ memb.moderation.response_text|linebreaks }}
+        {% endif %}
+        <p><a href="{% url group group.slug %}">{% trans 'Continue' %}</a></p>
+    {% else %}
+        <h3>{% blocktrans with group.name as name %}You have now joined the '{{ name }}' group{% endblocktrans %}.</h3>
+    
+        <p><a href="{% url group group.slug %}">{% trans 'Continue' %}</a> - {% trans 'you will see your name in the list of group members' %}.</p>
+    
+    {% endif %}
+    
 
-<p><a href="{% url group group.slug %}">{% trans 'Continue' %}</a> - {% trans 'you will see your name in the list of group members' %}.</p>
+{% else %}
+    {% if group.is_closed %}
+
+        <h3>{% trans 'This group is closed' %}</h3>
+
+        <p><a href="{% url group group.slug %}">{% trans 'Continue' %}</a></p>
+
+    {% else %}
+        {% if form %}
+        
+            <h1>{% trans 'You need approval to join this group' %}</h1>
+                        
+            <form class="wide form" name="join-group" action="" method="post">{% csrf_token %}
+
+                <fieldset>
+                    <legend><span>{% trans 'Please enter your reason for joining this group' %}</span></legend>
+                    <ol>
+                        <li><div>{{ group.moderated_message|linebreaks }}</div></li>
+                    {% show_errors form.non_field_errors %}
+                    {% for field in form %}
+                         {% show_field field "li" %}
+                    {% endfor %}
+                    </ol>
+                </fieldset>
+
+                <fieldset class="submit">
+                    <input type="submit" name="result" value="{% trans 'Save details' %}">&nbsp;&nbsp;
+                    <input type="submit" name="result" value="{% trans 'Cancel' %}">
+                </fieldset>
+    
+            </form>
+        {% else %}
+            <p>error?</p>
+        {% endif %}
+    {% endif %}
+    
+{% endif %}
+
 
 <p>&nbsp;</p>
 

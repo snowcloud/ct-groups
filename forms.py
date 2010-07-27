@@ -55,7 +55,7 @@ class BlogPostForm(forms.ModelForm):
         fields = ('title', 'body', 'tease', 'allow_comments', 'status', )
 
 class GroupJoinForm(forms.Form):
-    reason_for_joining = forms.CharField(label=_('Title'), widget=forms.Textarea)
+    reason_for_joining = forms.CharField(label=_('Reason for joining'), required=False, widget=forms.Textarea)
 
 class GroupMembershipForm(forms.ModelForm):
     class Meta:
