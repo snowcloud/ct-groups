@@ -97,15 +97,18 @@ class CTGroup(models.Model):
         self.check_default_permissions(*args, **kwargs)
     
     def get_member(self, user):
-        members = [gm for gm in self.groupmembership_set.all() if gm.user.id == user.id]
+        # TODO use a filter on set
+        # TODO don't include pending/refused moderations
+        members = self.groupmembership_set.filter(user__id=user.id)
+        # members = [gm for gm in self.groupmembership_set.all() if gm.user.id == user.id]
         if len(members) > 0:
-            return members[0]
-        else:
-            return None
+            result = members[0]
+            if not (result.moderation and result.moderation != 'approved'):
+                return members[0]
+        return None
 
     def has_member(self, user):
-        members = [gm.user for gm in self.groupmembership_set.all()]
-        return user in members
+        return self.get_member(user) is not None
 
     def has_manager(self, user):
         u = self.get_member(user)
@@ -115,7 +118,12 @@ class CTGroup(models.Model):
             return u.is_manager
             
     def show_join_link(self):
-        return self.moderate_membership != 'closed'
+        return not self.is_closed
+
+    def get_is_closed(self):
+        """provides a common interface across ct models"""
+        return self.moderate_membership == 'closed'
+    is_closed = property(get_is_closed)
 
 # this is buggy- corrupting fields in admin
 # tagging.register(CTGroup)
@@ -199,7 +207,7 @@ class Moderation(models.Model):
 POST_UPDATE_CHOICES= (('none', _('No updates')), ('single', _('Single emails')), ('digest', _('Daily digest')))
 TOOL_UPDATE_CHOICES = POST_UPDATE_CHOICES
 POST_UPDATE_CHOICES_DEFAULT = TOOL_UPDATE_CHOICES_DEFAULT = 'single'
-
+STATUS_CHOICES_DEFAULT = 'accepted'
 NOTIFY_ATTRS = { 'blog': 'post_updates', 'resource': 'tool_updates'}
 
 class GroupMembership(models.Model):
@@ -209,9 +217,12 @@ class GroupMembership(models.Model):
     is_editor = models.BooleanField('editor', blank=True)
     user = models.ForeignKey(User)
     group = models.ForeignKey(CTGroup)
-    post_updates = models.CharField(_('email discussion alerts') ,max_length=8, choices=POST_UPDATE_CHOICES, default=POST_UPDATE_CHOICES_DEFAULT)
-    tool_updates = models.CharField(_('email tool comments'), max_length=8, choices=TOOL_UPDATE_CHOICES, default=TOOL_UPDATE_CHOICES_DEFAULT)
+    post_updates = models.CharField(_('email discussion alerts') ,max_length=8,
+        choices=POST_UPDATE_CHOICES, default=POST_UPDATE_CHOICES_DEFAULT)
+    tool_updates = models.CharField(_('email tool comments'), max_length=8,
+        choices=TOOL_UPDATE_CHOICES, default=TOOL_UPDATE_CHOICES_DEFAULT)
     moderation = models.ForeignKey(Moderation, null=True, blank=True)
+    status = models.CharField(max_length=8, choices=MODERATION_CHOICES, default=STATUS_CHOICES_DEFAULT)
     
     # need these strings stable across translation to allow matching
     EDITORS = 'Editors'
@@ -229,6 +240,11 @@ class GroupMembership(models.Model):
     
     def __unicode__(self):
         return '%s - %s' % (self.user.username, self.group.name)
+
+    def save(self, *args, **kwargs):
+        if self.moderation:
+            self.status = self.moderation.status
+        super(GroupMembership, self).save(*args, **kwargs)
     
     def _get_member_type(self):
         if self.is_editor: return self.EDITORS
