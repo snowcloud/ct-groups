@@ -153,14 +153,23 @@ def has_member(group, user):
 
 @register.filter
 def member_status(group, user):
-    """ usage group|has_member:user
+    """ usage group|member_status:user
 
     """
-    memb = group.get_member(user)
+    memb = group.get_member(user, True)
+    print group, user, memb
     if memb:
         return memb.status
     else:
-        return ''
+        return '-'
+
+@register.filter
+def membership_pending(group, user):
+    """ usage group|membership_pending:user
+
+    """
+    print member_status(group, user)
+    return member_status(group, user) == 'pending'
 
 from ct_groups.decorators import check_permission
 
