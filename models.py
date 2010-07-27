@@ -96,19 +96,24 @@ class CTGroup(models.Model):
         super(CTGroup, self).save(*args, **kwargs)
         self.check_default_permissions(*args, **kwargs)
     
-    def get_member(self, user):
+    def get_active_members(self):
+        return self.groupmembership_set.filter(is_active=True, status=STATUS_CHOICES_DEFAULT)
+        
+    def get_member(self, user, all=False):
         # TODO use a filter on set
         # TODO don't include pending/refused moderations
-        members = self.groupmembership_set.filter(user__id=user.id)
-        # members = [gm for gm in self.groupmembership_set.all() if gm.user.id == user.id]
+        if all:
+            members = self.groupmembership_set.filter(user__id=user.id)
+        else:
+            members = self.get_active_members().filter(user__id=user.id)
         if len(members) > 0:
-            result = members[0]
-            if not (result.moderation and result.moderation != 'approved'):
-                return members[0]
+            # result = members[0]
+            # if not (result.moderation and result.moderation != 'approved'):
+            return members[0]
         return None
 
-    def has_member(self, user):
-        return self.get_member(user) is not None
+    def has_member(self, user, all=False):
+        return self.get_member(user, all) is not None
 
     def has_manager(self, user):
         u = self.get_member(user)
@@ -202,7 +207,11 @@ class Moderation(models.Model):
     class Admin:
         pass
         
-
+    def save(self, *args, **kwargs):
+        super(Moderation, self).save(*args, **kwargs)
+        memb = self.groupmembership_set.all()[0]
+        memb.status = self.status
+        memb.save()
 
 POST_UPDATE_CHOICES= (('none', _('No updates')), ('single', _('Single emails')), ('digest', _('Daily digest')))
 TOOL_UPDATE_CHOICES = POST_UPDATE_CHOICES
@@ -244,6 +253,9 @@ class GroupMembership(models.Model):
     def save(self, *args, **kwargs):
         if self.moderation:
             self.status = self.moderation.status
+        else:
+            self.status = STATUS_CHOICES_DEFAULT
+        print self.status
         super(GroupMembership, self).save(*args, **kwargs)
     
     def _get_member_type(self):
