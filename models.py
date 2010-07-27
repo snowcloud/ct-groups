@@ -209,7 +209,7 @@ class Moderation(models.Model):
         
     def save(self, *args, **kwargs):
         super(Moderation, self).save(*args, **kwargs)
-        memb = self.groupmembership_set.all()[0]
+        memb = self.groupmembership
         memb.status = self.status
         memb.save()
 

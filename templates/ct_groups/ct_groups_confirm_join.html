@@ -7,7 +7,7 @@
 {% block content %}
 <p>&nbsp;</p>
 
-{% if memb %}
+{% if memb %}  {# there is a membership for this user, either already applied, refused, or accepted #}
     {% if memb.moderation %}
         {% if memb.moderation.status == 'pending' %}
             <h2>{% trans 'Your group membership request is waiting for approval' %}</h2>
@@ -26,12 +26,14 @@
     
 
 {% else %}
+    {# no membership, so either group is closed... #}
     {% if group.is_closed %}
 
         <h3>{% trans 'This group is closed' %}</h3>
 
         <p><a href="{% url group group.slug %}">{% trans 'Continue' %}</a></p>
 
+    {# ... or user is asking to join moderated group #}
     {% else %}
         {% if form %}
         
