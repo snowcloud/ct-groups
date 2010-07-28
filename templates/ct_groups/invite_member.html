@@ -1,19 +1,19 @@
 {% extends "base.html" %}
 {% load i18n forms %}
 
-{% block title %}{% trans 'Refuse group membership' %}{% endblock %}
+{% block title %}{% trans 'Invite a group member' %}{% endblock %}
 
 
 {% block content %}
 <p>&nbsp;</p>
 
         
-<h1>{% trans 'Refuse group membership' %}</h1>
+<h1>{% trans 'Invite a group member' %}</h1>
             
 <form class="wide form" name="join-group" action="" method="post">{% csrf_token %}
 
     <fieldset>
-        <legend><span>{% trans 'Please enter a message for this user' %}</span></legend>
+        <legend><span>{% trans 'Please enter details for this user' %}</span></legend>
         <ol>
         {% show_errors form.non_field_errors %}
         {% for field in form %}

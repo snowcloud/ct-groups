@@ -12,7 +12,8 @@ from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 from ct_groups.decorators import check_permission
 from ct_groups.models import CTGroup, Moderation, GroupMembership, CTPost, process_digests, group_notify
-from ct_groups.forms import BlogPostForm, GroupJoinForm, GroupMembershipForm, ModerateRefuseForm
+from ct_groups.forms import BlogPostForm, GroupJoinForm, GroupMembershipForm, ModerateRefuseForm, \
+    InviteMemberForm
 from basic.blog.models import Category
 import datetime
 
@@ -75,7 +76,24 @@ def group_note(request, group_slug):
 
 @login_required
 def invite_member(request, group_slug):
-    pass
+    object = get_object_or_404(CTGroup, slug=group_slug)
+    u = request.user
+    if not check_permission(u, object, 'group', 'w'):
+        raise PermissionDenied()
+
+    if request.method == 'POST':
+        
+        if request.POST['result'] == _('Cancel'):
+            return HttpResponseRedirect(reverse('group-edit',kwargs={'group_slug': object.slug}))
+        form = InviteMemberForm(request.POST)
+        if form.is_valid():
+            print 'valid'
+            return HttpResponseRedirect(reverse('group-edit',kwargs={'group_slug': object.slug}))
+    else:
+        form = InviteMemberForm()
+    
+    return render_to_response('ct_groups/invite_member.html', RequestContext( request, {'object': object, 'form': form }))
+
 
 @login_required
 def change_editor(request, group_slug, object_id, change):
