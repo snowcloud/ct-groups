@@ -72,6 +72,11 @@ def group_note(request, group_slug):
     
     return render_to_response('ct_groups/ct_groups_edit.html', RequestContext( request, {'object': object, }))
 
+
+@login_required
+def invite_member(request, group_slug):
+    pass
+
 @login_required
 def change_editor(request, group_slug, object_id, change):
     """docstring for change_editor"""

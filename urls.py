@@ -9,7 +9,8 @@ from django.contrib.comments.models import Comment
 from ct_groups.models import CTGroup, email_comment
 from ct_groups.forms import CTPageForm
 from ct_groups.views import blog_new_post, blog_post_edit, group_detail, group_edit, group_note, \
-    remove_editor, make_editor, moderate_accept, moderate_refuse, moderate_refuse_confirm, moderate_remove
+    remove_editor, make_editor, moderate_accept, moderate_refuse, moderate_refuse_confirm, moderate_remove, \
+    invite_member
 from ct_groups.decorators import group_perm
 
 signals.post_save.connect(email_comment, sender=Comment)
@@ -29,10 +30,11 @@ urlpatterns = patterns('',
 
     url(r'^process-digests/$', 'ct_groups.views.do_digests', name="process-digests"),
 
-    url(r'^(?P<group_slug>[^/]+)/edit/$', group_access(group_edit), name="group-edit"),    
-    url(r'^(?P<group_slug>[^/]+)/note/$', group_write(group_note), name="group-note"),    
-    url(r'^(?P<group_slug>[^/]+)/remove-editor/(?P<object_id>[^/]+)/$', group_write(remove_editor), \
-        name="remove-editor"),    
+    url(r'^(?P<group_slug>[^/]+)/edit/$', group_access(group_edit), name="group-edit"),
+    url(r'^(?P<group_slug>[^/]+)/note/$', group_write(group_note), name="group-note"),
+    url(r'^(?P<group_slug>[^/]+)/note/$', group_write(group_note), name="group-note"),
+    url(r'^(?P<group_slug>[^/]+)/invite-member/$', group_write(invite_member), \
+        name="invite-member"),    
     url(r'^(?P<group_slug>[^/]+)/make-editor/(?P<object_id>[^/]+)/$', group_write(make_editor), \
         name="make-editor"),
     url(r'^(?P<group_slug>[^/]+)/moderate-accept/(?P<object_id>[^/]+)/$', group_write(moderate_accept), \

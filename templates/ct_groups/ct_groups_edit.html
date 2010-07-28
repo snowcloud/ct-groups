@@ -67,6 +67,9 @@
         {% else %}
             <p>- {% trans 'No members yet' %} -</p>
         {% endif %}
+        
+        <p><a href="{% url invite-member object.slug %}">{% trans 'Invite a new member' %}</a></p>
+        
         <form action="{{ object.get_absolute_url }}note/" method="post" class="wider">{% csrf_token %}
             <fieldset>
                 <legend><span>{% trans 'Group note' %}:</span></legend>
