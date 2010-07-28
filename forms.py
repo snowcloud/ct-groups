@@ -65,3 +65,7 @@ class GroupMembershipForm(forms.ModelForm):
 class ModerateRefuseForm(forms.Form):
     reason_for_refusal = forms.CharField(label=_('Reason for refusing group membership'), 
         help_text=_('Will be included in email to person being refused'), required=False, widget=forms.Textarea)
+
+class InviteMemberForm(forms.Form):
+    email = forms.EmailField(label=_('Email'))
+
