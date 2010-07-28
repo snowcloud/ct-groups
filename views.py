@@ -11,8 +11,8 @@ from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 from ct_groups.decorators import check_permission
-from ct_groups.models import CTGroup, Moderation, GroupMembership, CTPost, process_digests
-from ct_groups.forms import BlogPostForm, GroupJoinForm, GroupMembershipForm
+from ct_groups.models import CTGroup, Moderation, GroupMembership, CTPost, process_digests, group_notify
+from ct_groups.forms import BlogPostForm, GroupJoinForm, GroupMembershipForm, ModerateRefuseForm
 from basic.blog.models import Category
 import datetime
 
@@ -113,36 +113,95 @@ def join(request, object_id):
             if group.moderate_membership == 'mod':
                 
                 if request.method == 'POST':
-                    
                     if request.POST['result'] == _('Cancel'):
                         return HttpResponseRedirect(reverse('group',kwargs={'group_slug': group.slug}))
-                    #     redirect to group
-                    
                     form = GroupJoinForm(request.POST)
                     if form.is_valid():
                         mod = Moderation(status='pending', applicants_text=form.cleaned_data['reason_for_joining'])
                         mod.save()
                         memb = GroupMembership(user=u, group=group, moderation=mod)
                         memb.save()
-                        
-                        
+                        group_notify(mod, True)
                         return HttpResponseRedirect(reverse('join-group',kwargs={'object_id': group.id}))
                     
                     # else, reshow form
-                    pass
-                    
-                    mod = None
+                    else:
+                        mod = None
                 else:
-                    form = GroupJoinForm()
                     # a GET, so make form
-    
-    
-    
-            
+                    form = GroupJoinForm()
+
     return render_to_response('ct_groups/ct_groups_confirm_join.html', 
         RequestContext( request, {'group': group, 'memb': memb, 'form': form }))
 
+@login_required
+def moderate_accept(request, group_slug, object_id):
+    """docstring for moderate_accept"""
+    object = get_object_or_404(CTGroup, slug=group_slug)
+    u = request.user
+    if not check_permission(u, object, 'group', 'w'):
+        raise PermissionDenied()
 
+    if request.method == 'POST':
+        membership = get_object_or_404(GroupMembership, pk=object_id)
+        membership.approve()
+
+        return HttpResponseRedirect(reverse('group-edit', kwargs={'group_slug': group_slug}))
+
+    return render_to_response('ct_groups/ct_groups_edit.html', RequestContext( request, {'object': object, }))
+
+@login_required
+def moderate_refuse(request, group_slug, object_id):
+    """docstring for moderate_refuse"""
+    if request.method == 'POST':
+        return HttpResponseRedirect(reverse('moderate-refuse-confirm', kwargs={'group_slug': group_slug, 'object_id': object_id}))
+
+    return render_to_response('ct_groups/ct_groups_edit.html', RequestContext( request, {'object': object, }))
+
+@login_required
+def moderate_refuse_confirm(request, group_slug, object_id):
+    """docstring for moderate_refuse_confirm"""
+    object = get_object_or_404(CTGroup, slug=group_slug)
+    u = request.user
+    if not check_permission(u, object, 'group', 'w'):
+        raise PermissionDenied()
+
+    if request.method == 'POST':
+
+        if request.POST['result'] == _('Cancel'):
+            return HttpResponseRedirect(reverse('group-edit', kwargs={'group_slug': group_slug}))
+        #     redirect to group
+
+        form = ModerateRefuseForm(request.POST)
+        if form.is_valid():
+            membership = get_object_or_404(GroupMembership, pk=object_id)
+            membership.refuse(form.cleaned_data['reason_for_refusal'])
+
+            return HttpResponseRedirect(reverse('group-edit', kwargs={'group_slug': group_slug}))
+
+        # else, reshow form
+        else:
+            mod = None
+    else:
+        # a GET, so make form
+        form = ModerateRefuseForm()
+
+    return render_to_response('ct_groups/ct_groups_moderate_refuse.html', 
+        RequestContext( request, {'group': object, 'memb': None, 'form': form }))
+
+@login_required
+def moderate_remove(request, group_slug, object_id):
+    object = get_object_or_404(CTGroup, slug=group_slug)
+    u = request.user
+    if not check_permission(u, object, 'group', 'w'):
+        raise PermissionDenied()
+    
+    if request.method == 'POST':
+        membership = get_object_or_404(GroupMembership, pk=object_id)
+        membership.delete()
+    
+    return HttpResponseRedirect(reverse('group-edit', kwargs={'group_slug': group_slug}))
+    
 @login_required
 def leave(request, object_id):
     group = get_object_or_404(CTGroup, pk=object_id)

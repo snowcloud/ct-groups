@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load i18n forms %}
+
+{% block title %}{% trans 'Joined group' %}{% endblock %}
+
+
+{% block content %}
+<p>&nbsp;</p>
+
+        
+<h1>{% trans 'Refuse group membership' %}</h1>
+            
+<form class="wide form" name="join-group" action="" method="post">{% csrf_token %}
+
+    <fieldset>
+        <legend><span>{% trans 'Please enter a message for this user' %}</span></legend>
+        <ol>
+        {% show_errors form.non_field_errors %}
+        {% for field in form %}
+             {% show_field field "li" %}
+        {% endfor %}
+        </ol>
+    </fieldset>
+
+    <fieldset class="submit">
+        <input type="submit" name="result" value="{% trans 'Save details' %}">&nbsp;&nbsp;
+        <input type="submit" name="result" value="{% trans 'Cancel' %}">
+    </fieldset>
+
+</form>
+
+<p>&nbsp;</p>
+
+{% endblock %}

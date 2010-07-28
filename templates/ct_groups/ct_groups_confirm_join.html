@@ -14,7 +14,7 @@
         {% endif %}
         {% if memb.moderation.status == 'refused' %}
             <h2>{% trans 'Your group membership has not been approved.' %}</h2>
-            {{ memb.moderation.response_text|linebreaks }}
+            {{ memb.moderation.response_text|default:"-"|linebreaks }}
         {% endif %}
         <p><a href="{% url group group.slug %}">{% trans 'Continue' %}</a></p>
     {% else %}

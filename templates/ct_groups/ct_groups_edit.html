@@ -42,16 +42,20 @@
                         
                         {% else %}
                             {% if item.status == 'pending' %}
-                                <strong>{% trans 'Waiting for approval' %}</strong>
-                                <form class="inline" action="{{ object.get_absolute_url }}moderate-accept/{{ item.id }}/" method="post">{% csrf_token %}
+                                <strong>{% trans 'Waiting for approval' %}</strong> -
+                                <form class="inline" action="{% url moderate-accept object.slug item.id %}" method="post">{% csrf_token %}
                                     <button type="submit" class="link"><span>{% trans 'Accept' %}</span></button>
-                                </form>
-                                <form class="inline" action="{{ object.get_absolute_url }}moderate-refuse/{{ item.id }}/" method="post">{% csrf_token %}
+                                </form> -
+                                <form class="inline" action="{% url moderate-refuse object.slug item.id %}" method="post">{% csrf_token %}
                                     <button type="submit" class="link"><span>{% trans 'Refuse' %}</span></button>
                                 </form>
                                 <div class="info">{{ item.moderation.applicants_text|default:"-"|linebreaks }}</div>
                             {% else %}
-                                <strong>refused</strong>
+                                <strong>refused</strong> -
+                                <form class="inline" action="{% url moderate-remove object.slug item.id %}" method="post">{% csrf_token %}
+                                    <button type="submit" class="link"><span>{% trans 'Delete' %}</span></button>
+                                </form>
+                                
                             {% endif %}
                         {% endif %}
                         

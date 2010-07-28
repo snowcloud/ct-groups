@@ -208,15 +208,17 @@ class Moderation(models.Model):
         pass
     
     def __str__(self):
-        return '%s group: %s - %s' % (self.groupmembership.group.name, self.groupmembership.user.get_full_name(), self.status)
-        
+        try:
+            return '%s group: %s - %s' % (self.groupmembership.group.name, self.groupmembership.user.get_full_name(), self.status)
+        except:
+            return 'groupmembership not found'
+
     def save(self, *args, **kwargs):
-        if self.id is None:
-            group_notify(self, True)
+        if self.id:
+            memb = self.groupmembership
+            memb.status = self.status
+            memb.save()
         super(Moderation, self).save(*args, **kwargs)
-        memb = self.groupmembership
-        memb.status = self.status
-        memb.save()
 
     def _get_group(self):
         return self.groupmembership.group
@@ -248,9 +250,9 @@ class GroupMembership(models.Model):
     is_editor = models.BooleanField('editor', blank=True)
     user = models.ForeignKey(User)
     group = models.ForeignKey(CTGroup)
-    post_updates = models.CharField(_('email discussion alerts') ,max_length=8,
+    post_updates = models.CharField(_('Email discussion alerts') ,max_length=8,
         choices=POST_UPDATE_CHOICES, default=POST_UPDATE_CHOICES_DEFAULT)
-    tool_updates = models.CharField(_('email tool comments'), max_length=8,
+    tool_updates = models.CharField(_('Email tool comments'), max_length=8,
         choices=TOOL_UPDATE_CHOICES, default=TOOL_UPDATE_CHOICES_DEFAULT)
     moderation = models.OneToOneField(Moderation, null=True, blank=True)
     status = models.CharField(max_length=8, choices=MODERATION_CHOICES, default=STATUS_CHOICES_DEFAULT)
@@ -302,7 +304,44 @@ class GroupMembership(models.Model):
     def notify_pref(self, perm):
         return getattr(self, NOTIFY_ATTRS[perm])
 
+    def approve(self):
+        """docstring for approve"""
+        if self.moderation:
+            self.moderation.delete()
+            self.moderation = None
+        self.status = 'accepted'
+        self.save()
+        body = '%s\n %s%s' % \
+            ('Your request to join this group has been approved.\n\nVisit the group here:',
+                settings.APP_BASE[:-1], reverse('group', kwargs={'group_slug': self.group.slug}))
+        email = EmailMessage(
+            #subject, body, from_email, to, bcc, connection)
+            '[%s] %s update' % (Site.objects.get_current().name, self.group.name), 
+            body, 
+            'do not reply <%s>' % settings.DEFAULT_FROM_EMAIL,
+            [self.user.email ],
+            )
+        email.send()
         
+    def refuse(self, reason_for_refusal):
+        """docstring for refuse"""
+        self.moderation.status = 'refused'
+        self.moderation.response_text = reason_for_refusal
+        self.moderation.save()
+        # self.status = 'refused'
+        self.save()
+        body = '%s\n %s' % \
+            ('Your request to join this group has not been approved.\n\n',
+                self.moderation.response_text)
+        email = EmailMessage(
+            #subject, body, from_email, to, bcc, connection)
+            '[%s] %s update' % (Site.objects.get_current().name, self.group.name), 
+            body, 
+            'do not reply <%s>' % settings.DEFAULT_FROM_EMAIL,
+            [self.user.email ],
+            )
+        email.send()
+
 from basic.blog.models import Post
 # Post = get_model('blog', 'post')
 
