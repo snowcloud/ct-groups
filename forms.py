@@ -74,6 +74,7 @@ class InviteMemberForm(forms.Form):
         """ override default which insists on wikiword
         """
         email = self.cleaned_data['email']
-        self.users = User.objects.filter(email=email)
-        # raise forms.ValidationError(_('There is no user with that email address'))
+        existing = Invitation.objects.filter(email=email)
+        if existing:
+            raise forms.ValidationError(_('There is already an invitation for that email address'))
         return email

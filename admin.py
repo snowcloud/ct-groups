@@ -19,7 +19,7 @@ class ModerationAdmin(admin.ModelAdmin):
     pass
 
 class InvitationAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('group', 'email', 'sent', 'status')
     
 class GroupMembershipAdmin(admin.ModelAdmin):
     list_display = ('user', 'group', 'is_manager', 'is_editor', 'is_active', 'status', 'post_updates', 'tool_updates')

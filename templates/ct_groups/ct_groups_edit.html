@@ -68,6 +68,26 @@
             <p>- {% trans 'No members yet' %} -</p>
         {% endif %}
         
+        {% if object.invitation_set.all %}
+            
+        <h2>{% trans 'Invitations' %}</h2>
+        
+        <ul class="simpleList">
+            {% for inv in object.invitation_set.all %}
+                <li>{{ inv.email }} - {{ inv.get_status_display }}
+                    {% if inv.is_accepted %}-
+                        <form class="inline" action="{% url invitation-remove object.slug inv.accept_key %}" method="post">{% csrf_token %}
+                            <button type="submit" class="link"><span>{% trans 'Delete' %}</span></button>
+                        </form>
+                        
+                    {% endif %}
+                </li>
+            {% endfor %}
+        
+        </ul>
+        
+        {% endif %}
+        
         <p><a href="{% url invite-member object.slug %}">{% trans 'Invite a new member' %}</a></p>
         
         <form action="{{ object.get_absolute_url }}note/" method="post" class="wider">{% csrf_token %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load i18n forms %}
+
+{% block title %}{% trans 'Register with this site' %}{% endblock %}
+
+
+{% block content %}
+    <p>&nbsp;</p>
+
+    <h2>{% trans 'Register with this site' %}</h2>
+
+    {% blocktrans %}<p>Fill out this form (all fields are required), and your account will be created</p>{% endblocktrans %}
+
+    {% if form.errors %}
+    <p class="error">{% trans 'Please correct the errors below' %}:</p>
+    {% endif %}
+
+    <form method="post" action="">{% csrf_token %}
+
+        <fieldset>
+            <legend><span>{% trans 'Your details' %}</span></legend>
+            <ol>{% show_form form "li" %}</ol>
+        </fieldset>
+
+        <fieldset class="submit">
+            <input type="submit" name="result" value="{% trans 'Register' %}" />&nbsp;&nbsp;
+            <input type="submit" name="result" value="{% trans 'Cancel' %}">
+        </fieldset>
+
+    </form>
+
+
+    <p>&nbsp;</p>
+
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load i18n forms %}
+
+{% block title %}{% trans 'Invitation' %}{% endblock %}
+
+
+{% block content %}
+<p>&nbsp;</p>
+
+    <h1>{% trans 'This invitation has not been successful' %}.</h1>
+    
+    <p><strong>{% trans 'Your email' %}</strong>: {{ user.email }}</p>
+    <p><strong>{% trans 'Invitation email' %}</strong>: {{ invitation.email }}</p>
+
+    <p><a href="/">{% trans 'Continue' %}</a></p>
+
+<p>&nbsp;</p>
+
+{% endblock %}

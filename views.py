@@ -1,22 +1,27 @@
 """ views for workgroups app
 
 """
+import datetime
+
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response
 from django.shortcuts import get_object_or_404
 from django.template import RequestContext
 from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
+from basic.blog.models import Category
+
 from ct_groups.decorators import check_permission
 from ct_groups.models import CTGroup, Moderation, GroupMembership, Invitation, CTPost, \
     process_digests, group_notify
 from ct_groups.forms import BlogPostForm, GroupJoinForm, GroupMembershipForm, ModerateRefuseForm, \
     InviteMemberForm
-from basic.blog.models import Category
-import datetime
+from ct_groups.registration_backends import RegistrationWithName
 
 def index(request):
     group_list = CTGroup.objects.order_by('name')
@@ -91,14 +96,89 @@ def invite_member(request, group_slug):
             email = form.cleaned_data['email']
             # print email, form.users
             invitation = Invitation(group=object, inviter=u, email=email)
-            invitation.save()
-            print invitation.accept_key
+            invitation.save() # this will generate the accept_key
+            invitation.send()
+            
             return HttpResponseRedirect(reverse('group-edit',kwargs={'group_slug': object.slug}))
     else:
         form = InviteMemberForm()
     
     return render_to_response('ct_groups/invite_member.html', RequestContext( request, {'object': object, 'form': form }))
 
+@login_required
+def invitation_remove(request, group_slug, key):
+    object = get_object_or_404(CTGroup, slug=group_slug)
+    u = request.user
+    if not check_permission(u, object, 'group', 'w'):
+        raise PermissionDenied()
+    invitation = get_object_or_404(Invitation, accept_key=key)
+    if invitation.is_accepted:
+        invitation.delete()
+    return HttpResponseRedirect(reverse('group-edit',kwargs={'group_slug': object.slug}))
+
+def accept_invitation(request, group_slug, key):
+    object = get_object_or_404(CTGroup, slug=group_slug)
+    invitation = get_object_or_404(Invitation, accept_key=key)
+    if invitation.is_accepted:
+        raise Http404
+    try:
+        user = User.objects.get(email=invitation.email)
+        return HttpResponseRedirect(reverse('complete-invitation',kwargs={'group_slug': object.slug, 'key': key}))
+
+    except User.DoesNotExist:
+        return HttpResponseRedirect(reverse('register-invitee',kwargs={'group_slug': object.slug, 'key': key}))
+
+@login_required
+def complete_invitation(request, group_slug, key):
+    object = get_object_or_404(CTGroup, slug=group_slug)
+    invitation = get_object_or_404(Invitation, accept_key=key)
+    if invitation.is_accepted or invitation.group != object:
+        raise Http404
+    
+    if invitation.email != request.user.email:
+        return render_to_response('ct_groups/complete_invitation.html', RequestContext( request, {'invitation': invitation, }))
+    
+    memb = GroupMembership.objects.get_or_create(group=object, user=request.user)
+    invitation.accept(request.user)
+
+    return render_to_response('ct_groups/ct_groups_confirm_join.html', 
+        RequestContext( request, {'group': invitation.group, 'memb': memb, }))
+
+def register_invitee(request, group_slug, key):
+    object = get_object_or_404(CTGroup, slug=group_slug)
+    invitation = get_object_or_404(Invitation, accept_key=key)
+    if invitation.is_accepted or invitation.group != object:
+        raise Http404
+    
+    if request.method == 'POST':
+    
+        if request.POST['result'] == _('Cancel'):
+            return HttpResponseRedirect('/')
+        #     redirect to group
+    
+        form = RegistrationWithName(request.POST)
+        if form.is_valid():
+            user = User.objects.create_user(
+                form.cleaned_data['username'], 
+                form.cleaned_data['email'],
+                form.cleaned_data['password1'])
+            user.first_name = form.cleaned_data['first_name']
+            user.last_name = form.cleaned_data['last_name']
+            user.save()
+            memb = GroupMembership(user=user, group=object)
+            memb.save()
+            invitation.accept(user)
+            user = authenticate(username=user.username, password=form.cleaned_data['password1'])
+            login(request, user)
+            
+            return HttpResponseRedirect(reverse('group', kwargs={'group_slug': group_slug}))
+    
+    else:
+        # a GET, so make form
+        form = RegistrationWithName(initial={'email': invitation.email })
+
+    return render_to_response('ct_groups/register_invitee.html', 
+        RequestContext( request, {'form': form }))
 
 @login_required
 def change_editor(request, group_slug, object_id, change):
@@ -282,6 +362,6 @@ def group_detail(request, group_slug):
         RequestContext( request, {'object': group,  }))
 
 def do_digests(request):
-	"""docstring for email_digests"""
-	process_digests()
-	return HttpResponse('OK')
+    """docstring for email_digests"""
+    process_digests()
+    return HttpResponse('OK')

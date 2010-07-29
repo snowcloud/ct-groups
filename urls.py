@@ -10,7 +10,7 @@ from ct_groups.models import CTGroup, email_comment
 from ct_groups.forms import CTPageForm
 from ct_groups.views import blog_new_post, blog_post_edit, group_detail, group_edit, group_note, \
     remove_editor, make_editor, moderate_accept, moderate_refuse, moderate_refuse_confirm, moderate_remove, \
-    invite_member
+    invite_member, accept_invitation, complete_invitation, register_invitee, invitation_remove
 from ct_groups.decorators import group_perm
 
 signals.post_save.connect(email_comment, sender=Comment)
@@ -33,10 +33,21 @@ urlpatterns = patterns('',
     url(r'^(?P<group_slug>[^/]+)/edit/$', group_access(group_edit), name="group-edit"),
     url(r'^(?P<group_slug>[^/]+)/note/$', group_write(group_note), name="group-note"),
     url(r'^(?P<group_slug>[^/]+)/note/$', group_write(group_note), name="group-note"),
+    
+    url(r'^(?P<group_slug>[^/]+)/invite/(?P<key>[^/]+)/$', accept_invitation, \
+        name="accept-invitation"),    
     url(r'^(?P<group_slug>[^/]+)/invite-member/$', group_write(invite_member), \
-        name="invite-member"),    
+        name="invite-member"),
+    url(r'^(?P<group_slug>[^/]+)/invitation-remove/(?P<key>[^/]+)/$', group_write(invitation_remove), \
+        name="invitation-remove"),    
+    url(r'^(?P<group_slug>[^/]+)/register-invitee/(?P<key>[^/]+)/$', register_invitee, \
+        name="register-invitee"),
+    url(r'^(?P<group_slug>[^/]+)/complete-invitation/(?P<key>[^/]+)/$', complete_invitation, \
+        name="complete-invitation"),
+
     url(r'^(?P<group_slug>[^/]+)/make-editor/(?P<object_id>[^/]+)/$', group_write(make_editor), \
         name="make-editor"),
+
     url(r'^(?P<group_slug>[^/]+)/moderate-accept/(?P<object_id>[^/]+)/$', group_write(moderate_accept), \
         name="moderate-accept"),
     url(r'^(?P<group_slug>[^/]+)/moderate-refuse/(?P<object_id>[^/]+)/$', group_write(moderate_refuse), \
@@ -45,6 +56,7 @@ urlpatterns = patterns('',
         name="moderate-refuse-confirm"),
     url(r'^(?P<group_slug>[^/]+)/moderate-remove/(?P<object_id>[^/]+)/$', group_write(moderate_remove), \
         name="moderate-remove"),
+
     url(r'^(?P<group_slug>[^/]+)/blog/new-post/', blog_edit(blog_new_post), name='blog-new-post'),
     url(r'^(?P<group_slug>[^/]+)/blog/edit/(?P<slug>[^/]+)', blog_edit(blog_post_edit), name='blog-new-post'),
     url(r'^(?P<group_slug>[^/]+)/wiki/', include('ct_groups.wiki_urls'), wiki_args),

@@ -10,15 +10,15 @@
 {% if memb %}  {# there is a membership for this user, either already applied, refused, or accepted #}
     {% if memb.moderation %}
         {% if memb.moderation.status == 'pending' %}
-            <h2>{% trans 'Your group membership request is waiting for approval' %}</h2>
+            <h1>{% trans 'Your group membership request is waiting for approval' %}</h1>
         {% endif %}
         {% if memb.moderation.status == 'refused' %}
-            <h2>{% trans 'Your group membership has not been approved.' %}</h2>
+            <h1>{% trans 'Your group membership has not been approved.' %}</h1>
             {{ memb.moderation.response_text|default:"-"|linebreaks }}
         {% endif %}
         <p><a href="{% url group group.slug %}">{% trans 'Continue' %}</a></p>
     {% else %}
-        <h3>{% blocktrans with group.name as name %}You have now joined the '{{ name }}' group{% endblocktrans %}.</h3>
+        <h1>{% blocktrans with group.name as name %}You have now joined the '{{ name }}' group{% endblocktrans %}.</h1>
     
         <p><a href="{% url group group.slug %}">{% trans 'Continue' %}</a> - {% trans 'you will see your name in the list of group members' %}.</p>
     
@@ -29,7 +29,7 @@
     {# no membership, so either group is closed... #}
     {% if group.is_closed %}
 
-        <h3>{% trans 'This group is closed' %}</h3>
+        <h1>{% trans 'This group is closed' %}</h1>
 
         <p><a href="{% url group group.slug %}">{% trans 'Continue' %}</a></p>
 
