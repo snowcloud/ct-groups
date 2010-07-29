@@ -355,22 +355,54 @@ class Invitation(models.Model):
     """docstring for Invitation"""
     group = models.ForeignKey(CTGroup)
     sent = models.DateTimeField(default=datetime.datetime.now)
-    inviter = models.ForeignKey(User)
+    inviter = models.ForeignKey(User, related_name='inviter')
     email = models.EmailField(unique=True)
-    status = models.CharField(_('Email discussion alerts') ,max_length=8,
+    accepted_by = models.ForeignKey(User, null=True, blank=True, related_name='accepted_by')
+    status = models.CharField(max_length=8,
         choices=INVITATION_STATUS_CHOICES, default=INVITATION_STATUS_CHOICES_DEFAULT)
     accept_key = models.CharField(_('accept key'), help_text=_('DO NOT EDIT'), max_length=44, null=True, blank=True, unique=True)
     
     class Admin:
         pass
-        
+    
     def save(self, *args, **kwargs):
         """docstring for save"""
         super(Invitation, self).save(*args, **kwargs)
         if not self.accept_key:
             self.accept_key = '%s%06d' % (make_hash(self.email), self.id)
             self.save()
-        
+
+    def send(self):
+        """docstring for send"""
+        if self.accept_key:
+            body = '%s\n %s%s' % \
+                ('%s has invited you to join the %s group.\n\nTo accept the invitation, click this link:' %
+                    (self.inviter.get_full_name(), self.group.name),
+                    settings.APP_BASE[:-1], reverse('accept-invitation', kwargs={'group_slug': self.group.slug, 'key': self.accept_key}))
+            email = EmailMessage(
+                #subject, body, from_email, to, bcc, connection)
+                '[%s] %s update' % (Site.objects.get_current().name, self.group.name), 
+                body, 
+                'do not reply <%s>' % settings.DEFAULT_FROM_EMAIL,
+                [self.email ],
+                )
+            email.send()
+            self.status = 'sent'
+            self.save()
+        else:
+            raise Exception('Invitation has no key')
+
+    def accept(self, user):
+        """docstring for accept"""
+        self.status = 'accepted'
+        self.accepted_by = user
+        self.save()
+    
+    def get_is_accepted(self):
+        """docstring for is_accepted"""
+        return self.status == 'accepted'
+    is_accepted = property(get_is_accepted)
+    
 def make_hash(key, size=12):
     """docstring for make_hash"""
     salt = sha_constructor(str(random.random())).hexdigest()[:5]
