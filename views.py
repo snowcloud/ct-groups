@@ -87,7 +87,8 @@ def invite_member(request, group_slug):
             return HttpResponseRedirect(reverse('group-edit',kwargs={'group_slug': object.slug}))
         form = InviteMemberForm(request.POST)
         if form.is_valid():
-            print 'valid'
+            email = form.cleaned_data['email']
+            print email, form.users
             return HttpResponseRedirect(reverse('group-edit',kwargs={'group_slug': object.slug}))
     else:
         form = InviteMemberForm()

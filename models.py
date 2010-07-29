@@ -342,6 +342,23 @@ class GroupMembership(models.Model):
             )
         email.send()
 
+INVITATION_STATUS_CHOICES= (('to_send', 'To send'), ('sent', _('Sent')), ('failed', _('Email failed')), ('accepted', _('Accepted')))
+INVITATION_STATUS_CHOICES_DEFAULT = 'to_send'
+
+class Invitation(models.Model):
+    """docstring for Invitation"""
+    group = models.ForeignKey(CTGroup)
+    sent = models.DateTimeField(default=datetime.datetime.now)
+    inviter = models.ForeignKey(User)
+    email = models.EmailField()
+    status = models.CharField(_('Email discussion alerts') ,max_length=8,
+        choices=INVITATION_STATUS_CHOICES, default=INVITATION_STATUS_CHOICES_DEFAULT)
+    
+    class Admin:
+        pass
+        
+
+
 from basic.blog.models import Post
 # Post = get_model('blog', 'post')
 

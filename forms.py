@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth.models import User
 from django.db.models import get_model
 from django.utils.translation import ugettext_lazy as _
 from django.utils.datastructures import SortedDict
@@ -29,11 +30,11 @@ class CTPageForm(ArticleForm):
             self.fields[item] = tmp[item]
         self.fields['tags'].label = _('Topics')
 
-    def clean_title(self):
-        """ override default which insists on wikiword
-        """
-        title = self.cleaned_data['title']
-        return title
+    # def clean_title(self):
+    #     """ override default which insists on wikiword
+    #     """
+    #     title = self.cleaned_data['title']
+    #     return title
     
     def clean(self):
         cleaned_data = self.cleaned_data
@@ -69,3 +70,11 @@ class ModerateRefuseForm(forms.Form):
 class InviteMemberForm(forms.Form):
     email = forms.EmailField(label=_('Email'))
 
+    def clean_email(self):
+        """ override default which insists on wikiword
+        """
+        email = self.cleaned_data['email']
+        self.users = User.objects.filter(email=email)
+        print self.users
+        # raise forms.ValidationError(_('There is no user with that email address'))
+        return email
