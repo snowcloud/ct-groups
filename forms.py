@@ -5,7 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.datastructures import SortedDict
 from django.template.defaultfilters import slugify
 from wiki.forms import ArticleForm
-from ct_groups.models import GroupMembership
+from ct_groups.models import GroupMembership, Invitation
 
 
 from copy import copy
@@ -75,6 +75,5 @@ class InviteMemberForm(forms.Form):
         """
         email = self.cleaned_data['email']
         self.users = User.objects.filter(email=email)
-        print self.users
         # raise forms.ValidationError(_('There is no user with that email address'))
         return email

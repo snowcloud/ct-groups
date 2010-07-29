@@ -11,7 +11,8 @@ from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 from ct_groups.decorators import check_permission
-from ct_groups.models import CTGroup, Moderation, GroupMembership, CTPost, process_digests, group_notify
+from ct_groups.models import CTGroup, Moderation, GroupMembership, Invitation, CTPost, \
+    process_digests, group_notify
 from ct_groups.forms import BlogPostForm, GroupJoinForm, GroupMembershipForm, ModerateRefuseForm, \
     InviteMemberForm
 from basic.blog.models import Category
@@ -88,7 +89,10 @@ def invite_member(request, group_slug):
         form = InviteMemberForm(request.POST)
         if form.is_valid():
             email = form.cleaned_data['email']
-            print email, form.users
+            # print email, form.users
+            invitation = Invitation(group=object, inviter=u, email=email)
+            invitation.save()
+            print invitation.accept_key
             return HttpResponseRedirect(reverse('group-edit',kwargs={'group_slug': object.slug}))
     else:
         form = InviteMemberForm()

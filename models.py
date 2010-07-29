@@ -1,6 +1,13 @@
 """ ctgroup/models.py
 
 """
+# import re
+import datetime
+import os
+import random
+import string
+import tagging
+
 from django.contrib.auth.models import User
 # from django.contrib.comments.models import Comment
 from django.contrib.contenttypes.models import ContentType
@@ -13,12 +20,11 @@ from django.db.models import Manager, get_model
 from django.conf import settings
 from django.template.defaultfilters import truncatewords
 from django.template.loader import render_to_string
+from django.utils.hashcompat import sha_constructor
 from django.utils.translation import ugettext_lazy as _
 from tagging.fields import TagField
-import tagging
-import datetime
-import string
-import os
+
+# SHA1_RE = re.compile('^[a-f0-9]{40}$')
 
 GROUP_MODERATE_OPTIONS = (('open', 'open'), ('mod', 'moderated'), ('closed', 'closed'))
 
@@ -350,15 +356,28 @@ class Invitation(models.Model):
     group = models.ForeignKey(CTGroup)
     sent = models.DateTimeField(default=datetime.datetime.now)
     inviter = models.ForeignKey(User)
-    email = models.EmailField()
+    email = models.EmailField(unique=True)
     status = models.CharField(_('Email discussion alerts') ,max_length=8,
         choices=INVITATION_STATUS_CHOICES, default=INVITATION_STATUS_CHOICES_DEFAULT)
+    accept_key = models.CharField(_('accept key'), help_text=_('DO NOT EDIT'), max_length=44, null=True, blank=True, unique=True)
     
     class Admin:
         pass
         
-
-
+    def save(self, *args, **kwargs):
+        """docstring for save"""
+        super(Invitation, self).save(*args, **kwargs)
+        if not self.accept_key:
+            self.accept_key = '%s%06d' % (make_hash(self.email), self.id)
+            self.save()
+        
+def make_hash(key, size=12):
+    """docstring for make_hash"""
+    salt = sha_constructor(str(random.random())).hexdigest()[:5]
+    if isinstance(key, unicode):
+        key = key.encode('utf-8')
+    return sha_constructor(salt+key).hexdigest()[:size]
+    
 from basic.blog.models import Post
 # Post = get_model('blog', 'post')
 
