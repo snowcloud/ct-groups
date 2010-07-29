@@ -75,7 +75,7 @@
         <ul class="simpleList">
             {% for inv in object.invitation_set.all %}
                 <li>{{ inv.email }} - {{ inv.get_status_display }}
-                    {% if inv.is_accepted %}-
+                    {% if inv.is_accepted %} [{{ inv.accepted_by.get_full_name }}] -
                         <form class="inline" action="{% url invitation-remove object.slug inv.accept_key %}" method="post">{% csrf_token %}
                             <button type="submit" class="link"><span>{% trans 'Delete' %}</span></button>
                         </form>
