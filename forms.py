@@ -1,3 +1,5 @@
+from copy import copy
+
 from django import forms
 from django.contrib.auth.models import User
 from django.db.models import get_model
@@ -5,10 +7,25 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.datastructures import SortedDict
 from django.template.defaultfilters import slugify
 from wiki.forms import ArticleForm
+from shared_utils.models import smart_caps
+
 from ct_groups.models import GroupMembership, Invitation
 
 
-from copy import copy
+class ProfileForm(forms.Form):
+
+    first_name = forms.CharField(max_length=30)
+    last_name = forms.CharField(max_length=30)
+    email = forms.EmailField()
+    # note = CharField(widget=Textarea(attrs={'rows': 6, 'cols': 40, 'class': 't_area'}), required=False) 
+
+    def clean(self):
+        if self.cleaned_data.has_key('first_name'):
+            self.cleaned_data['first_name'] = smart_caps(self.cleaned_data['first_name'])
+        if self.cleaned_data.has_key('last_name'):
+            self.cleaned_data['last_name'] = smart_caps(self.cleaned_data['last_name'])
+
+        return self.cleaned_data
 
 class CTPageForm(ArticleForm):
     summary = forms.CharField(label=_('Title'), max_length=46)

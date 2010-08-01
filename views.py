@@ -13,6 +13,7 @@ from django.shortcuts import get_object_or_404
 from django.template import RequestContext
 from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext as _
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from basic.blog.models import Category
 
@@ -20,7 +21,7 @@ from ct_groups.decorators import check_permission
 from ct_groups.models import CTGroup, Moderation, GroupMembership, Invitation, CTPost, \
     process_digests, group_notify
 from ct_groups.forms import BlogPostForm, GroupJoinForm, GroupMembershipForm, ModerateRefuseForm, \
-    InviteMemberForm
+    InviteMemberForm, ProfileForm
 from ct_groups.registration_backends import RegistrationWithName
 
 def index(request):
@@ -79,6 +80,43 @@ def group_note(request, group_slug):
     
     return render_to_response('ct_groups/ct_groups_edit.html', RequestContext( request, {'object': object, }))
 
+@login_required
+def profile(request):
+    """
+
+    """
+    user = request.user
+    # profile, created = UserProfile.objects.get_or_create(user=user)
+
+    if request.method == 'POST':
+        submit = request.POST.get('result', '')
+        if submit == 'cancel':
+            return HttpResponseRedirect('/')
+        else:
+
+            profile_form = ProfileForm(request.POST)
+            if profile_form.is_valid():
+                user.first_name = profile_form.clean()['first_name']
+                user.last_name = profile_form.clean()['last_name']
+                user.email = profile_form.clean()['email']
+                user.save()
+                # profile.note = profile_form.clean()['note']
+                # profile.save()
+                return HttpResponseRedirect('/accounts/profile/changed/')
+
+    else: # not a POST
+        profile_form = ProfileForm({
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'email': user.email,
+            # 'note': profile.note,
+             })
+
+    return render_to_response('registration/profile_details.html',  
+        RequestContext( request, { 
+            'profile_form': profile_form, 
+            })
+        )
 
 @login_required
 def invite_member(request, group_slug):
@@ -365,3 +403,10 @@ def do_digests(request):
     """docstring for email_digests"""
     process_digests()
     return HttpResponse('OK')
+
+from django.views.i18n import set_language
+
+@csrf_exempt
+def setlang(request):
+    """docstring for setlang"""
+    return set_language(request)
