@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from registration.backends.default import DefaultBackend
 from registration.forms import RegistrationForm
@@ -38,9 +39,22 @@ class RegistrationWithName(RegistrationForm):
                                 maxlength=75)),
                                 label=_(u'last name'))
     
-    def clean(self):
+    # def clean_email(self):
+    #         data = self.cleaned_data['email']
+    #         if "fred@example.com" not in data:
+    #             raise forms.ValidationError("")
+    # 
+    #         # Always return the cleaned data, whether you have changed it or
+    #         # not.
+    #         return data
 
-        # debug = 'valid: %s\n' % form.is_valid()
+    def clean(self):
+        cleaned_data = self.cleaned_data
+        email = cleaned_data.get("email")
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError(
+                _("This email address is in use. Click \"forgotten user name or password?\" above."))
+            
         debug = '%s\n' % self.errors.keys()
         debug += '%s\n' % self.errors.values()
         debug += '%s %s [%s]\n%s\n' % ( self.data['first_name'], self.data['last_name'],
@@ -53,7 +67,7 @@ class RegistrationWithName(RegistrationForm):
         send_mail('ICNP registration', debug, 'derek@snowcloud.co.uk',
             ['derek.hoy@gmail.com'], fail_silently=True)
         
-        return super(RegistrationWithName, self).clean()
+        return cleaned_data
         
     
     # def save(self):
