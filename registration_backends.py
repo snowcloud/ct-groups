@@ -46,6 +46,7 @@ class RegistrationWithName(RegistrationForm):
         debug += '%s %s [%s]\n%s\n' % ( self.data['first_name'], self.data['last_name'],
             self.data['username'], self.data['email'], )
         debug += 'http://www.google.co.uk/search?&q=%s\n' % self.data['email']
+        debug += 'http://icnp.clinicaltemplates.org/admin/auth/user/?q=%s\n' % self.data['username']
         
         from django.core.mail import send_mail
 
