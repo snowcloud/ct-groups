@@ -84,3 +84,4 @@ class CTRegistrationBackend(DefaultBackend):
         new_user.save()
         return new_user
         
+
