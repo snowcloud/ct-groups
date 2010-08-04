@@ -1,8 +1,0 @@
-{% load humanize sitevars i18n %}
-{% blocktrans with site.name as site_name %}Someone, hopefully you, signed up for a new account at the {{ site_name }} site using this email address. If it was you, and you'd like to activate and use your account, click the link below or copy and paste it into your web browser's address bar:{% endblocktrans %}
-
-{% site_base %}accounts/activate/{{ activation_key }}/
-
-{% blocktrans with expiration_days|apnumber as apnumber %}If you didn't request this, you don't need to do anything; you won't receive any more email from us, and the account will expire automatically in {{ apnumber }} days.{% endblocktrans %}
-
-
