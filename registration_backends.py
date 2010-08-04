@@ -22,7 +22,7 @@ class RegistrationWithName(RegistrationForm):
     and replaces username and email with fields which strip whitespace before validating
     
     """
-    username = CleanUsernameField(regex=r'^\w+$',
+    username = CleanUsernameField(regex=r'^[\S]*$',
                                 max_length=30,
                                 widget=forms.TextInput(attrs=attrs_dict),
                                 label=_("Username"),
