@@ -276,6 +276,10 @@ def join(request, object_id):
                 else:
                     # a GET, so make form
                     form = GroupJoinForm()
+            else:
+                memb = GroupMembership(user=u, group=group, moderation=mod)
+                memb.save()
+                
 
     return render_to_response('ct_groups/ct_groups_confirm_join.html', 
         RequestContext( request, {'group': group, 'memb': memb, 'form': form }))
