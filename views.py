@@ -19,7 +19,7 @@ from basic.blog.models import Category
 
 from ct_groups.decorators import check_permission
 from ct_groups.models import CTGroup, Moderation, GroupMembership, Invitation, CTPost, \
-    process_digests, group_notify
+    process_digests, group_notify, DuplicateEmailException
 from ct_groups.forms import BlogPostForm, GroupJoinForm, GroupMembershipForm, ModerateRefuseForm, \
     InviteMemberForm, ProfileForm
 from ct_groups.registration_backends import RegistrationWithName
@@ -94,23 +94,13 @@ def profile(request):
             return HttpResponseRedirect('/')
         else:
 
-            profile_form = ProfileForm(request.POST)
+            profile_form = ProfileForm(request.POST, instance=user)
             if profile_form.is_valid():
-                user.first_name = profile_form.clean()['first_name']
-                user.last_name = profile_form.clean()['last_name']
-                user.email = profile_form.clean()['email']
                 user.save()
-                # profile.note = profile_form.clean()['note']
-                # profile.save()
                 return HttpResponseRedirect('/accounts/profile/changed/')
 
     else: # not a POST
-        profile_form = ProfileForm({
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-            'email': user.email,
-            # 'note': profile.note,
-             })
+        profile_form = ProfileForm(instance=user)
 
     return render_to_response('registration/profile_details.html',  
         RequestContext( request, { 

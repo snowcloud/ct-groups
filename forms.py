@@ -9,14 +9,23 @@ from django.template.defaultfilters import slugify
 from wiki.forms import ArticleForm
 from shared_utils.models import smart_caps
 
-from ct_groups.models import GroupMembership, Invitation
+from ct_groups.models import GroupMembership, Invitation, is_email_in_use
 
+# class UniqueEmailField(forms.EmailField):
+#     """utility class to strip white space from value before validating"""
+#     def clean(self, value):
+#         if True:
+#             raise forms.ValidationError(_("This email address is being used by another user account."))
+#         return super(CleanEmailField, self).clean(value.strip())
 
-class ProfileForm(forms.Form):
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ('first_name', 'last_name', 'email')
 
-    first_name = forms.CharField(max_length=30)
-    last_name = forms.CharField(max_length=30)
-    email = forms.EmailField()
+    # first_name = forms.CharField(max_length=30)
+    # last_name = forms.CharField(max_length=30)
+    # email = UniqueEmailField()
     # note = CharField(widget=Textarea(attrs={'rows': 6, 'cols': 40, 'class': 't_area'}), required=False) 
 
     def clean(self):
@@ -24,7 +33,9 @@ class ProfileForm(forms.Form):
             self.cleaned_data['first_name'] = smart_caps(self.cleaned_data['first_name'])
         if self.cleaned_data.has_key('last_name'):
             self.cleaned_data['last_name'] = smart_caps(self.cleaned_data['last_name'])
-
+        if is_email_in_use(self.instance, self.cleaned_data['email']):
+            raise forms.ValidationError(_("This email address is being used by another user account."))
+        
         return self.cleaned_data
 
 class CTPageForm(ArticleForm):
