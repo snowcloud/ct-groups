@@ -9,14 +9,14 @@ import string
 import tagging
 
 from django.contrib.auth.models import User
-# from django.contrib.comments.models import Comment
+from django.contrib.comments.models import Comment
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.contrib.sites.models import Site
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.db.models import Manager, get_model
+from django.db.models import Manager, get_model, signals
 from django.conf import settings
 from django.template.defaultfilters import truncatewords
 from django.template.loader import render_to_string
@@ -28,6 +28,10 @@ from tagging.fields import TagField
 
 GROUP_MODERATE_OPTIONS = (('open', 'open'), ('mod', 'moderated'), ('closed', 'closed'))
 
+
+class DuplicateEmailException(Exception):
+    pass
+     
 class CTGroup(models.Model):
     name = models.CharField(max_length=64)
     slug = models.SlugField(_('slug'), unique=True)
@@ -656,3 +660,50 @@ def process_digests():
                 email.send()
 
     CTEvent.objects.filter(status='done').delete()
+
+def fix_open_id(sender, instance, **kwargs):
+    if kwargs.get('created', False):
+        user = instance.user
+        users = list(User.objects.filter(email=user.email))
+        if len(users) > 1:
+            users.remove(user)
+            print users
+            existing_user = users[0]
+            for attr in ('first_name', 'last_name'):
+                setattr(existing_user, attr, 
+                    getattr(existing_user, attr, None) or getattr(user, attr, None))
+            existing_user.save()
+            instance.user = existing_user
+            instance.save()
+            print 'deleting user ', user
+            user.delete()
+        print 'created UserOpenID with user: %s' % instance.user
+    print instance.user
+
+def is_email_in_use(user, email):
+    return bool([u for u in User.objects.filter(email=email) if u.id != user.id])
+    
+def email_unique(sender, instance, **kwargs):
+    if is_email_in_use(instance, instance.email):
+        print 'checking unique email:', instance.email
+        raise DuplicateEmailException
+
+
+# SIGNALS
+
+signals.post_save.connect(email_comment, sender=Comment)
+
+try:
+    from django_openid_auth.models import UserOpenID
+    signals.post_save.connect(fix_open_id, sender=UserOpenID)
+except ImportError:
+    pass
+
+try:
+    USER_EMAIL_UNIQUE = settings.USER_EMAIL_UNIQUE
+except AttributeError:
+    USER_EMAIL_UNIQUE = True
+if USER_EMAIL_UNIQUE:
+    signals.pre_save.connect(email_unique, sender=User)
+    
+
