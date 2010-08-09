@@ -22,7 +22,7 @@ from ct_groups.models import CTGroup, Moderation, GroupMembership, Invitation, C
     process_digests, group_notify, DuplicateEmailException
 from ct_groups.forms import BlogPostForm, GroupJoinForm, GroupMembershipForm, ModerateRefuseForm, \
     InviteMemberForm, ProfileForm
-from ct_groups.registration_backends import RegistrationWithName
+from ct_framework.registration_backends import RegistrationWithName
 
 def index(request):
     group_list = CTGroup.objects.order_by('name')
