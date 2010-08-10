@@ -661,24 +661,25 @@ def process_digests():
 
     CTEvent.objects.filter(status='done').delete()
 
-def fix_open_id(sender, instance, **kwargs):
-    if kwargs.get('created', False):
-        user = instance.user
-        users = list(User.objects.filter(email=user.email))
-        if len(users) > 1:
-            users.remove(user)
-            print users
-            existing_user = users[0]
-            for attr in ('first_name', 'last_name'):
-                setattr(existing_user, attr, 
-                    getattr(existing_user, attr, None) or getattr(user, attr, None))
-            existing_user.save()
-            instance.user = existing_user
-            instance.save()
-            print 'deleting user ', user
-            user.delete()
-        print 'created UserOpenID with user: %s' % instance.user
-    print instance.user
+# def fix_open_id(sender, instance, **kwargs):
+#     if kwargs.get('created', False):
+#         user = instance.user
+#         users = list(User.objects.filter(email=user.email))
+#         if len(users) > 1:
+#             users.remove(user)
+#             print users
+#             existing_user = users[0]
+#             for attr in ('first_name', 'last_name'):
+#                 setattr(existing_user, attr, 
+#                     getattr(existing_user, attr, None) or getattr(user, attr, None))
+#             existing_user.save()
+#             instance.user = existing_user
+#             instance.save()
+#             print 'deleting user ', user
+#             # THIS DOESN'T WORK- BEING CALLED IN SAVE SIGNAL? NEED TO QUEUE FOR DELETION IN SEP PROCESS ?
+#             user.delete()
+#         print 'created UserOpenID with user: %s' % instance.user
+#     print instance.user
 
 def is_email_in_use(user, email):
     return bool([u for u in User.objects.filter(email=email) if u.id != user.id])
@@ -686,6 +687,9 @@ def is_email_in_use(user, email):
 def email_unique(sender, instance, **kwargs):
     if is_email_in_use(instance, instance.email):
         print 'checking unique email:', instance.email
+        # User.message_set.create(message)
+        
+        # TODO THIS BREAKS OPENID REGISTRATION COS IT CALLS user.save()
         raise DuplicateEmailException
 
 
@@ -693,11 +697,11 @@ def email_unique(sender, instance, **kwargs):
 
 signals.post_save.connect(email_comment, sender=Comment)
 
-try:
-    from django_openid_auth.models import UserOpenID
-    signals.post_save.connect(fix_open_id, sender=UserOpenID)
-except ImportError:
-    pass
+# try:
+#     from django_openid_auth.models import UserOpenID
+#     signals.post_save.connect(fix_open_id, sender=UserOpenID)
+# except ImportError:
+#     pass
 
 try:
     USER_EMAIL_UNIQUE = settings.USER_EMAIL_UNIQUE
