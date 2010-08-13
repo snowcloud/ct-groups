@@ -558,7 +558,7 @@ def add_notify_event(obj, event_type, perm, data=None):
             )
             ev.save()
 
-def email_notify(groups, content, perm, managers):
+def email_notify(groups, content, perm, managers=False):
     # leave here - recursive load problem
     from ct_groups.decorators import check_permission
     
