@@ -3,7 +3,7 @@
 from django.conf.urls.defaults import *
 
 from wiki import views, models
-from wiki.templatetags.wiki import WIKI_URL_RE
+from wiki.urls import WIKI_URL_RE
 
 from ct_groups.decorators import group_perm
 
