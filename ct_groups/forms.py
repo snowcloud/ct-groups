@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.datastructures import SortedDict
 from django.template.defaultfilters import slugify
 from wiki.forms import ArticleForm
-from shared_utils.models import smart_caps
+from scutils.models import smart_caps
 
 from ct_groups.models import GroupMembership, Invitation, is_email_in_use
 
