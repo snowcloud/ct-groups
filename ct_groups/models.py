@@ -695,7 +695,8 @@ def email_unique(sender, instance, **kwargs):
 
 # SIGNALS
 
-signals.post_save.connect(email_comment, sender=Comment)
+if not settings.DEBUG:
+    signals.post_save.connect(email_comment, sender=Comment)
 
 # try:
 #     from django_openid_auth.models import UserOpenID
