@@ -58,11 +58,11 @@ class CTPageForm(ArticleForm):
             self.fields[item] = tmp[item]
         self.fields['tags'].label = _('Topics')
 
-    # def clean_title(self):
-    #     """ override default which insists on wikiword
-    #     """
-    #     title = self.cleaned_data['title']
-    #     return title
+    def clean_title(self):
+        """ override default which insists on wikiword
+        """
+        title = self.cleaned_data['title']
+        return title
     
     def clean(self):
         cleaned_data = self.cleaned_data

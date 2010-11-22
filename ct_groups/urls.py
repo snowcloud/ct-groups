@@ -2,7 +2,7 @@
 
 """
 
-# from django.db.models import signals
+from django.db.models.query import QuerySet
 from django.conf import settings
 from django.conf.urls.defaults import *
 # from django.contrib.auth.models import User
@@ -20,6 +20,7 @@ blog_edit = group_perm('blog', 'w')
 group_access = group_perm('group', 'r')
 group_write = group_perm('group', 'w')
 
+        
 wiki_args = {'group_slug_field': 'slug', 'group_qs': CTGroup.objects.all(), 'ArticleFormClass': CTPageForm }
 
 urlpatterns = patterns('',
