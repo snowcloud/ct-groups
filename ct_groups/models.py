@@ -28,6 +28,14 @@ from tagging.fields import TagField
 
 GROUP_MODERATE_OPTIONS = (('open', 'open'), ('mod', 'moderated'), ('closed', 'closed'))
 
+def fix_email_body(body):
+    """docstring for fix_email_body"""
+    result = body.replace("&amp;", "&")
+    result = result.replace("&#39;", "'")
+    result = result.replace("&gt;", "")
+    # this has no effect on email, gets replaced in mailer?
+    # result = result.replace("=3D", "=")
+    return result
 
 class DuplicateEmailException(Exception):
     pass
@@ -582,12 +590,13 @@ def email_notify(groups, content, perm, managers=False):
     body = render_to_string('ct_groups/email_post_comment_body.txt',
         { 'content': content, 'site': site, 'dummy': datetime.datetime.now().strftime("%H:%M"),
             'settings_url': '%s%s' % ( settings.APP_BASE[:-1], reverse('group-edit', kwargs={'group_slug': group.slug}))})
-    body = body.replace("&#39;", "'")
-    body = body.replace("&gt;", "")
+            
+    # TODO: put this in utils
+    # also used in ct_template.models
     email = EmailMessage(
         #subject, body, from_email, to, bcc, connection)
         '[%s] %s update' % (site, group.name), 
-        body, 
+        fix_email_body(body), 
         'do not reply <%s>' % settings.DEFAULT_FROM_EMAIL,
         [settings.DEFAULT_FROM_EMAIL],
         add_list )
@@ -647,13 +656,10 @@ def process_digests():
                 body = render_to_string('ct_groups/email_digest_body.txt',
                     { 'group': group.name, 'content': content, 'site': site, 'dummy': datetime.datetime.now().strftime("%H:%M"),
                         'settings_url': '%s%s' % ( settings.APP_BASE[:-1], reverse('group-edit', kwargs={'group_slug': group.slug}))})
-                body = body.replace("&amp;", "&")
-                body = body.replace("&#39;", "'")
-                body = body.replace("&gt;", "")
                 email = EmailMessage(
                     #subject, body, from_email, to, bcc, connection)
                     '[%s] %s update' % (site, group.name), 
-                    body, 
+                    fix_email_body(body), 
                     'do not reply <%s>' % settings.DEFAULT_FROM_EMAIL,
                     [settings.DEFAULT_FROM_EMAIL],
                     add_list )
