@@ -16,6 +16,7 @@ from django.contrib.comments.models import Comment
 from django.db.models import get_model
 Article = get_model('wiki', 'article')
 CTGroup = get_model('ct_groups', 'ctgroup')
+GroupMembership = get_model('ct_groups', 'groupmembership')
 Post = get_model('ct_groups', 'ctpost')
 
 
@@ -170,6 +171,19 @@ def membership_pending(group, user):
     """
     print member_status(group, user)
     return member_status(group, user) == 'pending'
+
+@register.filter
+def order_member_type(grouper):
+    """docstring for order_member_type"""
+    # print grouper
+    results = [None, None, None, None]
+    result = [GroupMembership.MANAGERS, GroupMembership.EDITORS, 
+        GroupMembership.MEMBERS, GroupMembership.NOT_ACTIVE]
+    for g in grouper:
+        results[result.index(g['grouper'])] = g
+    return [r for r in results if r]  
+    # return grouper
+
 
 from ct_groups.decorators import check_permission
 

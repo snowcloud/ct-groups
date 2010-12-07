@@ -305,8 +305,8 @@ class GroupMembership(models.Model):
         super(GroupMembership, self).delete(*args, **kwargs)
 
     def _get_member_type(self):
-        if self.is_editor: return self.EDITORS
         if self.is_manager: return self.MANAGERS
+        if self.is_editor: return self.EDITORS
         if self.is_active: return self.MEMBERS
         else: return self.NOT_ACTIVE
     member_type = property(_get_member_type)
