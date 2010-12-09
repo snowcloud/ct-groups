@@ -56,7 +56,7 @@
             {% if object.get_active_members %}
              {% regroup object.get_active_members|dictsort:"member_type" by member_type as grouped %}
                 <ul>
-                {% for group in grouped %}
+                {% for group in grouped|order_member_type %}
                   <li>{% trans group.grouper %}
                   <div >
                     <ul class="menu-list">

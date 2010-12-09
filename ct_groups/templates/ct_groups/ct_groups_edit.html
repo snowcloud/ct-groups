@@ -20,7 +20,7 @@
         
         {% if object.groupmembership_set.all %}
          {% regroup object.groupmembership_set.all|dictsort:"member_type" by member_type as grouped %}
-            {% for group in grouped %}
+            {% for group in grouped|order_member_type %}
               <h4>{% trans group.grouper %}</h4>
               <ul class="simpleList">
                     {% for item in group.list|dictsort:"user_last_name" %}
