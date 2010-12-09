@@ -100,12 +100,10 @@ msgid "Daily digest"
 msgstr "Dagelijkse compilatie van emails"
 
 #: models.py:271
-#, fuzzy
 msgid "Email discussion alerts"
 msgstr "Recente bijdragen aan de discussie"
 
 #: models.py:273
-#, fuzzy
 msgid "Email tool comments"
 msgstr "Commentaren per email"
 

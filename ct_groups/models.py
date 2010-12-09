@@ -268,7 +268,7 @@ class GroupMembership(models.Model):
     is_editor = models.BooleanField('editor', blank=True)
     user = models.ForeignKey(User)
     group = models.ForeignKey(CTGroup)
-    post_updates = models.CharField(_('Email discussion alerts') ,max_length=8,
+    post_updates = models.CharField(_('Email discussion alerts'), max_length=8,
         choices=POST_UPDATE_CHOICES, default=POST_UPDATE_CHOICES_DEFAULT)
     tool_updates = models.CharField(_('Email tool comments'), max_length=8,
         choices=TOOL_UPDATE_CHOICES, default=TOOL_UPDATE_CHOICES_DEFAULT)
