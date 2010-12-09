@@ -87,6 +87,9 @@ class GroupJoinForm(forms.Form):
     reason_for_joining = forms.CharField(label=_('Reason for joining'), required=False, widget=forms.Textarea)
 
 class GroupMembershipForm(forms.ModelForm):
+    post_updates = forms.CharField(label=_('Email discussion alerts'))
+    tool_updates = forms.CharField(label=_('Email tool comments'))
+    
     class Meta:
         model = GroupMembership
         fields = ('post_updates', 'tool_updates', )

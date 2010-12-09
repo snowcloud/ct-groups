@@ -89,7 +89,7 @@ msgstr "Verzoek om lid te worden van een groep: %s."
 
 #: models.py:258
 msgid "No updates"
-msgstr "Geen nieuw"
+msgstr "Geen nieuwe email"
 
 #: models.py:258
 msgid "Single emails"
