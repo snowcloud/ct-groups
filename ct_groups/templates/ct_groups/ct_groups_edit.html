@@ -27,17 +27,19 @@
                     
                     <li{% ifequal user item.user %} class="currentitem"{% endifequal %}>
                       
-                        {{ item.user.last_name }}, {{ item.user.first_name }} -&nbsp;
+                        {{ item.user.last_name }}, {{ item.user.first_name }}
                         
                         {% if item.status == 'accepted' %}
-                            {% ifequal group.grouper item.EDITORS  %}
+                            {% ifequal group.grouper item.EDITORS  %} -&nbsp;
                                 <form class="inline" action="{{ object.get_absolute_url }}remove-editor/{{ item.id }}/" method="post">{% csrf_token %}
                                     <button type="submit" class="link"><span>{% trans 'Remove' %}</span></button>
                                 </form>
                             {% else %}
-                                <form class="inline" action="{{ object.get_absolute_url }}make-editor/{{ item.id }}/" method="post">{% csrf_token %}
-                                    <button type="submit" class="link"><span>{% trans 'Make editor' %}</span></button>
-                                </form>
+                                {% ifequal group.grouper item.MEMBERS  %} -&nbsp;
+                                    <form class="inline" action="{{ object.get_absolute_url }}make-editor/{{ item.id }}/" method="post">{% csrf_token %}
+                                        <button type="submit" class="link"><span>{% trans 'Make editor' %}</span></button>
+                                    </form>
+                                {% endifequal %}
                             {% endifequal %}
                         
                         {% else %}
