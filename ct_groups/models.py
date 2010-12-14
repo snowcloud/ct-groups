@@ -27,6 +27,10 @@ from tagging.fields import TagField
 # SHA1_RE = re.compile('^[a-f0-9]{40}$')
 
 GROUP_MODERATE_OPTIONS = (('open', 'open'), ('mod', 'moderated'), ('closed', 'closed'))
+RESOURCE_COMMENT_OLDEST_FIRST = 'oldest_top'
+RESOURCE_COMMENT_NEWEST_FIRST = 'newest_top'
+RESOURCE_COMMENT_ORDER = ((RESOURCE_COMMENT_NEWEST_FIRST, _('newest first')), (RESOURCE_COMMENT_OLDEST_FIRST, _('oldest first')))
+RESOURCE_COMMENT_ORDER_DEFAULT = RESOURCE_COMMENT_ORDER[1][1]
 
 def fix_email_body(body):
     """docstring for fix_email_body"""
@@ -49,6 +53,9 @@ class CTGroup(models.Model):
     moderate_membership = models.CharField(max_length=8, choices=GROUP_MODERATE_OPTIONS, default='closed')
     moderated_message = models.TextField(blank=True, null=True)
     language = models.CharField(max_length=8, choices=settings.LANGUAGES, blank=True, null=True)
+    resource_comment_order = models.CharField(max_length=12, choices=RESOURCE_COMMENT_ORDER,
+        default=getattr(settings, 'RESOURCE_COMMENT_ORDER', RESOURCE_COMMENT_ORDER_DEFAULT), )
+    
     members = models.ManyToManyField(User, through='GroupMembership')
     logo = models.ImageField(upload_to="groups", null=True, blank=True, help_text="60 H x 400 W (max)")
     
@@ -148,6 +155,11 @@ class CTGroup(models.Model):
         return self.moderate_membership == 'closed'
     is_closed = property(get_is_closed)
 
+    def _resource_comment_reversed(self):
+        """docstring for is_resource_comment_newfirst"""
+        return self.resource_comment_order != RESOURCE_COMMENT_OLDEST_FIRST
+    resource_comment_reversed = property(_resource_comment_reversed)
+    
 # this is buggy- corrupting fields in admin
 # tagging.register(CTGroup)
 
@@ -172,6 +184,7 @@ class CTGroupPermission(models.Model):
     name = models.CharField(max_length=64)
     read_permission = models.CharField(max_length=3, choices=PERM_CHOICES, default=PERM_CHOICE_REG_USER)
     write_permission = models.CharField(max_length=3, choices=PERM_CHOICES, default=PERM_CHOICE_STAFF)
+    delete_permission = models.CharField(max_length=3, choices=PERM_CHOICES, default=PERM_CHOICE_STAFF)
     group = models.ForeignKey(CTGroup)
 
     class Admin:
