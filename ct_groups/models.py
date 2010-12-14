@@ -212,7 +212,6 @@ class CTGroupPermission(models.Model):
                         level = 30
                 else:
                     level = 20
-        # print level
         if (not self.group.is_public) and (level < 30):
             # private group gives access only to members or better
             return False
@@ -220,6 +219,8 @@ class CTGroupPermission(models.Model):
             return level >= int(self.write_permission)
         elif type == 'r':
             return level >= int(self.read_permission)
+        elif type == 'd':
+            return level >= int(self.delete_permission)
         return False
 
 MODERATION_CHOICES = (('pending', _('Pending')), ('accepted', _('Accepted')), ('refused', _('Refused')), )

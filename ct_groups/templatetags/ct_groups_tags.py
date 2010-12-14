@@ -271,12 +271,24 @@ def wiki_edit(article, user):
         return ''
 
 @register.filter
+def wiki_delete(article, user):
+    """ NB takes article as first param"""
+    if check_permission(user, article.group, 'wiki', 'd'):
+        return mark_safe('<p><a href="%swiki/deletex/%s/">%s</a></p>' % (article.group.get_absolute_url(), article.title, _('Delete this page')))
+    else:
+        return ''
+
+@register.filter
 def resource_access(group, user):
     return check_permission(user, group, 'resource', 'r')
 
 @register.filter
 def resource_can_edit(group, user):
     return check_permission(user, group, 'resource', 'w')
+
+@register.filter
+def resource_delete(group, user):
+    return check_permission(user, group, 'resource', 'd')
 
 @register.filter
 def group_access(group, user):
