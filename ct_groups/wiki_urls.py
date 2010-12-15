@@ -6,9 +6,11 @@ from wiki import views, models
 from wiki.urls import WIKI_URL_RE
 
 from ct_groups.decorators import group_perm
+from ct_groups.views import delete_page
 
 wiki_view = group_perm('wiki', 'r')
 wiki_edit = group_perm('wiki', 'w')
+wiki_delete = group_perm('wiki', 'd')
 
 urlpatterns = patterns('',
     url(r'^$', views.article_list, name='wiki_index'),
@@ -27,6 +29,7 @@ urlpatterns = patterns('',
     url(r'^(?P<title>'+ WIKI_URL_RE +r')/$', wiki_view(views.view_article), name='wiki_article'),
     # 
     url(r'^edit/(?P<title>'+ WIKI_URL_RE +r')/$', wiki_edit(views.edit_article), name='wiki_edit'),
+    url(r'^delete/(?P<title>'+ WIKI_URL_RE +r')/$', wiki_delete(delete_page), name='wiki_delete'),
     # 
     # url(r'observe/(?P<title>'+ WIKI_URL_RE +r')/$', views.observe_article, name='wiki_observe'),
     # 

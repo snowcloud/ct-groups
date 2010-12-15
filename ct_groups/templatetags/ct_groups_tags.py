@@ -274,7 +274,7 @@ def wiki_edit(article, user):
 def wiki_delete(article, user):
     """ NB takes article as first param"""
     if check_permission(user, article.group, 'wiki', 'd'):
-        return mark_safe('<p><a href="%swiki/deletex/%s/">%s</a></p>' % (article.group.get_absolute_url(), article.title, _('Delete this page')))
+        return mark_safe('<p><a href="%swiki/delete/%s/">%s</a></p>' % (article.group.get_absolute_url(), article.title, _('Delete')))
     else:
         return ''
 

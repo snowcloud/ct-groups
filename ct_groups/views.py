@@ -22,7 +22,9 @@ from ct_groups.models import CTGroup, Moderation, GroupMembership, Invitation, C
     process_digests, group_notify, DuplicateEmailException
 from ct_groups.forms import BlogPostForm, GroupJoinForm, GroupMembershipForm, ModerateRefuseForm, \
     InviteMemberForm, ProfileForm
+from ct_framework.forms import ConfirmForm
 from ct_framework.registration_backends import RegistrationWithName
+from wiki.models import Article
 
 def index(request):
     group_list = CTGroup.objects.order_by('name')
@@ -404,3 +406,30 @@ from django.views.i18n import set_language
 def setlang(request):
     """docstring for setlang"""
     return set_language(request)
+
+@login_required
+def delete_page(request, title, *args, **kw):
+    """docstring for delete_page"""
+    page = get_object_or_404(Article, title=title)
+    if not check_permission(request.user, page.group, 'wiki', 'd'):
+        raise PermissionDenied()
+    
+    if request.POST:
+        if request.POST['result'] == _('Cancel'):
+            return HttpResponseRedirect(page.get_absolute_url())
+        else:
+            form = ConfirmForm(request.POST)
+            if form.is_valid():
+                page.delete()
+                return HttpResponseRedirect(reverse('group',kwargs={'group_slug': page.group.slug}))
+    else:
+        form = ConfirmForm(initial={ 'resource_name': page.title })
+
+    return render_to_response('ct_framework/confirm.html', 
+        RequestContext( request, 
+            {   'form': form,
+                'title': _('Delete this page?')
+            })
+        )
+
+    
