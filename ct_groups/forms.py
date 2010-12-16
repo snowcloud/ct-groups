@@ -7,6 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.datastructures import SortedDict
 from django.template.defaultfilters import slugify
 from wiki.forms import ArticleForm
+from wiki.models import Article
 from scutils.models import smart_caps
 
 from ct_groups.models import GroupMembership, Invitation, is_email_in_use
@@ -65,6 +66,7 @@ class CTPageForm(ArticleForm):
         return title
     
     def clean(self):
+        
         cleaned_data = self.cleaned_data
         summary = cleaned_data.get("summary")
         object_id = cleaned_data.get("object_id")
@@ -72,6 +74,12 @@ class CTPageForm(ArticleForm):
         if summary and object_id:
             title = '%s-%s' % (slugify(summary), object_id)
             cleaned_data['title'] = title
+            
+        # page_id = self.cleaned_data['summary']
+        
+        if cleaned_data['action'] == 'create':
+            if Article.objects.filter(title=title).exists():
+                raise forms.ValidationError(_("This page already exists."))
         return cleaned_data
 
 # from ct_groups.models import CTPost
