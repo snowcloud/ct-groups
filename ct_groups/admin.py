@@ -4,6 +4,7 @@ from ct_groups.models import *
 class GroupMembershipInline(admin.TabularInline):
     model = GroupMembership
     extra=3
+    raw_id_fields = ('user',)
 
 class CTGroupPermissionInline(admin.TabularInline):
     model = CTGroupPermission
@@ -23,7 +24,8 @@ class InvitationAdmin(admin.ModelAdmin):
     
 class GroupMembershipAdmin(admin.ModelAdmin):
     list_display = ('user', 'group', 'is_manager', 'is_editor', 'is_active', 'status', 'post_updates', 'tool_updates')
-    ordering = ('user', 'group')    
+    ordering = ('user', 'group')
+    raw_id_fields = ('user',)
 
 class CTGroupPermissionAdmin(admin.ModelAdmin):
     # list_display = ('user', 'group', 'is_manager', 'is_editor', 'is_active', 'notify_updates')
