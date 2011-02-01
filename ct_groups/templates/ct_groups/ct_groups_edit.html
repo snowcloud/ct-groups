@@ -32,12 +32,15 @@
                         {% if item.status == 'accepted' %}
                             {% ifequal group.grouper item.EDITORS  %} -&nbsp;
                                 <form class="inline" action="{{ object.get_absolute_url }}remove-editor/{{ item.id }}/" method="post">{% csrf_token %}
-                                    <button type="submit" class="link"><span>{% trans 'Remove' %}</span></button>
+                                    <button type="submit" class="link"><span>{% trans 'Remove from editors' %}</span></button>
                                 </form>
                             {% else %}
                                 {% ifequal group.grouper item.MEMBERS  %} -&nbsp;
                                     <form class="inline" action="{{ object.get_absolute_url }}make-editor/{{ item.id }}/" method="post">{% csrf_token %}
                                         <button type="submit" class="link"><span>{% trans 'Make editor' %}</span></button>
+                                    </form> -
+                                    <form class="inline" action="{{ object.get_absolute_url }}remove-member/{{ item.id }}/" method="get">{% csrf_token %}
+                                        <button type="submit" class="link"><span>{% trans 'Remove from group' %}</span></button>
                                     </form>
                                 {% endifequal %}
                             {% endifequal %}
@@ -77,12 +80,10 @@
         <ul class="simpleList">
             {% for inv in object.invitation_set.all %}
                 <li>{{ inv.email }} - {{ inv.get_status_display }}
-                    {% if inv.is_accepted %} [{{ inv.accepted_by.get_full_name }}] -
-                        <form class="inline" action="{% url invitation-remove object.slug inv.accept_key %}" method="post">{% csrf_token %}
-                            <button type="submit" class="link"><span>{% trans 'Delete' %}</span></button>
-                        </form>
-                        
-                    {% endif %}
+                    {% if inv.is_accepted %} [{{ inv.accepted_by.get_full_name }}]{% endif %} -
+                    <form class="inline" action="{% url invitation-remove object.slug inv.accept_key %}" method="post">{% csrf_token %}
+                        <button type="submit" class="link"><span>{% trans 'Delete' %}</span></button>
+                    </form>
                 </li>
             {% endfor %}
         

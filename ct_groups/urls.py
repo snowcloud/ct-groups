@@ -12,7 +12,8 @@ from ct_groups.models import CTGroup #, email_comment, fix_open_id, email_unique
 from ct_groups.forms import CTPageForm
 from ct_groups.views import blog_new_post, blog_post_edit, group_detail, group_edit, group_note, \
     remove_editor, make_editor, moderate_accept, moderate_refuse, moderate_refuse_confirm, moderate_remove, \
-    invite_member, accept_invitation, complete_invitation, register_invitee, invitation_remove
+    invite_member, accept_invitation, complete_invitation, register_invitee, invitation_remove, \
+    remove_member
 from ct_groups.decorators import group_perm
 
 blog_view = group_perm('blog', 'r')
@@ -50,6 +51,8 @@ urlpatterns = patterns('',
         name="make-editor"),
     url(r'^(?P<group_slug>[^/]+)/remove-editor/(?P<object_id>[^/]+)/$', group_write(remove_editor), \
         name="remove-editor"),
+    url(r'^(?P<group_slug>[^/]+)/remove-member/(?P<object_id>[^/]+)/$', group_write(remove_member), \
+        name="remove-member"),
 
     url(r'^(?P<group_slug>[^/]+)/moderate-accept/(?P<object_id>[^/]+)/$', group_write(moderate_accept), \
         name="moderate-accept"),

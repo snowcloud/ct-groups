@@ -3,6 +3,7 @@
 """
 import datetime
 
+from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
@@ -224,6 +225,34 @@ def change_editor(request, group_slug, object_id, change):
         membership.save()
         return HttpResponseRedirect(reverse('group-edit',kwargs={'group_slug':object.slug}))
     return render_to_response('ct_groups/ct_groups_edit.html', RequestContext( request, {'object': object, }))
+
+@login_required
+def remove_member(request, group_slug, object_id):
+    """docstring for remove_member"""
+
+    memb = get_object_or_404(GroupMembership, pk=object_id, group__slug=group_slug)
+    if not check_permission(request.user, memb.group, 'group', 'w'):
+        raise PermissionDenied()
+    
+    if request.POST:
+        if request.POST['result'] == _('Cancel'):
+            pass
+            # messages.warning(request, _('Cancelled'))
+        else:
+            form = ConfirmForm(request.POST)
+            if form.is_valid():
+                memb.remove()
+                messages.success(request, _('Group member removed.'))
+        return HttpResponseRedirect(reverse('group-edit',kwargs={'group_slug': memb.group.slug}))
+    else:
+        form = ConfirmForm(initial={ 'resource_name': '%s (%s)' % (memb.user.get_full_name(), memb.user.username) })
+
+    return render_to_response('ct_framework/confirm.html', 
+        RequestContext( request, 
+            {   'form': form,
+                'title': _('Remove member from this group?')
+            })
+        )
     
 @login_required
 def remove_editor(request, group_slug, object_id):

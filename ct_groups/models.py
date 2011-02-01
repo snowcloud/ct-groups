@@ -313,6 +313,19 @@ class GroupMembership(models.Model):
             self.status = STATUS_CHOICES_DEFAULT
         super(GroupMembership, self).save(*args, **kwargs)
     
+    def remove(self):
+        # TODO: translations via ugettext being put in as proxy not string- needs translated up front
+        body = '%s.\n\n' % 'Your membership of this group has been removed'
+        email = EmailMessage(
+            #subject, body, from_email, to, bcc, connection)
+            '[%s] %s membership' % (Site.objects.get_current().name, self.group.name), 
+            body, 
+            'do not reply <%s>' % settings.DEFAULT_FROM_EMAIL,
+            [self.user.email ],
+            )
+        email.send()
+        self.delete()
+        
     def delete(self, *args, **kwargs):
         if self.moderation:
             self.moderation.delete()
@@ -362,8 +375,8 @@ class GroupMembership(models.Model):
         self.moderation.save()
         # self.status = 'refused'
         self.save()
-        body = '%s\n %s' % \
-            ('Your request to join this group has not been approved.\n\n',
+        body = '%s.\n\n %s' % \
+            ('Your request to join this group has not been approved',
                 self.moderation.response_text)
         email = EmailMessage(
             #subject, body, from_email, to, bcc, connection)
