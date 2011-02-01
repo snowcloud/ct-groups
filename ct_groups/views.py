@@ -131,7 +131,7 @@ def invite_member(request, group_slug):
             
             return HttpResponseRedirect(reverse('group-edit',kwargs={'group_slug': object.slug}))
     else:
-        form = InviteMemberForm()
+        form = InviteMemberForm(initial={'group': object.id})
     
     return render_to_response('ct_groups/invite_member.html', RequestContext( request, {'object': object, 'form': form }))
 
@@ -142,8 +142,8 @@ def invitation_remove(request, group_slug, key):
     if not check_permission(u, object, 'group', 'w'):
         raise PermissionDenied()
     invitation = get_object_or_404(Invitation, accept_key=key)
-    if invitation.is_accepted:
-        invitation.delete()
+    # if invitation.is_accepted:
+    invitation.delete()
     return HttpResponseRedirect(reverse('group-edit',kwargs={'group_slug': object.slug}))
 
 def accept_invitation(request, group_slug, key):

@@ -104,13 +104,21 @@ class ModerateRefuseForm(forms.Form):
         help_text=_('Will be included in email to person being refused'), required=False, widget=forms.Textarea)
 
 class InviteMemberForm(forms.Form):
+    group = forms.IntegerField(widget=forms.HiddenInput, required=True)
     email = forms.EmailField(label=_('Email'))
 
     def clean_email(self):
         """ override default which insists on wikiword
         """
         email = self.cleaned_data['email']
-        existing = Invitation.objects.filter(email=email)
-        if existing:
+        group = self.cleaned_data['group']
+        # TODO include group for check for existing
+        # TODO inform if already a member
+        # maybe put check in groups.models as helper function
+
+        if GroupMembership.objects.filter(group__id=group,user__email=email):
+            raise forms.ValidationError(_('This person is already a group member'))
+        if Invitation.objects.filter(group__id=group,email=email):
             raise forms.ValidationError(_('There is already an invitation for that email address'))
+
         return email

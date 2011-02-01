@@ -382,12 +382,15 @@ class Invitation(models.Model):
     group = models.ForeignKey(CTGroup)
     sent = models.DateTimeField(default=datetime.datetime.now)
     inviter = models.ForeignKey(User, related_name='inviter')
-    email = models.EmailField(unique=True)
+    email = models.EmailField()
     accepted_by = models.ForeignKey(User, null=True, blank=True, related_name='accepted_by')
     status = models.CharField(max_length=8,
         choices=INVITATION_STATUS_CHOICES, default=INVITATION_STATUS_CHOICES_DEFAULT)
     accept_key = models.CharField(_('accept key'), help_text=_('DO NOT EDIT'), max_length=44, null=True, blank=True, unique=True)
     
+    class Meta:
+        unique_together = (("group", "email"),)
+        
     class Admin:
         pass
     
