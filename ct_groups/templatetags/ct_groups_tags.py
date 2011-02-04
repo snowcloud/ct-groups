@@ -298,4 +298,8 @@ def group_access(group, user):
 def group_edit(group, user):
     return check_permission(user, group, 'group', 'w')
 
+@register.filter
+def contact_managers(group, user):
+    return check_permission(user, group, 'contact_managers', 'w')
+
 

@@ -17,12 +17,13 @@ from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from basic.blog.models import Category
+from contact_form.views import contact_form
 
 from ct_groups.decorators import check_permission
 from ct_groups.models import CTGroup, Moderation, GroupMembership, Invitation, CTPost, \
     process_digests, group_notify, DuplicateEmailException
 from ct_groups.forms import BlogPostForm, GroupJoinForm, GroupMembershipForm, ModerateRefuseForm, \
-    InviteMemberForm, ProfileForm
+    InviteMemberForm, ProfileForm, CTGroupManagersContactForm
 from ct_framework.forms import ConfirmForm
 from ct_framework.registration_backends import RegistrationWithName
 from wiki.models import Article
@@ -304,6 +305,27 @@ def join(request, object_id):
 
     return render_to_response('ct_groups/ct_groups_confirm_join.html', 
         RequestContext( request, {'group': group, 'memb': memb, 'form': form }))
+
+
+def contact_managers(request, group_slug):
+    """docstring for contact_managers"""
+    
+    # def contact_form(request, form_class=ContactForm,
+    #                  template_name='contact_form/contact_form.html',
+    #                  success_url=None, extra_context=None,
+    #                  fail_silently=False):
+    
+    return contact_form(request, form_class=CTGroupManagersContactForm, extra_context= {'group_slug': group_slug})
+
+
+
+
+    # url(r'^contact/$', contact_form, { 'form_class': SCContactForm }, name='contact_form'),
+    # url(r'^contact/sent/$', direct_to_template, { 'template': 'contact_form/contact_form_sent.html' },
+    #     name='contact_form_sent'),
+
+
+
 
 @login_required
 def moderate_accept(request, group_slug, object_id):

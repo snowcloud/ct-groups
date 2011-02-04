@@ -2,15 +2,20 @@ from copy import copy
 
 from django import forms
 from django.contrib.auth.models import User
+from django.core.exceptions import PermissionDenied
 from django.db.models import get_model
+from django.http import Http404
+from django.shortcuts import get_object_or_404
+from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _
 from django.utils.datastructures import SortedDict
-from django.template.defaultfilters import slugify
 from wiki.forms import ArticleForm
 from wiki.models import Article
 from scutils.models import smart_caps
+from scutils.forms import SCContactForm
 
-from ct_groups.models import GroupMembership, Invitation, is_email_in_use
+from ct_groups.models import CTGroup, GroupMembership, Invitation, is_email_in_use
+from ct_groups.templatetags.ct_groups_tags import contact_managers
 
 # class UniqueEmailField(forms.EmailField):
 #     """utility class to strip white space from value before validating"""
@@ -122,3 +127,20 @@ class InviteMemberForm(forms.Form):
             raise forms.ValidationError(_('There is already an invitation for that email address'))
 
         return email
+
+
+class CTGroupManagersContactForm(SCContactForm):
+    """Contact form for use in CTGroup, contact email sent to group managers, or if none, to admins
+    """
+    recipient_list = []
+    subject_template_name = "ct_groups/group_contact_form_subject.txt"
+    # template_name = 'contact_form/contact_form.txt'
+        
+    def clean(self):
+        cleaned_data = self.cleaned_data
+        group = get_object_or_404(CTGroup, slug=self.request.POST.get('group', None))
+        if not contact_managers(group, self.request.user):
+            raise PermissionDenied()
+        self.recipient_list = [m.user.email for m in group.get_managers()]
+        cleaned_data['group'] = group
+        return cleaned_data

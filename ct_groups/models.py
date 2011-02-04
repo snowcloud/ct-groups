@@ -83,6 +83,8 @@ class CTGroup(models.Model):
             'blog': (PERM_CHOICE_PUBLIC, PERM_CHOICE_EDITOR),
             'comment': (PERM_CHOICE_PUBLIC, PERM_CHOICE_REG_USER),
             'resource': (PERM_CHOICE_GROUP_MEMBER, PERM_CHOICE_EDITOR),
+            # only write perm is used for contact
+            'contact_managers':  (PERM_CHOICE_GROUP_MEMBER, PERM_CHOICE_GROUP_MEMBER),
             }
         perms = dict([(p.name, p) for p in self.ctgrouppermission_set.all()])
         for name, p in defs.iteritems():
@@ -147,6 +149,12 @@ class CTGroup(models.Model):
         else:
             return u.is_manager
             
+    def get_managers(self):
+        return self.groupmembership_set.filter(
+            is_active=True,
+            status=STATUS_CHOICES_DEFAULT,
+            is_manager=True)
+        
     def show_join_link(self):
         return not self.is_closed
 
@@ -605,8 +613,7 @@ def email_notify(groups, content, perm, managers=False):
         if group:
             if managers: 
                 # ignore settings and send to all managers at once
-                all_memberships.extend([member for member in group.groupmembership_set.all() 
-                    if member.is_manager])
+                all_memberships.extend(group.get_managers())
             else:
                 all_memberships.extend([member for member in group.groupmembership_set.all() 
                     if (member.notify_pref(perm) == 'single') and 
