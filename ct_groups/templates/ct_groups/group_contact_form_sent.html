@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans 'Message sent' %}{% endblock %}
+
+
+{% block content %}
+<h2>{% trans 'Thank you' %}</h2>
+
+<p>{% trans 'Your message has been sent to the Project Team.' %}</p>
+
+<p><a href="{% url group group_slug%}">{% trans 'Back to home page' %}</a></p>
+
+
+{% endblock %}

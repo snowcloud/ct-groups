@@ -315,7 +315,10 @@ def contact_managers(request, group_slug):
     #                  success_url=None, extra_context=None,
     #                  fail_silently=False):
     
-    return contact_form(request, form_class=CTGroupManagersContactForm, extra_context= {'group_slug': group_slug})
+    return contact_form(request,
+        form_class=CTGroupManagersContactForm,
+        success_url=reverse('contact-form-sent', kwargs={'group_slug': group_slug}),
+        extra_context= {'group_slug': group_slug})
 
 
 
@@ -324,7 +327,10 @@ def contact_managers(request, group_slug):
     # url(r'^contact/sent/$', direct_to_template, { 'template': 'contact_form/contact_form_sent.html' },
     #     name='contact_form_sent'),
 
-
+def contact_managers_sent(request, group_slug):
+    """docstring for contact_managers_sent"""
+    return render_to_response('ct_groups/group_contact_form_sent.html', RequestContext( request, {'group_slug': group_slug, }))
+    
 
 
 @login_required

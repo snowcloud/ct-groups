@@ -1,6 +1,7 @@
 from copy import copy
 
 from django import forms
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db.models import get_model
@@ -128,7 +129,6 @@ class InviteMemberForm(forms.Form):
 
         return email
 
-
 class CTGroupManagersContactForm(SCContactForm):
     """Contact form for use in CTGroup, contact email sent to group managers, or if none, to admins
     """
@@ -141,6 +141,7 @@ class CTGroupManagersContactForm(SCContactForm):
         group = get_object_or_404(CTGroup, slug=self.request.POST.get('group', None))
         if not contact_managers(group, self.request.user):
             raise PermissionDenied()
-        self.recipient_list = [m.user.email for m in group.get_managers()]
+        self.recipient_list = [m.user.email for m in group.get_managers()] or \
+            [mail_tuple[1] for mail_tuple in settings.MANAGERS]
         cleaned_data['group'] = group
         return cleaned_data

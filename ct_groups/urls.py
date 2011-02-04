@@ -13,7 +13,7 @@ from ct_groups.forms import CTPageForm
 from ct_groups.views import blog_new_post, blog_post_edit, group_detail, group_edit, group_note, \
     remove_editor, make_editor, moderate_accept, moderate_refuse, moderate_refuse_confirm, moderate_remove, \
     invite_member, accept_invitation, complete_invitation, register_invitee, invitation_remove, \
-    remove_member, contact_managers
+    remove_member, contact_managers, contact_managers_sent
 from ct_groups.decorators import group_perm
 
 blog_view = group_perm('blog', 'r')
@@ -34,6 +34,7 @@ urlpatterns = patterns('',
     url(r'^process-digests/$', 'ct_groups.views.do_digests', name="process-digests"),
 
     url(r'^(?P<group_slug>[^/]+)/contact/$', contact_managers_perm(contact_managers), name="contact-managers"),
+    url(r'^(?P<group_slug>[^/]+)/contact/sent/$', contact_managers_sent, name='contact-form-sent'),
     url(r'^(?P<group_slug>[^/]+)/edit/$', group_access(group_edit), name="group-edit"),
     url(r'^(?P<group_slug>[^/]+)/note/$', group_write(group_note), name="group-note"),
     url(r'^(?P<group_slug>[^/]+)/note/$', group_write(group_note), name="group-note"),
