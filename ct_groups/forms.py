@@ -118,9 +118,6 @@ class InviteMemberForm(forms.Form):
         """
         email = self.cleaned_data['email']
         group = self.cleaned_data['group']
-        # TODO include group for check for existing
-        # TODO inform if already a member
-        # maybe put check in groups.models as helper function
 
         if GroupMembership.objects.filter(group__id=group,user__email=email):
             raise forms.ValidationError(_('This person is already a group member'))
@@ -134,7 +131,6 @@ class CTGroupManagersContactForm(SCContactForm):
     """
     recipient_list = []
     subject_template_name = "ct_groups/group_contact_form_subject.txt"
-    # template_name = 'contact_form/contact_form.txt'
         
     def clean(self):
         cleaned_data = self.cleaned_data
