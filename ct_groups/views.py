@@ -154,7 +154,7 @@ def accept_invitation(request, group_slug, key):
     if invitation.is_accepted:
         raise Http404
     try:
-        user = User.objects.get(email=invitation.email)
+        user = User.objects.get(email__iexact=invitation.email)
         return HttpResponseRedirect(reverse('complete-invitation',kwargs={'group_slug': object.slug, 'key': key}))
 
     except User.DoesNotExist:
@@ -167,7 +167,7 @@ def complete_invitation(request, group_slug, key):
     if invitation.is_accepted or invitation.group != object:
         raise Http404
     
-    if invitation.email != request.user.email:
+    if invitation.email.lower() != request.user.email.lower():
         return render_to_response('ct_groups/complete_invitation.html', RequestContext( request, {'invitation': invitation, }))
     
     memb = GroupMembership.objects.get_or_create(group=object, user=request.user)
