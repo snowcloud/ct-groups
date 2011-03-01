@@ -90,6 +90,9 @@
 
 
             {% endif %}
+	        {% if object|contact_managers:user %}
+	            <p><a class="action" href="{% url contact-managers object.slug %}">{% trans 'Contact the group managers' %}.</a></p>
+	        {% endif %}
 
         </div>
     </div>
