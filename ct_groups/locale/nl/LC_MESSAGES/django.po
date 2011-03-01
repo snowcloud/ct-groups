@@ -8,156 +8,187 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-09 21:34+0000\n"
+"POT-Creation-Date: 2011-03-01 11:56+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: forms.py:37
+#: forms.py:44
 msgid "This email address is being used by another user account."
 msgstr "Dit email adres wordt gebruikt door een andere gebruiker"
 
-#: forms.py:42
+#: forms.py:49
 msgid "Title"
 msgstr "Titel"
 
-#: forms.py:59
+#: forms.py:66
 msgid "Topics"
 msgstr "Onderwerpen"
 
-#: forms.py:87
+#: forms.py:88
+msgid "This page already exists."
+msgstr ""
+
+#: forms.py:101
 msgid "Reason for joining"
 msgstr "Reden om deel te nemen"
 
-#: forms.py:95
+#: forms.py:109
 msgid "Reason for refusing group membership"
 msgstr "Reden om lidmaatschap van een groep te weigeren"
 
-#: forms.py:96
+#: forms.py:110
 msgid "Will be included in email to person being refused"
 msgstr ""
 "Dit wordt opgenomen in een email naar de persoon aan wie die de "
 "toeganggeweigerd is"
 
-#: forms.py:99
+#: forms.py:114
 msgid "Email"
 msgstr "Email"
 
-#: forms.py:107
+#: forms.py:123
+#, fuzzy
+msgid "This person is already a group member"
+msgstr "Groepsleden"
+
+#: forms.py:125
 msgid "There is already an invitation for that email address"
 msgstr "Er is al een uitnodiging naar dit adres gezonden"
 
-#: models.py:45
+#: models.py:32
+msgid "newest first"
+msgstr ""
+
+#: models.py:32
+msgid "oldest first"
+msgstr ""
+
+#: models.py:49
 msgid "slug"
 msgstr "slug"
 
-#: models.py:212
+#: models.py:234
 msgid "Pending"
 msgstr "In behandeling"
 
-#: models.py:212 models.py:363
+#: models.py:234 models.py:398
 msgid "Accepted"
 msgstr "Geaccepteerd"
 
-#: models.py:212
+#: models.py:234
 msgid "Refused"
 msgstr "Geweigerd"
 
-#: models.py:219
+#: models.py:241
 #, fuzzy
 msgid "Group manager"
 msgstr "Groep manager"
 
-#: models.py:221
+#: models.py:243
 msgid "Reason for joining group"
 msgstr "Reden voor deelname aan de groep"
 
-#: models.py:222
+#: models.py:244
 #, fuzzy
 msgid "Group manager's reply"
 msgstr "Antwoord van de groepmanager "
 
-#: models.py:248
+#: models.py:270
 #, python-format
 msgid "Request to join group: %s."
 msgstr "Verzoek om lid te worden van een groep: %s."
 
-#: models.py:258
+#: models.py:280
 msgid "No updates"
 msgstr "Geen nieuwe email"
 
-#: models.py:258
+#: models.py:280
 msgid "Single emails"
 msgstr "Elke afzonderlijke email"
 
-#: models.py:258
+#: models.py:280
 msgid "Daily digest"
 msgstr "Dagelijkse compilatie van emails"
 
-#: models.py:271
+#: models.py:293
 msgid "Email discussion alerts"
 msgstr "Recente bijdragen aan de discussie"
 
-#: models.py:273
+#: models.py:295
 msgid "Email tool comments"
 msgstr "Commentaren per email"
 
-#: models.py:284
+#: models.py:306
 msgid "Editors"
 msgstr "Editors"
 
-#: models.py:284
+#: models.py:306
 msgid "Managers"
 msgstr "Managers"
 
-#: models.py:284 templates/ct_groups/ct_groups_detail.html:54
+#: models.py:306 templates/ct_groups/ct_groups_detail.html:54
 msgid "Members"
 msgstr "Leden"
 
-#: models.py:284
+#: models.py:306
 msgid "Not currently active"
 msgstr "Op dit moment niet actief"
 
-#: models.py:363
+#: models.py:398
 msgid "Sent"
 msgstr "Verzonden"
 
-#: models.py:363
+#: models.py:398
 #, fuzzy
 msgid "Email failed"
 msgstr "Email niet gelukt"
 
-#: models.py:375
+#: models.py:410
 msgid "accept key"
 msgstr "acceptatie key"
 
-#: models.py:375
+#: models.py:410
 msgid "DO NOT EDIT"
 msgstr "NIET AANPASSEN   "
 
-#: models.py:474
+#: models.py:512
 #, python-format
 msgid "A comment has been added to: %s."
 msgstr "Er is een commentaar toegevoegd bij: %s."
 
-#: models.py:479
+#: models.py:517
 #, python-format
 msgid "A discussion post has been added to: %s."
 msgstr "Er is een discussie geplaatst bij: %s."
 
-#: views.py:120 views.py:183 views.py:252 views.py:311
-#: templates/ct_groups/ct_groups_confirm_join.html:57
-#: templates/ct_groups/ct_groups_edit.html:123
+#: views.py:124 views.py:187 views.py:239 views.py:284 views.py:370
+#: views.py:475 templates/ct_groups/ct_groups_confirm_join.html:57
+#: templates/ct_groups/ct_groups_edit.html:126
 #: templates/ct_groups/ct_groups_moderate_refuse.html:27
 #: templates/ct_groups/invite_member.html:27
 #: templates/ct_groups/register_invitee.html:27
 msgid "Cancel"
 msgstr "Annuleren"
+
+#: views.py:246
+msgid "Group member removed."
+msgstr ""
+
+#: views.py:254
+#, fuzzy
+msgid "Remove member from this group?"
+msgstr "U bent geen lid van deze groep"
+
+#: views.py:488
+#, fuzzy
+msgid "Delete this page?"
+msgstr "Bewerk deze pagina"
 
 #: templates/blog/post_add.html:10
 msgid "Add a new post"
@@ -172,7 +203,7 @@ msgid "Submit"
 msgstr "Verzend"
 
 #: templates/blog/post_detail.html:33 templates/blog/post_list.html:28
-#: templates/ct_groups/ct_groups_detail.html:141
+#: templates/ct_groups/ct_groups_detail.html:144
 #, python-format
 msgid "%(counter)s comment"
 msgid_plural "%(counter)s comments"
@@ -180,7 +211,7 @@ msgstr[0] "%(counter)s commentaar"
 msgstr[1] "%(counter)s commentaren"
 
 #: templates/blog/post_detail.html:36 templates/blog/post_list.html:24
-#: templates/ct_groups/ct_groups_detail.html:144
+#: templates/ct_groups/ct_groups_detail.html:147
 msgid "in"
 msgstr "in de"
 
@@ -201,7 +232,7 @@ msgid "You might be able to comment on this post if you log in"
 msgstr "U kunt commentaar leveren op dit onderwerp als u inlogt"
 
 #: templates/blog/post_detail.html:99
-#: templates/ct_groups/ct_groups_detail.html:194
+#: templates/ct_groups/ct_groups_detail.html:197
 msgid "Sorry, you don't have access to this group's comments"
 msgstr "Sorry, u hebt geen toegang tot de commentaren van deze groep"
 
@@ -306,7 +337,7 @@ msgid "Please enter your reason for joining this group"
 msgstr "Wilt u alstublief de reden opgeven voor het lid worden van deze groep"
 
 #: templates/ct_groups/ct_groups_confirm_join.html:56
-#: templates/ct_groups/ct_groups_edit.html:122
+#: templates/ct_groups/ct_groups_edit.html:125
 #: templates/ct_groups/ct_groups_moderate_refuse.html:26
 #: templates/ct_groups/invite_member.html:26
 msgid "Save details"
@@ -360,27 +391,32 @@ msgid "Edit your group settings"
 msgstr "Bewerk de instellingen"
 
 #: templates/ct_groups/ct_groups_detail.html:85
-#: templates/ct_groups/ct_groups_edit.html:134
+#: templates/ct_groups/ct_groups_edit.html:137
 msgid "Join this group"
 msgstr "Neem deel aan deze groep"
 
-#: templates/ct_groups/ct_groups_detail.html:122
+#: templates/ct_groups/ct_groups_detail.html:94
+#, fuzzy
+msgid "Contact the group managers"
+msgstr "Neem contact op met de groepmanager(s)"
+
+#: templates/ct_groups/ct_groups_detail.html:125
 msgid "Recent discussion posts"
 msgstr "Recente bijdragen aan de discussie"
 
-#: templates/ct_groups/ct_groups_detail.html:153
+#: templates/ct_groups/ct_groups_detail.html:156
 msgid "Read more"
 msgstr "Lees meer"
 
-#: templates/ct_groups/ct_groups_detail.html:171
+#: templates/ct_groups/ct_groups_detail.html:174
 msgid "Sorry, you don't have access to this group's posts"
 msgstr "Sorry, u heeft geen toegang tot de berichten van deze groep"
 
-#: templates/ct_groups/ct_groups_detail.html:177
+#: templates/ct_groups/ct_groups_detail.html:180
 msgid "Recent comments"
 msgstr "Er zijn geen commentaren"
 
-#: templates/ct_groups/ct_groups_detail.html:191
+#: templates/ct_groups/ct_groups_detail.html:194
 msgid "No comments yet"
 msgstr "Nog geen commentaren"
 
@@ -398,63 +434,69 @@ msgid "Group settings"
 msgstr "Groepsinstellingen"
 
 #: templates/ct_groups/ct_groups_edit.html:35
-msgid "Remove"
-msgstr "Verwijder"
+msgid "Remove from editors"
+msgstr ""
 
-#: templates/ct_groups/ct_groups_edit.html:39
+#: templates/ct_groups/ct_groups_edit.html:40
 msgid "Make editor"
 msgstr "Maak editor"
 
-#: templates/ct_groups/ct_groups_edit.html:45
+#: templates/ct_groups/ct_groups_edit.html:43
+#, fuzzy
+msgid "Remove from group"
+msgstr "Reden voor deelname aan de groep"
+
+#: templates/ct_groups/ct_groups_edit.html:50
 msgid "Waiting for approval"
 msgstr "Wachtend op toestemming"
 
-#: templates/ct_groups/ct_groups_edit.html:47
+#: templates/ct_groups/ct_groups_edit.html:52
 msgid "Accept"
 msgstr "Accepteren"
 
-#: templates/ct_groups/ct_groups_edit.html:50
+#: templates/ct_groups/ct_groups_edit.html:55
 msgid "Refuse"
 msgstr "Weigeren"
 
-#: templates/ct_groups/ct_groups_edit.html:56
-#: templates/ct_groups/ct_groups_edit.html:80
+#: templates/ct_groups/ct_groups_edit.html:61
+#: templates/ct_groups/ct_groups_edit.html:85
+#: templatetags/ct_groups_tags.py:277
 msgid "Delete"
 msgstr "Wissen"
 
-#: templates/ct_groups/ct_groups_edit.html:68
+#: templates/ct_groups/ct_groups_edit.html:73
 msgid "No members yet"
 msgstr "Nog geen leden"
 
-#: templates/ct_groups/ct_groups_edit.html:73
+#: templates/ct_groups/ct_groups_edit.html:78
 msgid "Invitations"
 msgstr "Uitnodigen"
 
-#: templates/ct_groups/ct_groups_edit.html:91
+#: templates/ct_groups/ct_groups_edit.html:94
 msgid "Invite a new member"
 msgstr "Nodig een nieuw groepslid uit"
 
-#: templates/ct_groups/ct_groups_edit.html:95
+#: templates/ct_groups/ct_groups_edit.html:98
 msgid "Group note"
 msgstr "Groep notitie"
 
-#: templates/ct_groups/ct_groups_edit.html:100
+#: templates/ct_groups/ct_groups_edit.html:103
 msgid "Save note"
 msgstr "Sla notitie op"
 
-#: templates/ct_groups/ct_groups_edit.html:113
+#: templates/ct_groups/ct_groups_edit.html:116
 msgid "Your preferences for this group"
 msgstr "Uw voorkeuren voor deze groep"
 
-#: templates/ct_groups/ct_groups_edit.html:128
+#: templates/ct_groups/ct_groups_edit.html:131
 msgid "Leave this group"
 msgstr "Beeindig deelname aan deze groep"
 
-#: templates/ct_groups/ct_groups_edit.html:132
+#: templates/ct_groups/ct_groups_edit.html:135
 msgid "You are not a member of this group"
 msgstr "U bent geen lid van deze groep"
 
-#: templates/ct_groups/ct_groups_edit.html:144
+#: templates/ct_groups/ct_groups_edit.html:147
 msgid "You do not have access to this group"
 msgstr "U hebt geen toegang tot deze groep"
 
@@ -484,6 +526,22 @@ msgstr "Groepsleden"
 #: templates/ct_groups/ct_groups_moderate_refuse.html:16
 msgid "Please enter a message for this user"
 msgstr "Typ alstublieft een bericht voor deze gebruiker"
+
+#: templates/ct_groups/group_contact_form_sent.html:4
+msgid "Message sent"
+msgstr ""
+
+#: templates/ct_groups/group_contact_form_sent.html:8
+msgid "Thank you"
+msgstr ""
+
+#: templates/ct_groups/group_contact_form_sent.html:10
+msgid "Your message has been sent to the Project Team."
+msgstr ""
+
+#: templates/ct_groups/group_contact_form_sent.html:12
+msgid "Back to home page"
+msgstr ""
 
 #: templates/ct_groups/invite_member.html:4
 #: templates/ct_groups/invite_member.html:11
@@ -564,3 +622,6 @@ msgstr "Nieuwe pagina"
 #: templatetags/ct_groups_tags.py:269
 msgid "Edit this page"
 msgstr "Bewerk deze pagina"
+
+#~ msgid "Remove"
+#~ msgstr "Verwijder"
