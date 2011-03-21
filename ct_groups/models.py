@@ -69,7 +69,7 @@ class CTGroup(models.Model):
         return '%s' % (self.name)
 
     def __unicode__(self):
-        return '%s' % (self.name)
+        return u'%s' % (self.name)
 
     def get_absolute_url(self):
         # return "/groups/%i/" % self.id
@@ -200,7 +200,7 @@ class CTGroupPermission(models.Model):
 
     def __unicode__(self):
         """docstring for __unicode__"""
-        return "CTGroupPermission: %s for %s" % (self.name, self.group)
+        return u"CTGroupPermission: %s for %s" % (self.name, self.group)
         
     def check_permission(self, user, type):
         if self.name == 'group' and type == 'r' and self.group.is_public:
@@ -252,6 +252,13 @@ class Moderation(models.Model):
             return '%s group: %s - %s' % (self.groupmembership.group.name, self.groupmembership.user.get_full_name(), self.status)
         except:
             return 'groupmembership not found'
+
+    def __unicode__(self):
+        try:
+            return u'%s group: %s - %s' % (self.groupmembership.group.name, self.groupmembership.user.get_full_name(), self.status)
+        except:
+            return u'groupmembership not found'
+
 
     def save(self, *args, **kwargs):
         if self.id:
@@ -312,7 +319,7 @@ class GroupMembership(models.Model):
         return '%s - %s' % (self.user.username, self.group.name)
     
     def __unicode__(self):
-        return '%s - %s' % (self.user.username, self.group.name)
+        return u'%s - %s' % (self.user.username, self.group.name)
 
     def save(self, *args, **kwargs):
         if self.moderation:
