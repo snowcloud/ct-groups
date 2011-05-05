@@ -15,8 +15,6 @@
 
 {% else %}
 <h2>{% trans 'All Groups' %}</h2>
-{% endif %}
-
 
 {% if object_list %}
   <ul>
@@ -29,5 +27,8 @@
 {% else %}
     <p>{% trans 'No groups found' %}.</p>
 {% endif %}
+{% endif %}
+
+
 
 {% endblock %}
