@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n blog inlines markup comments forms tagging_tags sitevars ct_groups_tags %}
+{% load i18n markup comments forms tagging_tags sitevars ct_groups_tags %}
 
 
 {% block title %}{{ object.title }}{% endblock %}
@@ -26,22 +26,22 @@
 <div class="entry">
     <h2>{{ object.title }}</h2>
     <div class="entry-descr">
-        {% get_comment_count for object.ctpost as comment_count %}
+        {% get_comment_count for object as comment_count %}
         <ul>
-            <li class="entry-author">{{ object.ctpost.author.get_full_name }}</li>
-            <li class="entry-date">{{ object.ctpost.publish|date:"j M Y" }}</li>
-            <li class="entry-comments"><a href="{{ object.ctpost.get_absolute_url }}#comments">{%blocktrans count comment_count as counter%}{{ counter }} comment{%plural%}{{ counter }} comments{%endblocktrans%}</a></li>
+            <li class="entry-author">{{ object.author.get_full_name }}</li>
+            <li class="entry-date">{{ object.publish|date:"j M Y" }}</li>
+            <li class="entry-comments"><a href="{{ object.get_absolute_url }}#comments">{%blocktrans count comment_count as counter%}{{ counter }} comment{%plural%}{{ counter }} comments{%endblocktrans%}</a></li>
         </ul>
-            {% if object.ctpost.ct_group %}
-            <p>{% trans 'in' %} <a href="{% url group object.ctpost.ct_group.slug %}">{{ object.ctpost.ct_group.name }}</a></p>
+            {% if object.group %}
+            <p>{% trans 'in' %} <a href="{% url group object.group.slug %}">{{ object.group.name }}</a></p>
             {% endif %}
     </div>
     
     {{ object.tease|textile }}            
-    {{ object.body|render_inlines|textile }}      
+    {{ object.body|textile }}      
              
     <div class="entry-descr">
-        {% tags_for_object object.ctpost as tag_list %}
+        {% tags_for_object object as tag_list %}
         {% if tag_list %}
             <ul>
                 <li class="entry-tags">
@@ -57,11 +57,11 @@
 </div>      
 
 
-  {{ object.ctpost|blog_edit:user }}
+  {{ object|blog_edit:user }}
 
-{% if object.ctpost.ct_group|comment_access:user %}
+{% if object.group|comment_access:user %}
 
-    {% get_comment_list for object.ctpost as comment_list %}
+    {% get_comment_list for object as comment_list %}
     {% if comment_list %}
       <div id="comments">
         <h3 class="comments_title">{% trans 'Comments' %}</h3>
@@ -79,11 +79,11 @@
       </div>
     {% endif %}
   
-    {% if object.ctpost.ct_group|can_comment:user %}
+    {% if object.group|can_comment:user %}
   
         {% if object.allow_comments %}
     
-        {% render_comment_form for object.ctpost %}
+        {% render_comment_form for object %}
  
         {% else %}
         <div id="comment_form">

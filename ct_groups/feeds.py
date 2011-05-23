@@ -4,7 +4,7 @@ from django.contrib.sites.models import Site
 from django.contrib.syndication.feeds import Feed
 from django.core.urlresolvers import reverse
 # from basic.blog.models import Post, Category
-from ct_groups.models import CTPost
+from ct_blog.models import Post
 
 class BlogPostsPublicFeed(Feed):
     _site = Site.objects.get_current()
@@ -15,7 +15,7 @@ class BlogPostsPublicFeed(Feed):
         return reverse('blog_index')
 
     def items(self):
-        return CTPost.objects.public()[:10]
+        return Post.objects.public()[:10]
 
     def item_pubdate(self, obj):
         return obj.publish

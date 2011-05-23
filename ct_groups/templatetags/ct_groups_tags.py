@@ -17,7 +17,7 @@ from django.db.models import get_model
 Article = get_model('wiki', 'article')
 CTGroup = get_model('ct_groups', 'ctgroup')
 GroupMembership = get_model('ct_groups', 'groupmembership')
-Post = get_model('ct_groups', 'ctpost')
+Post = get_model('ct_blog', 'post')
 
 
 """
@@ -62,7 +62,7 @@ class LatestCatPostsNode(Node):
 
     def render(self, context):
         actual_group = self.group.resolve(context)
-        context[self.varname] = Post.objects.filter(ct_group=actual_group)
+        context[self.varname] = Post.objects.filter(group=actual_group)
         return ''
 
 def get_latest_group_posts(parser, token):
@@ -88,7 +88,7 @@ class LatestGroupCommentsNode(Node):
 
     def render(self, context):
         actual_group = self.group.resolve(context)
-        post_ids = [post.id for post in Post.objects.filter(ct_group=actual_group)]
+        post_ids = [post.id for post in Post.objects.filter(group=actual_group)]
         c_type = _get_ct(Post)
         context[self.varname] = Comment.objects.order_by('-submit_date').filter(content_type=c_type, object_pk__in=post_ids)[:self.num]
         return ''
@@ -200,7 +200,7 @@ def blog_access(group, user):
 
 @register.filter
 def blog_edit(post, user):
-    group = post.ct_group
+    group = post.group
     if not group:
         return ''    
     if check_permission(user, group, 'blog', 'w'):
@@ -220,13 +220,13 @@ def post_as_ctpost(post):
 
 @register.filter
 def post_access(post, user):
-    group = post.ct_group
+    group = post.group
     return (group is None) or check_permission(user, group, 'blog', 'r')
 
 @register.filter
 def get_previous_post(post, group=None):
     if not group:
-        group = post.ct_group
+        group = post.group
         if not group:
             return None
     qs = CTPost.objects.filter(group=group, status__gte=2, publish__lt=post.publish)
