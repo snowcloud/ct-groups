@@ -143,8 +143,8 @@
                                   <li class="entry-date">{{ post.publish|date:"j M Y" }}</li>
                                   <li class="entry-comments"><a href="{{ post.get_absolute_url }}#comments">{%blocktrans count comment_count as counter%}{{ counter }} comment{%plural%}{{ counter }} comments{%endblocktrans%}</a></li>
                               </ul>
-                                  {% if post.ctpost.ct_group %}
-                                  <p>{% trans 'in' %} <a href="{% url group post.ctpost.ct_group.slug %}">{{ post.ctpost.ct_group.name }}</a></p>
+                                  {% if post.group %}
+                                  <p>{% trans 'in' %} <a href="{% url group post.group.slug %}">{{ post.group.name }}</a></p>
                                   {% endif %}
                           </div>
                       
