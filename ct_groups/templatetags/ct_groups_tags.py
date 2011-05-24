@@ -35,7 +35,7 @@ class PermittedObjectsNode(Node):
         actual_objects = self.objects.resolve(context)
         actual_user = self.user.resolve(context)
         access_func = globals()[self.access]
-        context[self.varname] = [o for o in actual_objects if access_func(post_as_ctpost(o).group, actual_user)]
+        context[self.varname] = [o for o in actual_objects if access_func(o.group, actual_user)]
         return ''
 
 def permitted_objects(parser, token):
@@ -208,15 +208,15 @@ def blog_edit(post, user):
     else:
         return ''
 
-BlogPost = get_model('blog', 'post')
-@register.filter
-def post_as_ctpost(post):
-    # HACK - problem using django-tagging, won't find tagged CTPost, but just blog.Post
-    # so trap that and get CTPost so group is accessible
-    # NB other models pass straight through, so safe to use on generic objects
-    if isinstance(post, BlogPost):
-        post = Post.objects.get(pk=post.id)
-    return post
+# BlogPost = get_model('blog', 'post')
+# @register.filter
+# def post_as_ctpost(post):
+#     # HACK - problem using django-tagging, won't find tagged CTPost, but just blog.Post
+#     # so trap that and get CTPost so group is accessible
+#     # NB other models pass straight through, so safe to use on generic objects
+#     if isinstance(post, BlogPost):
+#         post = Post.objects.get(pk=post.id)
+#     return post
 
 @register.filter
 def post_access(post, user):
@@ -229,7 +229,7 @@ def get_previous_post(post, group=None):
         group = post.group
         if not group:
             return None
-    qs = CTPost.objects.filter(group=group, status__gte=2, publish__lt=post.publish)
+    qs = Post.objects.filter(group=group, status__gte=2, publish__lt=post.publish)
     try:
         return qs[0]
     except IndexError:
