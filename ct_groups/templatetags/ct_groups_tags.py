@@ -203,20 +203,14 @@ def blog_edit(post, user):
     group = post.group
     if not group:
         return ''    
+    result = edit = delete = ''
     if check_permission(user, group, 'blog', 'w'):
-        return mark_safe('<p><a href="%sblog/edit/%s/">%s</a></p>' % (group.get_absolute_url(), post.slug, _('Edit this post')))
-    else:
-        return ''
-
-# BlogPost = get_model('blog', 'post')
-# @register.filter
-# def post_as_ctpost(post):
-#     # HACK - problem using django-tagging, won't find tagged CTPost, but just blog.Post
-#     # so trap that and get CTPost so group is accessible
-#     # NB other models pass straight through, so safe to use on generic objects
-#     if isinstance(post, BlogPost):
-#         post = Post.objects.get(pk=post.id)
-#     return post
+        edit = '<a href="%sblog/edit/%s/">%s</a>' % (group.get_absolute_url(), post.id, _('Edit this post'))
+    if check_permission(user, group, 'blog', 'd'):
+        delete = ' | <a href="%sblog/delete/%s/">%s</a>' % (group.get_absolute_url(), post.id, _('Delete this post'))
+    if edit or delete:
+        result = '<p>%s %s</p>' % (edit, delete)
+    return mark_safe(result)
 
 @register.filter
 def post_access(post, user):

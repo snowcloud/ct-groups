@@ -8,7 +8,7 @@ from django.conf.urls.defaults import *
 # from django.contrib.auth.models import User
 # from django.contrib.comments.models import Comment
 
-from ct_blog.views import blog_new_post, blog_post_edit
+from ct_blog.views import blog_new_post, blog_edit_post, blog_delete_post
 from ct_groups.models import CTGroup #, email_comment, fix_open_id, email_unique
 from ct_groups.forms import CTPageForm
 from ct_groups.views import group_detail, group_edit, group_note, \
@@ -19,6 +19,7 @@ from ct_groups.decorators import group_perm
 
 blog_view = group_perm('blog', 'r')
 blog_edit = group_perm('blog', 'w')
+blog_delete = group_perm('blog', 'd')
 group_access = group_perm('group', 'r')
 group_write = group_perm('group', 'w')
 contact_managers_perm = group_perm('contact_managers', 'w')
@@ -68,7 +69,8 @@ urlpatterns = patterns('',
         name="moderate-remove"),
 
     url(r'^(?P<group_slug>[^/]+)/blog/new-post/', blog_edit(blog_new_post), name='blog-new-post'),
-    url(r'^(?P<group_slug>[^/]+)/blog/edit/(?P<slug>[^/]+)', blog_edit(blog_post_edit), name='blog-new-post'),
+    url(r'^(?P<group_slug>[^/]+)/blog/edit/(?P<object_id>[^/]+)', blog_edit(blog_edit_post), name='blog-edit-post'),
+    url(r'^(?P<group_slug>[^/]+)/blog/delete/(?P<object_id>[^/]+)', blog_delete(blog_delete_post), name='blog-delete-post'),
     url(r'^(?P<group_slug>[^/]+)/wiki/', include('ct_groups.wiki_urls'), wiki_args),
     url(r'^(?P<group_slug>[^/]+)/$', group_access(group_detail), name='group'),
 
