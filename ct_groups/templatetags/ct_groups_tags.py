@@ -247,6 +247,9 @@ def can_comment(group, user):
     else:
         return user.is_authenticated()
 
+@register.filter
+def can_delete_comment(group, user):
+    return check_permission(user, group, 'comment', 'd')
 
 @register.filter
 def wiki_new_page(group, user):
