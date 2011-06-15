@@ -1,0 +1,562 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-05-27 13:04+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+
+#: forms.py:44
+msgid "This email address is being used by another user account."
+msgstr ""
+
+#: forms.py:49
+msgid "Title"
+msgstr ""
+
+#: forms.py:66
+msgid "Topics"
+msgstr ""
+
+#: forms.py:88
+msgid "This page already exists."
+msgstr ""
+
+#: forms.py:101
+msgid "Reason for joining"
+msgstr ""
+
+#: forms.py:109
+msgid "Reason for refusing group membership"
+msgstr ""
+
+#: forms.py:110
+msgid "Will be included in email to person being refused"
+msgstr ""
+
+#: forms.py:114
+msgid "Email"
+msgstr ""
+
+#: forms.py:123
+msgid "This person is already a group member"
+msgstr ""
+
+#: forms.py:125
+msgid "There is already an invitation for that email address"
+msgstr ""
+
+#: models.py:32
+msgid "newest first"
+msgstr ""
+
+#: models.py:32
+msgid "oldest first"
+msgstr ""
+
+#: models.py:49
+msgid "slug"
+msgstr ""
+
+#: models.py:234
+msgid "Pending"
+msgstr ""
+
+#: models.py:234 models.py:405
+msgid "Accepted"
+msgstr ""
+
+#: models.py:234
+msgid "Refused"
+msgstr ""
+
+#: models.py:241
+msgid "Group manager"
+msgstr ""
+
+#: models.py:243
+msgid "Reason for joining group"
+msgstr ""
+
+#: models.py:244
+msgid "Group manager's reply"
+msgstr ""
+
+#: models.py:277
+#, python-format
+msgid "Request to join group: %s."
+msgstr ""
+
+#: models.py:287
+msgid "No updates"
+msgstr ""
+
+#: models.py:287
+msgid "Single emails"
+msgstr ""
+
+#: models.py:287
+msgid "Daily digest"
+msgstr ""
+
+#: models.py:300
+msgid "Email discussion alerts"
+msgstr ""
+
+#: models.py:302
+msgid "Email tool comments"
+msgstr ""
+
+#: models.py:313
+msgid "Editors"
+msgstr ""
+
+#: models.py:313
+msgid "Managers"
+msgstr ""
+
+#: models.py:313 templates/ct_groups/ct_groups_detail.html:54
+msgid "Members"
+msgstr ""
+
+#: models.py:313
+msgid "Not currently active"
+msgstr ""
+
+#: models.py:405
+msgid "Sent"
+msgstr ""
+
+#: models.py:405
+msgid "Email failed"
+msgstr ""
+
+#: models.py:417
+msgid "accept key"
+msgstr ""
+
+#: models.py:417
+msgid "DO NOT EDIT"
+msgstr ""
+
+#: views.py:126 views.py:189 views.py:241 views.py:286 views.py:372
+#: views.py:477 templates/ct_groups/ct_groups_confirm_join.html:57
+#: templates/ct_groups/ct_groups_edit.html:126
+#: templates/ct_groups/ct_groups_moderate_refuse.html:27
+#: templates/ct_groups/invite_member.html:27
+#: templates/ct_groups/register_invitee.html:27
+msgid "Cancel"
+msgstr ""
+
+#: views.py:248
+msgid "Group member removed."
+msgstr ""
+
+#: views.py:256
+msgid "Remove member from this group?"
+msgstr ""
+
+#: views.py:490
+msgid "Delete this page?"
+msgstr ""
+
+#: templates/ct_groups/comments.html:4
+msgid "Comments"
+msgstr ""
+
+#: templates/ct_groups/comments.html:7
+#: templates/ct_groups/ct_groups_detail.html:6
+#: templates/ct_groups/ct_groups_edit.html:6
+msgid "home"
+msgstr ""
+
+#: templates/ct_groups/comments.html:8
+#: templates/ct_groups/ct_groups_detail.html:7
+#: templates/ct_groups/ct_groups_edit.html:7
+msgid "groups"
+msgstr ""
+
+#: templates/ct_groups/comments.html:14
+#, python-format
+msgid "Comments for %(name)s"
+msgstr ""
+
+#: templates/ct_groups/comments.html:19 templates/ct_groups/comments.html:21
+#: templates/ct_groups/comments.html:41 templates/ct_groups/comments.html:43
+msgid "earlier"
+msgstr ""
+
+#: templates/ct_groups/comments.html:23 templates/ct_groups/comments.html:45
+msgid "comments"
+msgstr ""
+
+#: templates/ct_groups/comments.html:25 templates/ct_groups/comments.html:26
+#: templates/ct_groups/comments.html:47 templates/ct_groups/comments.html:48
+msgid "later"
+msgstr ""
+
+#: templates/ct_groups/comments.html:69
+msgid "There are no comments"
+msgstr ""
+
+#: templates/ct_groups/complete_invitation.html:4
+msgid "Invitation"
+msgstr ""
+
+#: templates/ct_groups/complete_invitation.html:10
+msgid "This invitation has not been successful"
+msgstr ""
+
+#: templates/ct_groups/complete_invitation.html:12
+msgid "Your email"
+msgstr ""
+
+#: templates/ct_groups/complete_invitation.html:13
+msgid "Invitation email"
+msgstr ""
+
+#: templates/ct_groups/complete_invitation.html:15
+#: templates/ct_groups/ct_groups_confirm_join.html:19
+#: templates/ct_groups/ct_groups_confirm_join.html:23
+#: templates/ct_groups/ct_groups_confirm_join.html:34
+#: templates/ct_groups/ct_groups_confirm_leave.html:12
+msgid "Continue"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_confirm_join.html:4
+msgid "Joined group"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_confirm_join.html:13
+#: templates/ct_groups/ct_groups_detail.html:78
+msgid "Your group membership request is waiting for approval"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_confirm_join.html:16
+msgid "Your group membership has not been approved."
+msgstr ""
+
+#: templates/ct_groups/ct_groups_confirm_join.html:21
+#, python-format
+msgid "You have now joined the '%(name)s' group"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_confirm_join.html:23
+msgid "you will see your name in the list of group members"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_confirm_join.html:32
+msgid "This group is closed"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_confirm_join.html:40
+msgid "You need approval to join this group"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_confirm_join.html:45
+msgid "Please enter your reason for joining this group"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_confirm_join.html:56
+#: templates/ct_groups/ct_groups_edit.html:125
+#: templates/ct_groups/ct_groups_moderate_refuse.html:26
+#: templates/ct_groups/invite_member.html:26
+msgid "Save details"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_confirm_leave.html:4
+msgid "Left group"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_confirm_leave.html:10
+#, python-format
+msgid "You have now left the '%(name)s' group"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_detail.html:17
+msgid "Group pages"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_detail.html:28
+msgid "no pages"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_detail.html:34
+msgid "Resources"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_detail.html:45
+msgid "Sorry, you don't have access to this group's resources"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_detail.html:47
+msgid "Log in"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_detail.html:47
+msgid "for access to tools"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_detail.html:71 templates/wiki/view.html:31
+msgid "None yet"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_detail.html:75
+msgid "Edit group and personal settings"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_detail.html:81
+msgid "Edit your group settings"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_detail.html:85
+#: templates/ct_groups/ct_groups_edit.html:137
+msgid "Join this group"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_detail.html:94
+msgid "Contact the group managers"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_detail.html:125
+msgid "Recent discussion posts"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_detail.html:144
+#, python-format
+msgid "%(counter)s comment"
+msgid_plural "%(counter)s comments"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/ct_groups/ct_groups_detail.html:147
+msgid "in"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_detail.html:156
+msgid "Read more"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_detail.html:174
+msgid "Sorry, you don't have access to this group's posts"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_detail.html:180
+msgid "Recent comments"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_detail.html:194
+msgid "No comments yet"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_detail.html:197
+msgid "Sorry, you don't have access to this group's comments"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_edit.html:4
+msgid "Edit settings"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_edit.html:16
+#, python-format
+msgid "Settings for %(name)s"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_edit.html:19
+msgid "Group settings"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_edit.html:35
+msgid "Remove from editors"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_edit.html:40
+msgid "Make editor"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_edit.html:43
+msgid "Remove from group"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_edit.html:50
+msgid "Waiting for approval"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_edit.html:52
+msgid "Accept"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_edit.html:55
+msgid "Refuse"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_edit.html:61
+#: templates/ct_groups/ct_groups_edit.html:85
+#: templatetags/ct_groups_tags.py:277
+msgid "Delete"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_edit.html:73
+msgid "No members yet"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_edit.html:78
+msgid "Invitations"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_edit.html:94
+msgid "Invite a new member"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_edit.html:98
+msgid "Group note"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_edit.html:103
+msgid "Save note"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_edit.html:116
+msgid "Your preferences for this group"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_edit.html:131
+msgid "Leave this group"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_edit.html:135
+msgid "You are not a member of this group"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_edit.html:147
+msgid "You do not have access to this group"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_index.html:4 templates/wiki/view.html:11
+msgid "Groups"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_index.html:12
+#, python-format
+msgid "%(name)s Groups"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_index.html:17
+msgid "All Groups"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_index.html:28
+msgid "No groups found"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_moderate_refuse.html:4
+#: templates/ct_groups/ct_groups_moderate_refuse.html:11
+msgid "Refuse group membership"
+msgstr ""
+
+#: templates/ct_groups/ct_groups_moderate_refuse.html:16
+msgid "Please enter a message for this user"
+msgstr ""
+
+#: templates/ct_groups/group_contact_form_sent.html:4
+msgid "Message sent"
+msgstr ""
+
+#: templates/ct_groups/group_contact_form_sent.html:8
+msgid "Thank you"
+msgstr ""
+
+#: templates/ct_groups/group_contact_form_sent.html:10
+msgid "Your message has been sent to the Project Team."
+msgstr ""
+
+#: templates/ct_groups/group_contact_form_sent.html:12
+msgid "Back to home page"
+msgstr ""
+
+#: templates/ct_groups/invite_member.html:4
+#: templates/ct_groups/invite_member.html:11
+msgid "Invite a group member"
+msgstr ""
+
+#: templates/ct_groups/invite_member.html:16
+msgid "Please enter details for this user"
+msgstr ""
+
+#: templates/ct_groups/register_invitee.html:4
+#: templates/ct_groups/register_invitee.html:10
+msgid "Register with this site"
+msgstr ""
+
+#: templates/ct_groups/register_invitee.html:12
+msgid ""
+"<p>Fill out this form (all fields are required), and your account will be "
+"created</p>"
+msgstr ""
+
+#: templates/ct_groups/register_invitee.html:15
+msgid "Please correct the errors below"
+msgstr ""
+
+#: templates/ct_groups/register_invitee.html:21
+msgid "Your details"
+msgstr ""
+
+#: templates/ct_groups/register_invitee.html:26
+msgid "Register"
+msgstr ""
+
+#: templates/wiki/edit.html:5
+msgid "Editing article"
+msgstr ""
+
+#: templates/wiki/edit.html:9
+msgid "Edit"
+msgstr ""
+
+#: templates/wiki/edit.html:14
+msgid "Page content"
+msgstr ""
+
+#: templates/wiki/edit.html:23
+msgid "Save"
+msgstr ""
+
+#: templates/wiki/index.html:4 templates/wiki/index.html.py:7
+msgid "Index"
+msgstr ""
+
+#: templates/wiki/view.html:10
+msgid "Home"
+msgstr ""
+
+#: templates/wiki/view.html:20
+msgid "Pages"
+msgstr ""
+
+#: templatetags/ct_groups_tags.py:193
+msgid "New post"
+msgstr ""
+
+#: templatetags/ct_groups_tags.py:207
+msgid "Edit this post"
+msgstr ""
+
+#: templatetags/ct_groups_tags.py:261
+msgid "New page"
+msgstr ""
+
+#: templatetags/ct_groups_tags.py:269
+msgid "Edit this page"
+msgstr ""
