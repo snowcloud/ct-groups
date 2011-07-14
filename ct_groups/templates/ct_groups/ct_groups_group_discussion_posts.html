@@ -1,0 +1,53 @@
+{% load i18n markup tagging_tags ct_groups_tags comments %}
+
+<h2>{% trans 'Recent discussion posts' %}</h2>
+  
+{% if object|blog_access:user %}
+
+  {% get_latest_group_posts 5 for object as latest_post_list %}
+
+  {{ object|blog_new_post:user }}
+  
+  {% if latest_post_list %}
+
+      {% for post in latest_post_list %}
+
+      <div class="entry">
+          <h3><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h3>
+          <div class="entry-descr">
+              {% get_comment_count for post as comment_count %}
+              <ul>
+                  <li class="entry-author">{{ post.author.get_full_name }}</li>
+                  <li class="entry-date">{{ post.publish|date:"j M Y" }}</li>
+                  <li class="entry-comments"><a href="{{ post.get_absolute_url }}#comments">{%blocktrans count comment_count as counter%}{{ counter }} comment{%plural%}{{ counter }} comments{%endblocktrans%}</a></li>
+              </ul>
+                  {% if post.group %}
+                  <p>{% trans 'in' %} <a href="{% url group post.group.slug %}">{{ post.group.name }}</a></p>
+                  {% endif %}
+          </div>
+          
+          {{ post.summary|textile }}   
+                   
+          <div class="entry-descr">
+              {% tags_for_object post as tag_list %}                          
+              <ul>
+                  <li class="entry-more"><a href="{{ post.get_absolute_url }}">{% trans 'Read more' %}...</a></li>
+                  {% if tag_list %}
+                      <li class="entry-tags">
+                          <ul class="tags">
+                              {% for tag in tag_list %}
+                                  <li><a href="{% url tag tag.name %}">{{ tag.name }}</a></li>
+                              {% endfor %}
+                          </ul>
+                      </li>
+                  {% endif %}
+              </ul>
+          </div>
+      </div>      
+    {% endfor %}
+  {% else %}
+    <p>- {% trans 'None yet' %} -</p>
+  {% endif %}
+{% else %}
+    <p>{% trans "Sorry, you don't have access to this group's posts" %}.</p>
+{% endif %}  

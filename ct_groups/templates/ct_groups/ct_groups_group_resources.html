@@ -1,0 +1,23 @@
+{% load i18n ct_groups_tags %}
+
+<h2>{% trans 'Detailed Clinical Models' %}</h2>
+{% if object|resource_access:user %}
+
+	<table class="">
+		<thead>
+			<tr><th>{% trans 'Title' %}</th><th>{% trans 'Status' %}</th></tr>
+		</thead>
+		<tbody>
+            {% for o in object.clintemplate_set.all %}
+				<tr><td><a href="{{ o.get_absolute_url }}">{{ o.name }}</a></td><td>{{ o.PublicationStatus }}{{ o.status }}</td></tr>
+            {% endfor %}
+		</tbody>
+	</table>
+	{% if object|resource_can_edit:user %}
+        <p><a class="action" href="{% url new-ct object.slug %}">{% trans 'New DCM' %}.</a></p>                        
+	{% endif %}
+
+{% else %}
+    <p>{% trans "Sorry, you don't have access to this group's resources" %}.</p>
+{% endif %}
+
