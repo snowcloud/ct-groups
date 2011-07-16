@@ -1,5 +1,5 @@
 {% load i18n markup tagging_tags %}
-
+<div class="groupinfo">
 {% if object.logo %}<img src="/media/{{ object.logo }}" class="grouplogo">{% endif %}
 
 <h1>{{ object.name }}</h1>
@@ -19,4 +19,5 @@
             </li>
         {% endif %}
     </ul>
+</div>
 </div>
