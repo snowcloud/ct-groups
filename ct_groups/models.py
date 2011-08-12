@@ -732,7 +732,7 @@ def process_digests():
 #     print instance.user
 
 def is_email_in_use(user, email):
-    return bool([u for u in User.objects.filter(email=email) if u.id != user.id])
+    return email != '' and bool([u for u in User.objects.filter(email=email) if u.id != user.id])
     
 def email_unique(sender, instance, **kwargs):
     if is_email_in_use(instance, instance.email):
