@@ -82,7 +82,7 @@ def group_note(request, group_slug):
         if note:
             object.note = note
             object.save()
-            return HttpResponseRedirect(reverse('group-edit',kwargs={'group_slug':object.slug}))
+            return HttpResponseRedirect('%s#group' % reverse('group-edit',kwargs={'group_slug':object.slug}))
     
     return render_to_response('ct_groups/ct_groups_edit.html', RequestContext( request, {'object': object, }))
 
@@ -226,7 +226,7 @@ def change_editor(request, group_slug, object_id, change):
         membership = get_object_or_404(GroupMembership, pk=object_id)
         membership.is_editor = change == 'make'
         membership.save()
-        return HttpResponseRedirect(reverse('group-edit',kwargs={'group_slug':object.slug}))
+        return HttpResponseRedirect('%s#membership' % reverse('group-edit',kwargs={'group_slug':object.slug}))
     return render_to_response('ct_groups/ct_groups_edit.html', RequestContext( request, {'object': object, }))
 
 @login_required
@@ -246,7 +246,7 @@ def remove_member(request, group_slug, object_id):
             if form.is_valid():
                 memb.remove()
                 messages.success(request, _('Group member removed.'))
-        return HttpResponseRedirect(reverse('group-edit',kwargs={'group_slug': memb.group.slug}))
+        return HttpResponseRedirect('%s#membership' %reverse('group-edit',kwargs={'group_slug': memb.group.slug}))
     else:
         form = ConfirmForm(initial={ 'resource_name': '%s (%s)' % (memb.user.get_full_name(), memb.user.username) })
 

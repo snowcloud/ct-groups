@@ -6,6 +6,9 @@
 {% block stylesheet_extra %}
 <link rel="stylesheet" href="/static/css/ct_template.css" type="text/css" media="screen, projection">
 <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
+<style type="text/css">
+.ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button { font-size: 0.875em; font-family: "HelveticaNeue","Helvetica Neue",Helvetica,Arial,sans-serif; font-weight: normal;}
+</style>
 {% endblock %}
 
 {% block breadcrumbs %}
@@ -27,35 +30,68 @@
 
 <div id="tabs">
     <ul>
-        <li><a href="#tabs-1"><span>{% trans "Your settings"%}</span></a></li>
-        {% if object|group_edit:user %}<li><a href="#tabs-2"><span>{% trans "Group settings"%}</span></a></li>
-        <li><a href="#tabs-3"><span>{% trans "Group membership"%}</span></a></li>{% endif %}
+        <li><a href="#personal"><span>{% trans "Your settings"%}</span></a></li>
+        {% if object|group_edit:user %}
+            <li><a href="#group"><span>{% trans "Group settings"%}</span></a></li>
+            <li><a href="#membership"><span>{% trans "Group membership"%}</span></a></li>
+        {% endif %}
     </ul>
-    <div id="tabs-1">
-        <p>Proin elit arcu, rutrum commodo, vehicula tempus, commodo a, risus. Curabitur nec arcu. Donec sollicitudin mi sit amet mauris. Nam elementum quam ullamcorper ante. Etiam aliquet massa et lorem. Mauris dapibus lacus auctor risus. Aenean tempor ullamcorper leo. Vivamus sed magna quis ligula eleifend adipiscing. Duis orci. Aliquam sodales tortor vitae ipsum. Aliquam nulla. Duis aliquam molestie erat. Ut et mauris vel pede varius sollicitudin. Sed ut dolor nec orci tincidunt interdum. Phasellus ipsum. Nunc tristique tempus lectus.</p>
-    </div>
-    {% if object|group_edit:user %}
-    <div id="tabs-2">
-        <p>Morbi tincidunt, dui sit amet facilisis feugiat, odio metus gravida ante, ut pharetra massa metus id nunc. Duis scelerisque molestie turpis. Sed fringilla, massa eget luctus malesuada, metus eros molestie lectus, ut tempus eros massa ut dolor. Aenean aliquet fringilla sem. Suspendisse sed ligula in ligula suscipit aliquam. Praesent in eros vestibulum mi adipiscing adipiscing. Morbi facilisis. Curabitur ornare consequat nunc. Aenean vel metus. Ut posuere viverra nulla. Aliquam erat volutpat. Pellentesque convallis. Maecenas feugiat, tellus pellentesque pretium posuere, felis lorem euismod felis, eu ornare leo nisi vel felis. Mauris consectetur tortor et purus.</p>
-    </div>
-    <div id="tabs-3">
-        <p>Mauris eleifend est et turpis. Duis id erat. Suspendisse potenti. Aliquam vulputate, pede vel vehicula accumsan, mi neque rutrum erat, eu congue orci lorem eget lorem. Vestibulum non ante. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Fusce sodales. Quisque eu urna vel enim commodo pellentesque. Praesent eu risus hendrerit ligula tempus pretium. Curabitur lorem enim, pretium nec, feugiat nec, luctus a, lacus.</p>
-        <p>Duis cursus. Maecenas ligula eros, blandit nec, pharetra at, semper at, magna. Nullam ac lacus. Nulla facilisi. Praesent viverra justo vitae neque. Praesent blandit adipiscing velit. Suspendisse potenti. Donec mattis, pede vel pharetra blandit, magna ligula faucibus eros, id euismod lacus dolor eget odio. Nam scelerisque. Donec non libero sed nulla mattis commodo. Ut sagittis. Donec nisi lectus, feugiat porttitor, tempor ac, tempor vitae, pede. Aenean vehicula velit eu tellus interdum rutrum. Maecenas commodo. Pellentesque nec elit. Fusce in lacus. Vivamus a libero vitae lectus hendrerit hendrerit.</p>
-    </div>
-    {% endif %}
-</div>
 
-<div id="tabs-alt">
-<p>alt content</p>
-</div>
+    <!-- PERSONAL SETTINGS -->
+    <div id="personal">
+    {% if membership %}
 
-{% comment %}
-
-
-    {% if object|group_edit:user %}
-
-        <h2>{% trans 'Group settings' %}</h2>
+        <form name="checkprofile" action="" method="post" class="wider">{% csrf_token %}
+             <fieldset>
+                <legend><span>{% trans 'Your preferences for this group' %}:</span></legend>
+                <ol>
+                     {% show_errors membershipform.non_field_errors %}
+                     {% for field in membershipform %}
+                          {% show_field field "li" %}
+                     {% endfor %}
+                </ol>
+             </fieldset>
+             <fieldset class="submit">
+                <input type="submit" name="result" value="{% trans 'Save details' %}"><br>
+                <input type="submit" name="result" value="{% trans 'Cancel' %}">
+            </fieldset>
+        </form>
+    
+        {% if not object|group_edit:user or user.is_staff %}
+            <p><a class="action" href="{% url leave-group object.id %}">{% trans 'Leave this group' %}.</a></p>
+        {% endif %}
+    {% else %}
+    
+        <h2>{% trans 'You are not a member of this group' %}</h2>
+    
+        <p><a class="action" href="{% url join-group object.id %}">{% trans 'Join this group' %}.</a></p>
         
+    {% endif %}
+    </div>
+
+
+    {% if object|group_edit:user %}
+
+    <!-- GROUP SETTINGS -->
+
+    <div id="group">
+    
+        <form action="{{ object.get_absolute_url }}note/" method="post" class="wider">{% csrf_token %}
+            <fieldset>
+                <legend><span>{% trans 'Group note' %}:</span></legend>
+            <ol><li><textarea name="note" rows="10">{{ object.note }}</textarea></li></ol> 
+            </fieldset>
+
+            <fieldset class="submit">
+                <input type="submit" name="result" value="{% trans 'Save note' %}">&nbsp;&nbsp;
+            </fieldset>
+
+        </form>
+    </div>
+
+    <!-- MEMBERSHIP SETTINGS -->
+
+    <div id="membership">
         {% if object.groupmembership_set.all %}
          {% regroup object.groupmembership_set.all|dictsort:"member_type" by member_type as grouped %}
             {% for group in grouped|order_member_type %}
@@ -131,54 +167,11 @@
         
         <p><a href="{% url invite-member object.slug %}">{% trans 'Invite a new member' %}</a></p>
         
-        <form action="{{ object.get_absolute_url }}note/" method="post" class="wider">{% csrf_token %}
-            <fieldset>
-                <legend><span>{% trans 'Group note' %}:</span></legend>
-            <ol><li><textarea name="note" rows="10">{{ object.note }}</textarea></li></ol> 
-            </fieldset>
-
-            <fieldset class="submit">
-                <input type="submit" name="result" value="{% trans 'Save note' %}">&nbsp;&nbsp;
-            </fieldset>
-
-        </form>
-        
-        <p>&nbsp;</p>
-        
+ 
+    </div>
     {% endif %}
+</div>
 
-    {% if membership %}
-
-        <form name="checkprofile" action="" method="post" class="wider">{% csrf_token %}
-             <fieldset>
-                <legend><span>{% trans 'Your preferences for this group' %}:</span></legend>
-                <ol>
-                     {% show_errors membershipform.non_field_errors %}
-                     {% for field in membershipform %}
-                          {% show_field field "li" %}
-                     {% endfor %}
-                </ol>
-             </fieldset>
-             <fieldset class="submit">
-                <input type="submit" name="result" value="{% trans 'Save details' %}"><br>
-                <input type="submit" name="result" value="{% trans 'Cancel' %}">
-            </fieldset>
-        </form>
-    
-        {% if not object|group_edit:user or user.is_staff %}
-            <p><a class="action" href="{% url leave-group object.id %}">{% trans 'Leave this group' %}.</a></p>
-        {% endif %}
-    {% else %}
-    
-        <h2>{% trans 'You are not a member of this group' %}</h2>
-    
-        <p><a class="action" href="{% url join-group object.id %}">{% trans 'Join this group' %}.</a></p>
-        
-    {% endif %}
-
-
-    <p>&nbsp;</p>
-{% endcomment %}
 
 {% else %}
 
@@ -195,8 +188,16 @@
 {% endblock %}
 
 {% block js-document-ready %}
+    var select = 0;
+    if (window.location.hash) {
+        if (window.location.hash.substring(1) == 'group') { select = 1; }
+        else if (window.location.hash.substring(1) == 'membership') { select = 2; }
+    }
+
     $("#tabs").show();
-    $("#tabs").tabs();
+    $("#tabs").tabs({
+        selected: select
+    });
     $("#tabs-alt").hide();
 {% endblock %}
 

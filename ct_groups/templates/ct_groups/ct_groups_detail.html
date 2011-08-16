@@ -8,12 +8,13 @@
 {% endblock %}
 
 
-{% block add-logo %}{% if object.logo %}<img src="/static/{{ object.logo }}">{% endif %}{% endblock %}
-
 {% block content %}
 
-<div class="ten columns alpha">
+<div class="sixteen columns alpha clearfix">
     {% include "ct_groups/ct_groups_group_info.html" %}
+    <hr>
+</div>
+<div class="ten columns alpha">
     {% include "ct_groups/ct_groups_group_resources.html" %}
     {% include "ct_groups/ct_groups_group_discussion_posts.html" %}
     
