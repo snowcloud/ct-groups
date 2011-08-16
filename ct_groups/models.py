@@ -53,10 +53,14 @@ class CTGroup(models.Model):
     moderate_membership = models.CharField(max_length=8, choices=GROUP_MODERATE_OPTIONS, default='closed')
     moderated_message = models.TextField(blank=True, null=True)
     language = models.CharField(max_length=8, choices=settings.LANGUAGES, blank=True, null=True)
+    show_discussion = models.BooleanField(default=True)
+    show_template_comments = models.BooleanField(default=True, editable=False)
     resource_comment_order = models.CharField(max_length=12, choices=RESOURCE_COMMENT_ORDER,
         default=getattr(settings, 'RESOURCE_COMMENT_ORDER', RESOURCE_COMMENT_ORDER_DEFAULT), )
     
     members = models.ManyToManyField(User, through='GroupMembership')
+    template = models.TextField(blank=True, null=True)
+
     logo = models.ImageField(upload_to="groups", null=True, blank=True, help_text="60 H x 400 W (max)")
     
     class Admin:
