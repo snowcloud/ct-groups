@@ -481,7 +481,7 @@ def make_hash(key, size=12):
 #             ct_group__is_public=True).filter(
 #             ct_group__ctgrouppermission__name__exact='blog',
 #             ct_group__ctgrouppermission__read_permission__exact='10')
-
+# 
 # class CTPost(Post):
 #     ct_group = models.ForeignKey(CTGroup, blank=True, null=True)
 #     notified = models.BooleanField(default=False)
@@ -732,7 +732,7 @@ def process_digests():
 #     print instance.user
 
 def is_email_in_use(user, email):
-    return bool([u for u in User.objects.filter(email=email) if u.id != user.id])
+    return email != '' and bool([u for u in User.objects.filter(email=email) if u.id != user.id])
     
 def email_unique(sender, instance, **kwargs):
     if is_email_in_use(instance, instance.email):

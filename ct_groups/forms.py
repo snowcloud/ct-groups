@@ -80,7 +80,8 @@ class CTPageForm(ArticleForm):
         if summary and object_id:
             title = '%s-%s' % (slugify(summary), object_id)
             cleaned_data['title'] = title
-            
+        else:
+            title = None
         # page_id = self.cleaned_data['summary']
         
         if cleaned_data['action'] == 'create':
