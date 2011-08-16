@@ -62,6 +62,7 @@ def group_edit(request, group_slug):
         membershipform = GroupMembershipForm(request.POST, instance=membership)
         if membershipform.is_valid():
             membershipform.save()
+            messages.success(request, _('Your changes were saved.'))
             return HttpResponseRedirect(reverse('group',kwargs={'group_slug':object.slug}))
     else:
         membershipform = GroupMembershipForm(instance=membership)
@@ -82,6 +83,7 @@ def group_note(request, group_slug):
         if note:
             object.note = note
             object.save()
+            messages.success(request, _('Your changes were saved.'))
             return HttpResponseRedirect('%s#group' % reverse('group-edit',kwargs={'group_slug':object.slug}))
     
     return render_to_response('ct_groups/ct_groups_edit.html', RequestContext( request, {'object': object, }))
@@ -124,7 +126,7 @@ def invite_member(request, group_slug):
     if request.method == 'POST':
         
         if request.POST['result'] == _('Cancel'):
-            return HttpResponseRedirect(reverse('group-edit',kwargs={'group_slug': object.slug}))
+            return HttpResponseRedirect('%s#membership' % reverse('group-edit',kwargs={'group_slug': object.slug}))
         form = InviteMemberForm(request.POST)
         if form.is_valid():
             email = form.cleaned_data['email']
@@ -132,8 +134,9 @@ def invite_member(request, group_slug):
             invitation = Invitation(group=object, inviter=u, email=email)
             invitation.save() # this will generate the accept_key
             invitation.send()
-            
-            return HttpResponseRedirect(reverse('group-edit',kwargs={'group_slug': object.slug}))
+            messages.success(request, _('Invitation sent.'))
+
+            return HttpResponseRedirect('%s#membership' % reverse('group-edit',kwargs={'group_slug': object.slug}))
     else:
         form = InviteMemberForm(initial={'group': object.id})
     
@@ -148,7 +151,9 @@ def invitation_remove(request, group_slug, key):
     invitation = get_object_or_404(Invitation, accept_key=key)
     # if invitation.is_accepted:
     invitation.delete()
-    return HttpResponseRedirect(reverse('group-edit',kwargs={'group_slug': object.slug}))
+    messages.success(request, _('Invitation removed.'))
+
+    return HttpResponseRedirect('%s#membership' % reverse('group-edit',kwargs={'group_slug': object.slug}))
 
 def accept_invitation(request, group_slug, key):
     object = get_object_or_404(CTGroup, slug=group_slug)
@@ -346,8 +351,9 @@ def moderate_accept(request, group_slug, object_id):
     if request.method == 'POST':
         membership = get_object_or_404(GroupMembership, pk=object_id)
         membership.approve()
+        messages.success(request, _('Group membership approved.'))
 
-        return HttpResponseRedirect(reverse('group-edit', kwargs={'group_slug': group_slug}))
+        return HttpResponseRedirect('%s#membership' % reverse('group-edit', kwargs={'group_slug': group_slug}))
 
     return render_to_response('ct_groups/ct_groups_edit.html', RequestContext( request, {'object': object, }))
 
@@ -370,15 +376,16 @@ def moderate_refuse_confirm(request, group_slug, object_id):
     if request.method == 'POST':
 
         if request.POST['result'] == _('Cancel'):
-            return HttpResponseRedirect(reverse('group-edit', kwargs={'group_slug': group_slug}))
+            return HttpResponseRedirect('%s#membership' % reverse('group-edit', kwargs={'group_slug': group_slug}))
         #     redirect to group
 
         form = ModerateRefuseForm(request.POST)
         if form.is_valid():
             membership = get_object_or_404(GroupMembership, pk=object_id)
             membership.refuse(form.cleaned_data['reason_for_refusal'])
+            messages.success(request, _('Membership not approved.'))
 
-            return HttpResponseRedirect(reverse('group-edit', kwargs={'group_slug': group_slug}))
+            return HttpResponseRedirect('%s#membership' % reverse('group-edit', kwargs={'group_slug': group_slug}))
 
         # else, reshow form
         else:
@@ -400,8 +407,9 @@ def moderate_remove(request, group_slug, object_id):
     if request.method == 'POST':
         membership = get_object_or_404(GroupMembership, pk=object_id)
         membership.delete()
+        messages.success(request, _('Membership removed.'))
     
-    return HttpResponseRedirect(reverse('group-edit', kwargs={'group_slug': group_slug}))
+    return HttpResponseRedirect('%s#membership' % reverse('group-edit', kwargs={'group_slug': group_slug}))
     
 @login_required
 def leave(request, object_id):
