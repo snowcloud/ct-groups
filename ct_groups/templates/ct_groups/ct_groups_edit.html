@@ -105,7 +105,7 @@
                         
                         {% if item.status == 'accepted' %}
                             {% ifequal group.grouper item.EDITORS  %}
-                                {% if membership.is_manager %}  -&nbsp;
+                                {% if membership.is_manager or user.is_staff %}  -&nbsp;
                                     <form class="inline" action="{{ object.get_absolute_url }}make-manager/{{ item.id }}/" method="post">{% csrf_token %}
                                         <button type="submit" class="link"><span>{% trans 'Make manager' %}</span></button>
                                     </form>
@@ -123,7 +123,7 @@
                                     </form>
                                 {% else %}
                                     {% ifequal group.grouper item.MANAGERS  %}
-                                        {% if membership.is_manager %}  -&nbsp;
+                                        {% if membership.is_manager or user.is_staff %}  -&nbsp;
                                             <form class="inline" action="{{ object.get_absolute_url }}remove-manager/{{ item.id }}/" method="post">{% csrf_token %}
                                                 <button type="submit" class="link"><span>{% trans 'Remove from managers' %}</span></button>
                                             </form>
