@@ -52,8 +52,8 @@
                 </ol>
              </fieldset>
              <fieldset class="submit">
-                <input type="submit" name="result" value="{% trans 'Save details' %}"><br>
-                <input type="submit" name="result" value="{% trans 'Cancel' %}">
+                <input type="submit" name="result" value="{% trans 'Save changes' %}"><br>
+                <!-- <input type="submit" name="result" value="{% trans 'Cancel' %}"> -->
             </fieldset>
         </form>
     
@@ -76,14 +76,14 @@
 
     <div id="group">
     
-        <form action="{{ object.get_absolute_url }}note/" method="post" class="wider">{% csrf_token %}
+        <form action="{% url group-settings object.slug %}" method="post" class="wider">{% csrf_token %}
             <fieldset>
                 <legend><span>{% trans 'Group note' %}:</span></legend>
             <ol><li><textarea name="note" rows="10">{{ object.note }}</textarea></li></ol> 
             </fieldset>
 
             <fieldset class="submit">
-                <input type="submit" name="result" value="{% trans 'Save note' %}">&nbsp;&nbsp;
+                <input type="submit" name="result" value="{% trans 'Save changes' %}">&nbsp;&nbsp;
             </fieldset>
 
         </form>

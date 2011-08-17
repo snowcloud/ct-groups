@@ -71,7 +71,7 @@ def group_edit(request, group_slug):
         RequestContext( request, {'object': object, 'membershipform': membershipform, 'membership': membership }))
 
 @login_required
-def group_note(request, group_slug):
+def group_settings(request, group_slug):
     """docstring for group_note"""
     object = get_object_or_404(CTGroup, slug=group_slug)
     u = request.user
