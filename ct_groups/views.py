@@ -220,6 +220,22 @@ def register_invitee(request, group_slug, key):
         RequestContext( request, {'form': form }))
 
 @login_required
+def change_manager(request, group_slug, object_id, change):
+    """docstring for change_editor"""
+    object = get_object_or_404(CTGroup, slug=group_slug)
+    u = request.user
+    if not (u.is_staff or object.has_manager(u)):
+        raise PermissionDenied()
+
+    if request.method == 'POST':
+        membership = get_object_or_404(GroupMembership, pk=object_id)
+        membership.is_manager = change == 'make'
+        membership.save()
+        print membership.user, membership.is_manager, object_id, change
+        return HttpResponseRedirect('%s#membership' % reverse('group-edit',kwargs={'group_slug':object.slug}))
+    return render_to_response('ct_groups/ct_groups_edit.html', RequestContext( request, {'object': object, }))
+
+@login_required
 def change_editor(request, group_slug, object_id, change):
     """docstring for change_editor"""
     object = get_object_or_404(CTGroup, slug=group_slug)
@@ -233,6 +249,26 @@ def change_editor(request, group_slug, object_id, change):
         membership.save()
         return HttpResponseRedirect('%s#membership' % reverse('group-edit',kwargs={'group_slug':object.slug}))
     return render_to_response('ct_groups/ct_groups_edit.html', RequestContext( request, {'object': object, }))
+
+@login_required
+def remove_manager(request, group_slug, object_id):
+    """docstring for remove_manager"""
+    return change_manager(request, group_slug, object_id, 'remove')
+    
+@login_required
+def make_manager(request, group_slug, object_id):
+    """docstring for make_manager"""
+    return change_manager(request, group_slug, object_id, 'make')
+
+@login_required
+def remove_editor(request, group_slug, object_id):
+    """docstring for remove_editor"""
+    return change_editor(request, group_slug, object_id, 'remove')
+    
+@login_required
+def make_editor(request, group_slug, object_id):
+    """docstring for make_editor"""
+    return change_editor(request, group_slug, object_id, 'make')
 
 @login_required
 def remove_member(request, group_slug, object_id):
@@ -261,16 +297,6 @@ def remove_member(request, group_slug, object_id):
                 'title': _('Remove member from this group?')
             })
         )
-    
-@login_required
-def remove_editor(request, group_slug, object_id):
-    """docstring for remove-editor"""
-    return change_editor(request, group_slug, object_id, 'remove')
-    
-@login_required
-def make_editor(request, group_slug, object_id):
-    """docstring for remove-editor"""
-    return change_editor(request, group_slug, object_id, 'make')
 
 @login_required
 def join(request, object_id):

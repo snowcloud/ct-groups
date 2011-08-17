@@ -101,10 +101,15 @@
                     
                     <li{% ifequal user item.user %} class="currentitem"{% endifequal %}>
                       
-                        {{ item.user.last_name }}, {{ item.user.first_name }}
+                        {{ item.user.last_name }}, {{ item.user.first_name }} {{ item.id }}
                         
                         {% if item.status == 'accepted' %}
-                            {% ifequal group.grouper item.EDITORS  %} -&nbsp;
+                            {% ifequal group.grouper item.EDITORS  %}
+                                {% if membership.is_manager %}  -&nbsp;
+                                    <form class="inline" action="{{ object.get_absolute_url }}make-manager/{{ item.id }}/" method="post">{% csrf_token %}
+                                        <button type="submit" class="link"><span>{% trans 'Make manager' %}</span></button>
+                                    </form>
+                                {% endif %} -&nbsp;
                                 <form class="inline" action="{{ object.get_absolute_url }}remove-editor/{{ item.id }}/" method="post">{% csrf_token %}
                                     <button type="submit" class="link"><span>{% trans 'Remove from editors' %}</span></button>
                                 </form>
@@ -116,6 +121,14 @@
                                     <form class="inline" action="{{ object.get_absolute_url }}remove-member/{{ item.id }}/" method="get">{% csrf_token %}
                                         <button type="submit" class="link"><span>{% trans 'Remove from group' %}</span></button>
                                     </form>
+                                {% else %}
+                                    {% ifequal group.grouper item.MANAGERS  %}
+                                        {% if membership.is_manager %}  -&nbsp;
+                                            <form class="inline" action="{{ object.get_absolute_url }}remove-manager/{{ item.id }}/" method="post">{% csrf_token %}
+                                                <button type="submit" class="link"><span>{% trans 'Remove from managers' %}</span></button>
+                                            </form>
+                                        {% endif %}
+                                    {% endifequal %}
                                 {% endifequal %}
                             {% endifequal %}
                         
