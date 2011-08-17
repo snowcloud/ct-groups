@@ -101,7 +101,7 @@
                     
                     <li{% ifequal user item.user %} class="currentitem"{% endifequal %}>
                       
-                        {{ item.user.last_name }}, {{ item.user.first_name }} {{ item.id }}
+                        {{ item.user.last_name }}, {{ item.user.first_name }}
                         
                         {% if item.status == 'accepted' %}
                             {% ifequal group.grouper item.EDITORS  %}
