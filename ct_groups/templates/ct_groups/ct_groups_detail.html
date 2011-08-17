@@ -16,7 +16,9 @@
 </div>
 <div class="ten columns alpha">
     {% include "ct_groups/ct_groups_group_resources.html" %}
-    {% include "ct_groups/ct_groups_group_discussion_posts.html" %}
+    {% if object.show_discussion %}
+        {% include "ct_groups/ct_groups_group_discussion_posts.html" %}
+    {% endif %}
     
 </div>
 <div class="five offset-by-one columns omega secondary">
@@ -26,9 +28,12 @@
     <div class="nav">
         {% include "ct_groups/ct_groups_group_members.html" %}        
     </div>
-    <div class="nav">
-        {% include "ct_groups/ct_groups_group_post_comments.html" %}        
-    </div>
+    {% if object.show_discussion %}
+        <div class="nav">
+            {% include "ct_groups/ct_groups_group_post_comments.html" %}        
+        </div>
+    {% endif %}
+
 </div>
 
 {% comment %}
