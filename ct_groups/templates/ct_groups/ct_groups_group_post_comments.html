@@ -6,7 +6,7 @@
 
     {% for comment in latest_comment_list %}
          <div class="entry-descr">
-            <p><strong>{{ comment.user.get_full_name }}</strong>: <a href="{{ comment.content_object.get_absolute_url }}#comments"> {{comment.comment|truncatewords:7}}</a><br>
+            <p class="comment"><strong>{{ comment.user.get_full_name }}</strong>: <a href="{{ comment.content_object.get_absolute_url }}#comments"> {{comment.comment|truncatewords:7}}</a><br>
             {% trans 'in' %} "{{ comment.content_object.title }}"</p>
         </div>
 
