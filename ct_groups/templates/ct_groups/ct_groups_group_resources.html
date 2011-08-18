@@ -14,7 +14,7 @@
 		</tbody>
 	</table>
 	{% if object|resource_can_edit:user %}
-        <p><a class="action" href="{% url new-ct object.slug %}">{% trans 'New DCM' %}.</a></p>                        
+        <p><a class="action add" href="{% url new-ct object.slug %}">{% trans 'New DCM' %}.</a></p>                        
 	{% endif %}
 
 {% else %}
