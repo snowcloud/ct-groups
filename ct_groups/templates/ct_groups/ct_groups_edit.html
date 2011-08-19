@@ -75,11 +75,16 @@
     <!-- GROUP SETTINGS -->
 
     <div id="group">
-    
-        <form action="{% url group-settings object.slug %}" method="post" class="wider">{% csrf_token %}
+
+        <form action="{% url group-settings object.slug %}" method="post" enctype="multipart/form-data" class="wider">{% csrf_token %}
             <fieldset>
-                <legend><span>{% trans 'Group note' %}:</span></legend>
-            <ol><li><textarea name="note" rows="10">{{ object.note }}</textarea></li></ol> 
+                <legend><span>{% trans 'Settings for this group' %}:</span></legend>
+                <ol>
+                     {% show_errors groupsettingsform.non_field_errors %}
+                     {% for field in groupsettingsform %}
+                          {% show_field field "li" %}
+                     {% endfor %}
+                </ol>
             </fieldset>
 
             <fieldset class="submit">

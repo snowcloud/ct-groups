@@ -24,8 +24,8 @@ from ct_blog.models import Post
 from ct_groups.decorators import check_permission
 from ct_groups.models import CTGroup, Moderation, GroupMembership, Invitation, \
     process_digests, group_notify, DuplicateEmailException
-from ct_groups.forms import GroupJoinForm, GroupMembershipForm, ModerateRefuseForm, \
-    InviteMemberForm, ProfileForm, CTGroupManagersContactForm
+from ct_groups.forms import GroupSettingsForm, GroupJoinForm, GroupMembershipForm, \
+    ModerateRefuseForm, InviteMemberForm, ProfileForm, CTGroupManagersContactForm
 from ct_framework.forms import ConfirmForm
 from ct_framework.registration_backends import RegistrationWithName
 from wiki.models import Article
@@ -59,7 +59,7 @@ def group_edit(request, group_slug):
         result = request.POST.get('result')
         if result == 'cancel':
             return HttpResponseRedirect(reverse('group',kwargs={'group_slug':object.slug}))
-        membershipform = GroupMembershipForm(request.POST, instance=membership)
+        groupsettingsform = GroupSettingsForm(request.POST, request.FILES, instance=object)
         if membershipform.is_valid():
             membershipform.save()
             messages.success(request, _('Your changes were saved.'))
@@ -67,8 +67,12 @@ def group_edit(request, group_slug):
     else:
         membershipform = GroupMembershipForm(instance=membership)
 
+    # group settings are not saved via this method- uses group settings
+    groupsettingsform = GroupSettingsForm(instance=object)
+
     return render_to_response('ct_groups/ct_groups_edit.html', 
-        RequestContext( request, {'object': object, 'membershipform': membershipform, 'membership': membership }))
+        RequestContext( request, {'object': object,
+            'groupsettingsform': groupsettingsform, 'membershipform': membershipform, 'membership': membership }))
 
 @login_required
 def group_settings(request, group_slug):
@@ -79,14 +83,17 @@ def group_settings(request, group_slug):
         raise PermissionDenied()
 
     if request.method == 'POST':
-        note = request.POST.get("note", None)
-        if note:
-            object.note = note
-            object.save()
+        result = request.POST.get('result')
+        if result == 'cancel':
+            return HttpResponseRedirect(reverse('group',kwargs={'group_slug':object.slug}))
+        groupsettingsform = GroupSettingsForm(request.POST, request.FILES, instance=object)
+        if groupsettingsform.is_valid():
+            groupsettingsform.save()
             messages.success(request, _('Your changes were saved.'))
             return HttpResponseRedirect('%s#group' % reverse('group-edit',kwargs={'group_slug':object.slug}))
     
-    return render_to_response('ct_groups/ct_groups_edit.html', RequestContext( request, {'object': object, }))
+    return render_to_response('ct_groups/ct_groups_edit.html',
+        RequestContext( request, {'object': object, 'groupsettingsform': groupsettingsform}))
 
 @login_required
 def profile(request):
