@@ -103,7 +103,7 @@ class GroupSettingsForm(forms.ModelForm):
     class Meta:
         model = CTGroup
         fields = ('name', 'note', 'tags', 'is_public', 'moderate_membership', 'moderated_message',
-            'language', 'show_discussion', 'resource_comment_order', 'template', 'logo')
+            'language', 'show_resources', 'show_discussion', 'resource_comment_order', 'template', 'logo')
 
 class GroupJoinForm(forms.Form):
     reason_for_joining = forms.CharField(label=_('Reason for joining'), required=False, widget=forms.Textarea)

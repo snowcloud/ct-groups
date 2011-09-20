@@ -1,6 +1,6 @@
-{% load i18n ct_groups_tags %}
+{% load i18n ct_groups_tags ct_tags %}
 
-<h2>{% trans 'Detailed Clinical Models' %}</h2>
+<h2>{% blocktrans with res_name="Clinical templates"|site_resource_name %}{{ res_name }}{% endblocktrans %}</h2>
 {% if object|resource_access:user %}
 
 	{% if object.clintemplate_set.all %}
@@ -18,10 +18,11 @@
 		<p>- {% trans 'None yet' %} -</p>
 	{% endif %}
 	{% if object|resource_can_edit:user %}
-        <p><a class="action add" href="{% url new-ct object.slug %}">{% trans 'New DCM' %}.</a></p>                        
+        <p><a class="action add" href="{% url new-ct object.slug %}">{% blocktrans with res_name="New template"|site_resource_name %}{{ res_name }}{% endblocktrans %}.</a></p>                        
 	{% endif %}
 
 {% else %}
     <p>{% trans "Sorry, you don't have access to this group's resources" %}.</p>
 {% endif %}
 
+<hr>

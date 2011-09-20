@@ -15,7 +15,9 @@
     <hr>
 </div>
 <div class="ten columns alpha">
-    {% include "ct_groups/ct_groups_group_resources.html" %}
+    {% if object.show_resources %}
+        {% include "ct_groups/ct_groups_group_resources.html" %}
+    {% endif %}
     {% if object.show_discussion %}
         {% include "ct_groups/ct_groups_group_discussion_posts.html" %}
     {% endif %}
