@@ -1,6 +1,6 @@
-{% load i18n ct_groups_tags ct_tags %}
+{% load i18n ct_groups_tags ct_framework_tags %}
 
-<h2>{% blocktrans with res_name="Clinical templates"|site_resource_name %}{{ res_name }}{% endblocktrans %}</h2>
+<h2>{{ "Clinical templates"|synonym }}</h2>
 {% if object|resource_access:user %}
 
 	{% if object.clintemplate_set.all %}
@@ -18,7 +18,7 @@
 		<p>- {% trans 'None yet' %} -</p>
 	{% endif %}
 	{% if object|resource_can_edit:user %}
-        <p><a class="action add" href="{% url new-ct object.slug %}">{% blocktrans with res_name="New template"|site_resource_name %}{{ res_name }}{% endblocktrans %}.</a></p>                        
+        <p><a class="action add" href="{% url new-ct object.slug %}">{{ "New template"|synonym }}.</a></p>                        
 	{% endif %}
 
 {% else %}
