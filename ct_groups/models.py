@@ -471,75 +471,6 @@ def make_hash(key, size=12):
     if isinstance(key, unicode):
         key = key.encode('utf-8')
     return sha_constructor(salt+key).hexdigest()[:size]
-    
-# from basic.blog.models import Post
-# # Post = get_model('blog', 'post')
-# 
-# class PublicManager(Manager):
-#     """Returns published posts that are not in the future."""
-#     
-#     def published(self):
-#         return self.get_query_set().filter(status__gte=2, publish__lte=datetime.datetime.now())
-# 
-#     def public(self):
-#         return self.published().filter(
-#             ct_group__is_public=True).filter(
-#             ct_group__ctgrouppermission__name__exact='blog',
-#             ct_group__ctgrouppermission__read_permission__exact='10')
-# 
-# class CTPost(Post):
-#     ct_group = models.ForeignKey(CTGroup, blank=True, null=True)
-#     notified = models.BooleanField(default=False)
-#     objects = PublicManager()
-#     
-#     def save(self, *args, **kwargs):
-#         super(CTPost, self).save(*args, **kwargs)
-#         if not self.notified:
-#             if self.status > 1 and self.publish and self.publish <= datetime.datetime.now():
-#                 if self.ct_group:
-#                     group_notify(self)
-#                 self.notified = True
-#                 super(CTPost, self).save(*args, **kwargs)
-# 
-#     def get_ct_group(self):
-#         """kludge cos field should be just group to be same as other models
-#             TODO: change field name and update all references"""
-#         return self.ct_group
-#     group = property(get_ct_group)
-# 
-#     def _summary(self):    
-#         if self.tease:
-#             return self.tease
-#         else:
-#             return truncatewords(self.body, 80)
-#     summary = property(_summary)
-#     
-#     def get_notify_content(self, comment=None):
-#         """docstring for get_notify_content"""
-#         from django.contrib.comments.models import Comment
-#         
-#         if comment:
-#             if not isinstance(comment, Comment):
-#                 comment = Comment.objects.get(pk=comment)
-#             line_1 = _("A comment has been added to: %s.") % self.title
-#             author= comment.user.get_full_name()
-#             content = comment.comment
-#             url = '%s%s#comment' % ( settings.APP_BASE[:-1], self.get_absolute_url())           
-#         else:
-#             line_1 = _('A discussion post has been added to: %s.') % self.group.name
-#             author= self.author.get_full_name()
-#             content = '%s\n%s' % (self.title, self.summary)
-#             url = '%s%s' % ( settings.APP_BASE[:-1], self.get_absolute_url())
-#                     
-#         content = render_to_string('ct_groups/email_post_comment_content.txt', {
-#             'line_1': line_1,
-#             'line_2': '',
-#             'author': author, 
-#             'review_date': self.publish.strftime("%d/%m/%Y, %H.%M"),
-#             'content': content,
-#             'url': url
-#         })    
-#         return (True, content)
 
 EVENT_TYPE_CHOICES = (('notify', 'notify'), ('notify_comment', 'notify comment'))
 EVENT_TYPE_DEFAULT = 'notify'
@@ -561,7 +492,7 @@ class CTEvent(models.Model):
     
     def __unicode__(self):
         """docstring for __unicode__"""
-        return 'CTEvent: %s, %s, %s|%s (%s)' % (self.group, self.event_type,
+        return u'CTEvent: %s, %s, %s|%s (%s)' % (self.group, self.event_type,
             self.content_type, self.object_id, self.last_updated)
             
     def save(self, *args, **kwargs):
