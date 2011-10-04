@@ -13,7 +13,7 @@ class BlogPostsPublicFeed(Feed):
         return reverse('blog_index')
 
     def items(self):
-        return Post.objects.public()[:10]
+        return Post.objects.public()[:20]
 
     def item_pubdate(self, obj):
         return obj.publish
