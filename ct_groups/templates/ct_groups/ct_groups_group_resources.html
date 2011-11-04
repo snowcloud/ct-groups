@@ -6,14 +6,14 @@
 	{% if object.clintemplate_set.all %}
 		<table class="siteresources">
 			<thead>
-				<tr><th>{% trans 'Title' %}</th><th>{% trans 'Version' %}</th><th>{% trans 'Status' %}</th></tr>
+				<tr><th class="title">{% trans 'Title' %}</th><th class="version">{% trans 'Version' %}</th><th class="status">{% trans 'Status' %}</th></tr>
 			</thead>
-			<tbody>
+ 			<tbody>
 	            {% for o in object.clintemplate_set.all %}
-					<tr><td><a href="{{ o.get_absolute_url }}">{{ o.name }}</a></td><td>{{o.version}}</td><td>{{ o.PublicationStatus }}{{ o.status }}</td></tr>
+					<tr><td><a href="{{ o.get_absolute_url }}">{{ o.name|slice:":50" }}</a></td><td>{{o.version}}</td><td>{{ o.PublicationStatus }}</td></tr>
 	            {% endfor %}
 			</tbody>
-		</table>
+ 		</table>
 	{% else %}
 		<p>- {% trans 'None yet' %} -</p>
 	{% endif %}

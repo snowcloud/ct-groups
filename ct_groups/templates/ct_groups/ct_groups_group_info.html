@@ -6,10 +6,10 @@
 
 {{ object.note|textile }}
 
-<div class="entry-descr">
-    {% tags_for_object object as tag_list %}                          
-    <ul>
-        {% if tag_list %}
+{% tags_for_object object as tag_list %}                          
+{% if tag_list %}
+    <div class="entry-descr">
+        <ul>
             <li class="entry-tags">
             <ul class="tags">
                 {% for tag in tag_list %}
@@ -17,7 +17,7 @@
                 {% endfor %}
             </ul>
             </li>
-        {% endif %}
-    </ul>
-</div>
+        </ul>
+    </div>
+{% endif %}
 </div>
