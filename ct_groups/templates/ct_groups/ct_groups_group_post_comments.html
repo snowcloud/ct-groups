@@ -1,0 +1,18 @@
+{% load i18n ct_groups_tags comments %}
+<h2>{% trans 'Recent comments' %}</h2>
+{% if object|comment_access:user %}
+
+    {% get_latest_group_comments 6 for object as latest_comment_list %}
+
+    {% for comment in latest_comment_list %}
+         <div class="entry-descr">
+            <p class="comment"><strong>{{ comment.user.get_full_name }}</strong>: <a href="{{ comment.content_object.get_absolute_url }}#comments"> {{comment.comment|truncatewords:7}}</a><br>
+            {% trans 'in' %} "{{ comment.content_object.title }}"</p>
+        </div>
+
+     {% empty %}
+        <p>- {% trans 'No comments yet' %} -</p>
+    {% endfor %}
+{% else %}
+    <p>{% trans "Sorry, you don't have access to this group's comments" %}.</p>
+{% endif %}

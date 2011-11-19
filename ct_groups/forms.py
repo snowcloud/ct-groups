@@ -98,6 +98,13 @@ class BlogPostForm(forms.ModelForm):
         model = CTPost
         fields = ('title', 'body', 'tease', 'allow_comments', 'status', )
 
+class GroupSettingsForm(forms.ModelForm):
+    """docstring for GroupSettingsForm"""
+    class Meta:
+        model = CTGroup
+        fields = ('name', 'note', 'tags', 'is_public', 'moderate_membership', 'moderated_message',
+            'language', 'show_resources', 'show_discussion', 'resource_comment_order', 'template', 'logo')
+
 class GroupJoinForm(forms.Form):
     reason_for_joining = forms.CharField(label=_('Reason for joining'), required=False, widget=forms.Textarea)
 

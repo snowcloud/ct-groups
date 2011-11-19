@@ -190,7 +190,7 @@ from ct_groups.decorators import check_permission
 @register.filter
 def blog_new_post(group, user):
     if check_permission(user, group, 'blog', 'w'):
-        return mark_safe('<p><a class="action" href="%sblog/new-post/">%s</a></p>' % (group.get_absolute_url(), _('New post')))
+        return mark_safe('<p><a class="action add" href="%sblog/new-post/">%s</a></p>' % (group.get_absolute_url(), _('New post')))
     else:
         return ''
 
@@ -205,9 +205,9 @@ def blog_edit(post, user):
         return ''    
     result = edit = delete = ''
     if check_permission(user, group, 'blog', 'w'):
-        edit = '<a href="%sblog/edit/%s/">%s</a>' % (group.get_absolute_url(), post.id, _('Edit this post'))
+        edit = '<a href="%sblog/edit/%s/" class="action edit">%s</a>' % (group.get_absolute_url(), post.id, _('Edit this post'))
     if check_permission(user, group, 'blog', 'd'):
-        delete = ' | <a href="%sblog/delete/%s/">%s</a>' % (group.get_absolute_url(), post.id, _('Delete this post'))
+        delete = ' | <a href="%sblog/delete/%s/" class="action delete">%s</a>' % (group.get_absolute_url(), post.id, _('Delete this post'))
     if edit or delete:
         result = '<p>%s %s</p>' % (edit, delete)
     return mark_safe(result)
@@ -255,7 +255,7 @@ def can_delete_comment(group, user):
 def wiki_new_page(group, user):
     """ NB takes group as first param"""
     if check_permission(user, group, 'wiki', 'w'):
-        return mark_safe('<p><a class="action" href="%swiki/edit/new-page/">%s</a></p>' % (group.get_absolute_url(), _('New page')))
+        return mark_safe('<p><a class="action add" href="%swiki/edit/new-page/">%s</a></p>' % (group.get_absolute_url(), _('New page')))
     else:
         return ''
 
@@ -263,7 +263,7 @@ def wiki_new_page(group, user):
 def wiki_edit(article, user):
     """ NB takes article as first param"""
     if check_permission(user, article.group, 'wiki', 'w'):
-        return mark_safe('<p><a href="%swiki/edit/%s/">%s</a></p>' % (article.group.get_absolute_url(), article.title, _('Edit this page')))
+        return mark_safe('<p><a class="action edit" href="%swiki/edit/%s/">%s</a></p>' % (article.group.get_absolute_url(), article.title, _('Edit this page')))
     else:
         return ''
 
@@ -271,7 +271,7 @@ def wiki_edit(article, user):
 def wiki_delete(article, user):
     """ NB takes article as first param"""
     if check_permission(user, article.group, 'wiki', 'd'):
-        return mark_safe('<p><a href="%swiki/delete/%s/">%s</a></p>' % (article.group.get_absolute_url(), article.title, _('Delete')))
+        return mark_safe('<p><a class="action delete" href="%swiki/delete/%s/">%s</a></p>' % (article.group.get_absolute_url(), article.title, _('Delete')))
     else:
         return ''
 

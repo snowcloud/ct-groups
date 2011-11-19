@@ -24,8 +24,8 @@ from ct_blog.models import Post
 from ct_groups.decorators import check_permission
 from ct_groups.models import CTGroup, Moderation, GroupMembership, Invitation, \
     process_digests, group_notify, DuplicateEmailException
-from ct_groups.forms import GroupJoinForm, GroupMembershipForm, ModerateRefuseForm, \
-    InviteMemberForm, ProfileForm, CTGroupManagersContactForm
+from ct_groups.forms import GroupSettingsForm, GroupJoinForm, GroupMembershipForm, \
+    ModerateRefuseForm, InviteMemberForm, ProfileForm, CTGroupManagersContactForm
 from ct_framework.forms import ConfirmForm
 from ct_framework.registration_backends import RegistrationWithName
 from wiki.models import Article
@@ -59,18 +59,23 @@ def group_edit(request, group_slug):
         result = request.POST.get('result')
         if result == 'cancel':
             return HttpResponseRedirect(reverse('group',kwargs={'group_slug':object.slug}))
-        membershipform = GroupMembershipForm(request.POST, instance=membership)
+        groupsettingsform = GroupSettingsForm(request.POST, request.FILES, instance=object)
         if membershipform.is_valid():
             membershipform.save()
+            messages.success(request, _('Your changes were saved.'))
             return HttpResponseRedirect(reverse('group',kwargs={'group_slug':object.slug}))
     else:
         membershipform = GroupMembershipForm(instance=membership)
 
+    # group settings are not saved via this method- uses group settings
+    groupsettingsform = GroupSettingsForm(instance=object)
+
     return render_to_response('ct_groups/ct_groups_edit.html', 
-        RequestContext( request, {'object': object, 'membershipform': membershipform, 'membership': membership }))
+        RequestContext( request, {'object': object,
+            'groupsettingsform': groupsettingsform, 'membershipform': membershipform, 'membership': membership }))
 
 @login_required
-def group_note(request, group_slug):
+def group_settings(request, group_slug):
     """docstring for group_note"""
     object = get_object_or_404(CTGroup, slug=group_slug)
     u = request.user
@@ -78,13 +83,17 @@ def group_note(request, group_slug):
         raise PermissionDenied()
 
     if request.method == 'POST':
-        note = request.POST.get("note", None)
-        if note:
-            object.note = note
-            object.save()
-            return HttpResponseRedirect(reverse('group-edit',kwargs={'group_slug':object.slug}))
+        result = request.POST.get('result')
+        if result == 'cancel':
+            return HttpResponseRedirect(reverse('group',kwargs={'group_slug':object.slug}))
+        groupsettingsform = GroupSettingsForm(request.POST, request.FILES, instance=object)
+        if groupsettingsform.is_valid():
+            groupsettingsform.save()
+            messages.success(request, _('Your changes were saved.'))
+            return HttpResponseRedirect('%s#group' % reverse('group-edit',kwargs={'group_slug':object.slug}))
     
-    return render_to_response('ct_groups/ct_groups_edit.html', RequestContext( request, {'object': object, }))
+    return render_to_response('ct_groups/ct_groups_edit.html',
+        RequestContext( request, {'object': object, 'groupsettingsform': groupsettingsform}))
 
 @login_required
 def profile(request):
@@ -124,7 +133,7 @@ def invite_member(request, group_slug):
     if request.method == 'POST':
         
         if request.POST['result'] == _('Cancel'):
-            return HttpResponseRedirect(reverse('group-edit',kwargs={'group_slug': object.slug}))
+            return HttpResponseRedirect('%s#membership' % reverse('group-edit',kwargs={'group_slug': object.slug}))
         form = InviteMemberForm(request.POST)
         if form.is_valid():
             email = form.cleaned_data['email']
@@ -132,8 +141,9 @@ def invite_member(request, group_slug):
             invitation = Invitation(group=object, inviter=u, email=email)
             invitation.save() # this will generate the accept_key
             invitation.send()
-            
-            return HttpResponseRedirect(reverse('group-edit',kwargs={'group_slug': object.slug}))
+            messages.success(request, _('Invitation sent.'))
+
+            return HttpResponseRedirect('%s#membership' % reverse('group-edit',kwargs={'group_slug': object.slug}))
     else:
         form = InviteMemberForm(initial={'group': object.id})
     
@@ -148,7 +158,9 @@ def invitation_remove(request, group_slug, key):
     invitation = get_object_or_404(Invitation, accept_key=key)
     # if invitation.is_accepted:
     invitation.delete()
-    return HttpResponseRedirect(reverse('group-edit',kwargs={'group_slug': object.slug}))
+    messages.success(request, _('Invitation removed.'))
+
+    return HttpResponseRedirect('%s#membership' % reverse('group-edit',kwargs={'group_slug': object.slug}))
 
 def accept_invitation(request, group_slug, key):
     object = get_object_or_404(CTGroup, slug=group_slug)
@@ -215,6 +227,22 @@ def register_invitee(request, group_slug, key):
         RequestContext( request, {'form': form }))
 
 @login_required
+def change_manager(request, group_slug, object_id, change):
+    """docstring for change_editor"""
+    object = get_object_or_404(CTGroup, slug=group_slug)
+    u = request.user
+    if not (u.is_staff or object.has_manager(u)):
+        raise PermissionDenied()
+
+    if request.method == 'POST':
+        membership = get_object_or_404(GroupMembership, pk=object_id)
+        membership.is_manager = change == 'make'
+        membership.save()
+        print membership.user, membership.is_manager, object_id, change
+        return HttpResponseRedirect('%s#membership' % reverse('group-edit',kwargs={'group_slug':object.slug}))
+    return render_to_response('ct_groups/ct_groups_edit.html', RequestContext( request, {'object': object, }))
+
+@login_required
 def change_editor(request, group_slug, object_id, change):
     """docstring for change_editor"""
     object = get_object_or_404(CTGroup, slug=group_slug)
@@ -226,8 +254,28 @@ def change_editor(request, group_slug, object_id, change):
         membership = get_object_or_404(GroupMembership, pk=object_id)
         membership.is_editor = change == 'make'
         membership.save()
-        return HttpResponseRedirect(reverse('group-edit',kwargs={'group_slug':object.slug}))
+        return HttpResponseRedirect('%s#membership' % reverse('group-edit',kwargs={'group_slug':object.slug}))
     return render_to_response('ct_groups/ct_groups_edit.html', RequestContext( request, {'object': object, }))
+
+@login_required
+def remove_manager(request, group_slug, object_id):
+    """docstring for remove_manager"""
+    return change_manager(request, group_slug, object_id, 'remove')
+    
+@login_required
+def make_manager(request, group_slug, object_id):
+    """docstring for make_manager"""
+    return change_manager(request, group_slug, object_id, 'make')
+
+@login_required
+def remove_editor(request, group_slug, object_id):
+    """docstring for remove_editor"""
+    return change_editor(request, group_slug, object_id, 'remove')
+    
+@login_required
+def make_editor(request, group_slug, object_id):
+    """docstring for make_editor"""
+    return change_editor(request, group_slug, object_id, 'make')
 
 @login_required
 def remove_member(request, group_slug, object_id):
@@ -246,7 +294,7 @@ def remove_member(request, group_slug, object_id):
             if form.is_valid():
                 memb.remove()
                 messages.success(request, _('Group member removed.'))
-        return HttpResponseRedirect(reverse('group-edit',kwargs={'group_slug': memb.group.slug}))
+        return HttpResponseRedirect('%s#membership' %reverse('group-edit',kwargs={'group_slug': memb.group.slug}))
     else:
         form = ConfirmForm(initial={ 'resource_name': '%s (%s)' % (memb.user.get_full_name(), memb.user.username) })
 
@@ -256,16 +304,6 @@ def remove_member(request, group_slug, object_id):
                 'title': _('Remove member from this group?')
             })
         )
-    
-@login_required
-def remove_editor(request, group_slug, object_id):
-    """docstring for remove-editor"""
-    return change_editor(request, group_slug, object_id, 'remove')
-    
-@login_required
-def make_editor(request, group_slug, object_id):
-    """docstring for remove-editor"""
-    return change_editor(request, group_slug, object_id, 'make')
 
 @login_required
 def join(request, object_id):
@@ -346,8 +384,9 @@ def moderate_accept(request, group_slug, object_id):
     if request.method == 'POST':
         membership = get_object_or_404(GroupMembership, pk=object_id)
         membership.approve()
+        messages.success(request, _('Group membership approved.'))
 
-        return HttpResponseRedirect(reverse('group-edit', kwargs={'group_slug': group_slug}))
+        return HttpResponseRedirect('%s#membership' % reverse('group-edit', kwargs={'group_slug': group_slug}))
 
     return render_to_response('ct_groups/ct_groups_edit.html', RequestContext( request, {'object': object, }))
 
@@ -370,15 +409,16 @@ def moderate_refuse_confirm(request, group_slug, object_id):
     if request.method == 'POST':
 
         if request.POST['result'] == _('Cancel'):
-            return HttpResponseRedirect(reverse('group-edit', kwargs={'group_slug': group_slug}))
+            return HttpResponseRedirect('%s#membership' % reverse('group-edit', kwargs={'group_slug': group_slug}))
         #     redirect to group
 
         form = ModerateRefuseForm(request.POST)
         if form.is_valid():
             membership = get_object_or_404(GroupMembership, pk=object_id)
             membership.refuse(form.cleaned_data['reason_for_refusal'])
+            messages.success(request, _('Membership not approved.'))
 
-            return HttpResponseRedirect(reverse('group-edit', kwargs={'group_slug': group_slug}))
+            return HttpResponseRedirect('%s#membership' % reverse('group-edit', kwargs={'group_slug': group_slug}))
 
         # else, reshow form
         else:
@@ -400,8 +440,9 @@ def moderate_remove(request, group_slug, object_id):
     if request.method == 'POST':
         membership = get_object_or_404(GroupMembership, pk=object_id)
         membership.delete()
+        messages.success(request, _('Membership removed.'))
     
-    return HttpResponseRedirect(reverse('group-edit', kwargs={'group_slug': group_slug}))
+    return HttpResponseRedirect('%s#membership' % reverse('group-edit', kwargs={'group_slug': group_slug}))
     
 @login_required
 def leave(request, object_id):

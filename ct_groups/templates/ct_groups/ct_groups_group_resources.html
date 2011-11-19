@@ -1,0 +1,28 @@
+{% load i18n ct_groups_tags ct_framework_tags %}
+
+<h2>{{ "Clinical templates"|synonym }}</h2>
+{% if object|resource_access:user %}
+
+	{% if object.clintemplate_set.all %}
+		<table class="siteresources">
+			<thead>
+				<tr><th class="title">{% trans 'Title' %}</th><th class="version">{% trans 'Version' %}</th><th class="status">{% trans 'Status' %}</th></tr>
+			</thead>
+ 			<tbody>
+	            {% for o in object.clintemplate_set.all %}
+					<tr><td><a href="{{ o.get_absolute_url }}">{{ o.name|slice:":50" }}</a></td><td>{{o.version}}</td><td>{{ o.PublicationStatus }}</td></tr>
+	            {% endfor %}
+			</tbody>
+ 		</table>
+	{% else %}
+		<p>- {% trans 'None yet' %} -</p>
+	{% endif %}
+	{% if object|resource_can_edit:user %}
+        <p><a class="action add" href="{% url new-ct object.slug %}">{{ "New template"|synonym }}.</a></p>                        
+	{% endif %}
+
+{% else %}
+    <p>{% trans "Sorry, you don't have access to this group's resources" %}.</p>
+{% endif %}
+
+<hr>

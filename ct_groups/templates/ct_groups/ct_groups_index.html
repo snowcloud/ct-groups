@@ -17,7 +17,7 @@
 <h2>{% trans 'All Groups' %}</h2>
 
 {% if object_list %}
-  <ul>
+  <ul class="disc">
     {% for o in object_list %}
         {% if o|group_access:user or o.is_public  %}
             <li><a href="{% url group o.slug %}">{{ o.name }}</a></li>

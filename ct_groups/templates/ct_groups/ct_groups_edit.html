@@ -2,6 +2,15 @@
 {% load i18n sitevars utils markup ct_groups_tags forms %}
 
 {% block title %}{{ object.name }}: {% trans 'Edit settings' %}{% endblock %}
+
+{% block stylesheet_extra %}
+<link rel="stylesheet" href="/static/css/ct_template.css" type="text/css" media="screen, projection">
+<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
+<style type="text/css">
+.ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button { font-size: 0.875em; font-family: "HelveticaNeue","Helvetica Neue",Helvetica,Arial,sans-serif; font-weight: normal;}
+</style>
+{% endblock %}
+
 {% block breadcrumbs %}
   <a href="/">{% trans 'home' %}</a>  &gt;
   <a href="/groups">{% trans 'groups' %}</a>  &gt;
@@ -15,9 +24,79 @@
     
 	<h1>{% blocktrans with object.name as name %}Settings for {{ name }}{% endblocktrans %}</h1>
 
-    {% if object|group_edit:user %}
-        <h2>{% trans 'Group settings' %}</h2>
+{% comment %}
+{% endcomment %}
+
+
+<div id="tabs">
+    <ul>
+        <li><a href="#personal"><span>{% trans "Your settings"%}</span></a></li>
+        {% if object|group_edit:user %}
+            <li><a href="#group"><span>{% trans "Group settings"%}</span></a></li>
+            <li><a href="#membership"><span>{% trans "Group membership"%}</span></a></li>
+        {% endif %}
+    </ul>
+
+    <!-- PERSONAL SETTINGS -->
+    <div id="personal">
+    {% if membership %}
+
+        <form name="checkprofile" action="" method="post" class="wider">{% csrf_token %}
+             <fieldset>
+                <legend><span>{% trans 'Your preferences for this group' %}:</span></legend>
+                <ol>
+                     {% show_errors membershipform.non_field_errors %}
+                     {% for field in membershipform %}
+                          {% show_field field "li" %}
+                     {% endfor %}
+                </ol>
+             </fieldset>
+             <fieldset class="submit">
+                <input type="submit" name="result" value="{% trans 'Save changes' %}"><br>
+                <!-- <input type="submit" name="result" value="{% trans 'Cancel' %}"> -->
+            </fieldset>
+        </form>
+    
+        {% if not object|group_edit:user or user.is_staff %}
+            <p><a class="action" href="{% url leave-group object.id %}">{% trans 'Leave this group' %}.</a></p>
+        {% endif %}
+    {% else %}
+    
+        <h2>{% trans 'You are not a member of this group' %}</h2>
+    
+        <p><a class="action" href="{% url join-group object.id %}">{% trans 'Join this group' %}.</a></p>
         
+    {% endif %}
+    </div>
+
+
+    {% if object|group_edit:user %}
+
+    <!-- GROUP SETTINGS -->
+
+    <div id="group">
+
+        <form action="{% url group-settings object.slug %}" method="post" enctype="multipart/form-data" class="wider">{% csrf_token %}
+            <fieldset>
+                <legend><span>{% trans 'Settings for this group' %}:</span></legend>
+                <ol>
+                     {% show_errors groupsettingsform.non_field_errors %}
+                     {% for field in groupsettingsform %}
+                          {% show_field field "li" %}
+                     {% endfor %}
+                </ol>
+            </fieldset>
+
+            <fieldset class="submit">
+                <input type="submit" name="result" value="{% trans 'Save changes' %}">&nbsp;&nbsp;
+            </fieldset>
+
+        </form>
+    </div>
+
+    <!-- MEMBERSHIP SETTINGS -->
+
+    <div id="membership">
         {% if object.groupmembership_set.all %}
          {% regroup object.groupmembership_set.all|dictsort:"member_type" by member_type as grouped %}
             {% for group in grouped|order_member_type %}
@@ -30,7 +109,12 @@
                         {{ item.user.last_name }}, {{ item.user.first_name }}
                         
                         {% if item.status == 'accepted' %}
-                            {% ifequal group.grouper item.EDITORS  %} -&nbsp;
+                            {% ifequal group.grouper item.EDITORS  %}
+                                {% if membership.is_manager or user.is_staff %}  -&nbsp;
+                                    <form class="inline" action="{{ object.get_absolute_url }}make-manager/{{ item.id }}/" method="post">{% csrf_token %}
+                                        <button type="submit" class="link"><span>{% trans 'Make manager' %}</span></button>
+                                    </form>
+                                {% endif %} -&nbsp;
                                 <form class="inline" action="{{ object.get_absolute_url }}remove-editor/{{ item.id }}/" method="post">{% csrf_token %}
                                     <button type="submit" class="link"><span>{% trans 'Remove from editors' %}</span></button>
                                 </form>
@@ -42,6 +126,14 @@
                                     <form class="inline" action="{{ object.get_absolute_url }}remove-member/{{ item.id }}/" method="get">{% csrf_token %}
                                         <button type="submit" class="link"><span>{% trans 'Remove from group' %}</span></button>
                                     </form>
+                                {% else %}
+                                    {% ifequal group.grouper item.MANAGERS  %}
+                                        {% if membership.is_manager or user.is_staff %}  -&nbsp;
+                                            <form class="inline" action="{{ object.get_absolute_url }}remove-manager/{{ item.id }}/" method="post">{% csrf_token %}
+                                                <button type="submit" class="link"><span>{% trans 'Remove from managers' %}</span></button>
+                                            </form>
+                                        {% endif %}
+                                    {% endifequal %}
                                 {% endifequal %}
                             {% endifequal %}
                         
@@ -93,53 +185,11 @@
         
         <p><a href="{% url invite-member object.slug %}">{% trans 'Invite a new member' %}</a></p>
         
-        <form action="{{ object.get_absolute_url }}note/" method="post" class="wider">{% csrf_token %}
-            <fieldset>
-                <legend><span>{% trans 'Group note' %}:</span></legend>
-            <ol><li><textarea name="note" rows="10">{{ object.note }}</textarea></li></ol> 
-            </fieldset>
-
-            <fieldset class="submit">
-                <input type="submit" name="result" value="{% trans 'Save note' %}">&nbsp;&nbsp;
-            </fieldset>
-
-        </form>
-        
-        <p>&nbsp;</p>
-        
+ 
+    </div>
     {% endif %}
+</div>
 
-    {% if membership %}
-
-        <form name="checkprofile" action="" method="post" class="wider">{% csrf_token %}
-             <fieldset>
-                <legend><span>{% trans 'Your preferences for this group' %}:</span></legend>
-                <ol>
-                     {% show_errors membershipform.non_field_errors %}
-                     {% for field in membershipform %}
-                          {% show_field field "li" %}
-                     {% endfor %}
-                </ol>
-             </fieldset>
-             <fieldset class="submit">
-                <input type="submit" name="result" value="{% trans 'Save details' %}"><br>
-                <input type="submit" name="result" value="{% trans 'Cancel' %}">
-            </fieldset>
-        </form>
-    
-        {% if not object|group_edit:user or user.is_staff %}
-            <p><a class="action" href="{% url leave-group object.id %}">{% trans 'Leave this group' %}.</a></p>
-        {% endif %}
-    {% else %}
-    
-        <h2>{% trans 'You are not a member of this group' %}</h2>
-    
-        <p><a class="action" href="{% url join-group object.id %}">{% trans 'Join this group' %}.</a></p>
-        
-    {% endif %}
-
-
-    <p>&nbsp;</p>
 
 {% else %}
 
@@ -149,4 +199,26 @@
 {% endif %}
 
 {% endblock %}
+
+{% block js-extra %}
+<!-- script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script -->
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+{% endblock %}
+
+{% block js-document-ready %}
+    var select = 0;
+    if (window.location.hash) {
+        if (window.location.hash.substring(1) == 'group') { select = 1; }
+        else if (window.location.hash.substring(1) == 'membership') { select = 2; }
+    }
+
+    $("#tabs").show();
+    $("#tabs").tabs({
+        selected: select
+    });
+    $("#tabs-alt").hide();
+{% endblock %}
+
+
+
 

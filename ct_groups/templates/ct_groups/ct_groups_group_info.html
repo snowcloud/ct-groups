@@ -1,0 +1,23 @@
+{% load i18n markup tagging_tags %}
+<div class="groupinfo">
+{% if object.logo %}<img src="/media/{{ object.logo }}" class="grouplogo">{% endif %}
+
+<h1>{{ object.name }}</h1>
+
+{{ object.note|textile }}
+
+{% tags_for_object object as tag_list %}                          
+{% if tag_list %}
+    <div class="entry-descr">
+        <ul>
+            <li class="entry-tags">
+            <ul class="tags">
+                {% for tag in tag_list %}
+                    <li><a href="{% url tag tag.name %}">{{ tag.name }}</a></li>
+                {% endfor %}
+            </ul>
+            </li>
+        </ul>
+    </div>
+{% endif %}
+</div>

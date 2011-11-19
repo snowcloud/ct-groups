@@ -1,0 +1,44 @@
+{% load i18n ct_groups_tags %}
+<h2>{% trans 'Members' %}</h2>
+
+{% if object.get_active_members %}
+ {% regroup object.get_active_members|dictsort:"member_type" by member_type as grouped %}
+
+    <ul class="no-bullet top">
+    {% for group in grouped|order_member_type %}
+      <li>{% trans group.grouper %}
+      <div >
+        <ul>
+            {% for item in group.list|dictsort:"user_last_name" %}
+                <li {% ifequal user item.user %}class="currentitem"{% endifequal %}>{{ item.user.get_full_name }}</li>
+            {% endfor %}
+        </ul>
+      </div>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>- {% trans 'None yet' %} -</p>
+{% endif %}
+
+<div class="footer">
+{% if object|group_edit:user %}
+    <p><a class="action edit" href="{% url group-edit object.slug %}">{% trans 'Edit group and personal settings' %}</a></p>                        
+{% else %}
+    {% if object|membership_pending:user %}
+        <p>{% trans 'Your group membership request is waiting for approval' %}.</p>
+    {% else %}
+        {% if object|has_member:user %}
+                <p><a class="action edit" href="{% url group-edit object.slug %}">{% trans 'Edit your group settings' %}</a></p>
+        {% else %}
+			{% if object.show_join_link %}
+	            <p><a class="action add" href="{% url join-group object.id %}">{% trans 'Join this group' %}.</a></p>
+			{% endif %}
+		{% endif %}
+        
+    {% endif %}
+{% endif %}
+
+{% if object|contact_managers:user %}
+    <p><a class="action mail" href="{% url contact-managers object.slug %}">{% trans 'Contact the group managers' %}.</a></p>
+{% endif %}
+</div>
