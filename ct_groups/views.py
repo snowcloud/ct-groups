@@ -38,7 +38,6 @@ def detail(request, object_id):
     o = get_object_or_404(CTGroup, pk=object_id)
     u = request.user
     is_member = u.is_authenticated and o.has_member(u)
-    # print "is_member"
     is_manager = is_member and o.has_manager(u)
     
     return render_to_response(
@@ -137,7 +136,6 @@ def invite_member(request, group_slug):
         form = InviteMemberForm(request.POST)
         if form.is_valid():
             email = form.cleaned_data['email']
-            # print email, form.users
             invitation = Invitation(group=object, inviter=u, email=email)
             invitation.save() # this will generate the accept_key
             invitation.send()
@@ -238,7 +236,6 @@ def change_manager(request, group_slug, object_id, change):
         membership = get_object_or_404(GroupMembership, pk=object_id)
         membership.is_manager = change == 'make'
         membership.save()
-        print membership.user, membership.is_manager, object_id, change
         return HttpResponseRedirect('%s#membership' % reverse('group-edit',kwargs={'group_slug':object.slug}))
     return render_to_response('ct_groups/ct_groups_edit.html', RequestContext( request, {'object': object, }))
 
