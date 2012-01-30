@@ -59,7 +59,7 @@ def group_edit(request, group_slug):
         result = request.POST.get('result')
         if result == 'cancel':
             return HttpResponseRedirect(reverse('group',kwargs={'group_slug':object.slug}))
-        groupsettingsform = GroupSettingsForm(request.POST, request.FILES, instance=object)
+        membershipform = GroupMembershipForm(request.POST, instance=membership)
         if membershipform.is_valid():
             membershipform.save()
             messages.success(request, _('Your changes were saved.'))
