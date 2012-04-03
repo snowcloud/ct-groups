@@ -1,4 +1,5 @@
 {% load i18n ct_groups_tags ct_framework_tags %}
+{% load future %}
 
 <h2>{{ "Clinical templates"|synonym }}</h2>
 {% if object|resource_access:user %}
@@ -18,7 +19,7 @@
 		<p>- {% trans 'None yet' %} -</p>
 	{% endif %}
 	{% if object|resource_can_edit:user %}
-        <p><a class="action add" href="{% url new-ct object.slug %}">{{ "New template"|synonym }}.</a></p>                        
+        <p><a class="action add" href="{% url 'new-ct' object.slug %}">{{ "New template"|synonym }}.</a></p>                        
 	{% endif %}
 
 {% else %}

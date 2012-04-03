@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n markup sitevars utils ct_groups_tags %}
+{% load future %}
 
 {% block title %}{% trans 'Groups' %}{% endblock %}
 {% block section %}groups{% endblock %}
@@ -20,7 +21,7 @@
   <ul class="disc">
     {% for o in object_list %}
         {% if o|group_access:user or o.is_public  %}
-            <li><a href="{% url group o.slug %}">{{ o.name }}</a></li>
+            <li><a href="{% url 'group' o.slug %}">{{ o.name }}</a></li>
         {% endif %}
     {% endfor %}
   </ul>

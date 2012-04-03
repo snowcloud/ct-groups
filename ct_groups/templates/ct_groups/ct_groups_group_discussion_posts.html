@@ -1,4 +1,5 @@
 {% load i18n markup tagging_tags ct_groups_tags comments %}
+{% load future %}
 
 <h2>{% trans 'Recent discussion posts' %}</h2>
   
@@ -22,7 +23,7 @@
                   <li class="entry-comments"><a href="{{ post.get_absolute_url }}#comments">{%blocktrans count comment_count as counter%}{{ counter }} comment{%plural%}{{ counter }} comments{%endblocktrans%}</a></li>
               </ul>
                   {% if post.group %}
-                  <p>{% trans 'in' %} <a href="{% url group post.group.slug %}">{{ post.group.name }}</a></p>
+                  <p>{% trans 'in' %} <a href="{% url 'group' post.group.slug %}">{{ post.group.name }}</a></p>
                   {% endif %}
           </div>
           
@@ -36,7 +37,7 @@
                       <li class="entry-tags">
                           <ul class="tags">
                               {% for tag in tag_list %}
-                                  <li><a href="{% url tag tag.name %}">{{ tag.name }}</a></li>
+                                  <li><a href="{% url 'tag' tag.name %}">{{ tag.name }}</a></li>
                               {% endfor %}
                           </ul>
                       </li>

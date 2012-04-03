@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load future %}
 
 {% block title %}{% trans 'Left group' %}{% endblock %}
 
@@ -9,7 +10,7 @@
 
 <h3>{% blocktrans with group.name as name %}You have now left the '{{ name }}' group{% endblocktrans %}.</h3>
 
-<p><a href="{% url group group.slug %}">{% trans 'Continue' %}</a></p>
+<p><a href="{% url 'group' group.slug %}">{% trans 'Continue' %}</a></p>
 
 <p>&nbsp;</p>
 

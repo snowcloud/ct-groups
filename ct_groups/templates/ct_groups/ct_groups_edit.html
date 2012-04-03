@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n sitevars utils markup ct_groups_tags forms %}
+{% load future %}
 
 {% block title %}{{ object.name }}: {% trans 'Edit settings' %}{% endblock %}
 
@@ -58,13 +59,13 @@
         </form>
     
         {% if not object|group_edit:user or user.is_staff %}
-            <p><a class="action" href="{% url leave-group object.id %}">{% trans 'Leave this group' %}.</a></p>
+            <p><a class="action" href="{% url 'leave-group' object.id %}">{% trans 'Leave this group' %}.</a></p>
         {% endif %}
     {% else %}
     
         <h2>{% trans 'You are not a member of this group' %}</h2>
     
-        <p><a class="action" href="{% url join-group object.id %}">{% trans 'Join this group' %}.</a></p>
+        <p><a class="action" href="{% url 'join-group' object.id %}">{% trans 'Join this group' %}.</a></p>
         
     {% endif %}
     </div>
@@ -76,7 +77,7 @@
 
     <div id="group">
 
-        <form action="{% url group-settings object.slug %}" method="post" enctype="multipart/form-data" class="wider">{% csrf_token %}
+        <form action="{% url 'group-settings' object.slug %}" method="post" enctype="multipart/form-data" class="wider">{% csrf_token %}
             <fieldset>
                 <legend><span>{% trans 'Settings for this group' %}:</span></legend>
                 <ol>
@@ -140,16 +141,16 @@
                         {% else %}
                             {% if item.status == 'pending' %}
                                 <strong>{% trans 'Waiting for approval' %}</strong> -
-                                <form class="inline" action="{% url moderate-accept object.slug item.id %}" method="post">{% csrf_token %}
+                                <form class="inline" action="{% url 'moderate-accept' object.slug item.id %}" method="post">{% csrf_token %}
                                     <button type="submit" class="link"><span>{% trans 'Accept' %}</span></button>
                                 </form> -
-                                <form class="inline" action="{% url moderate-refuse object.slug item.id %}" method="post">{% csrf_token %}
+                                <form class="inline" action="{% url 'moderate-refuse' object.slug item.id %}" method="post">{% csrf_token %}
                                     <button type="submit" class="link"><span>{% trans 'Refuse' %}</span></button>
                                 </form>
                                 <div class="info">{{ item.moderation.applicants_text|default:"-"|linebreaks }}</div>
                             {% else %}
                                 <strong>refused</strong> -
-                                <form class="inline" action="{% url moderate-remove object.slug item.id %}" method="post">{% csrf_token %}
+                                <form class="inline" action="{% url 'moderate-remove' object.slug item.id %}" method="post">{% csrf_token %}
                                     <button type="submit" class="link"><span>{% trans 'Delete' %}</span></button>
                                 </form>
                                 
@@ -173,7 +174,7 @@
             {% for inv in object.invitation_set.all %}
                 <li>{{ inv.email }} - {{ inv.get_status_display }}
                     {% if inv.is_accepted %} [{{ inv.accepted_by.get_full_name }}]{% endif %} -
-                    <form class="inline" action="{% url invitation-remove object.slug inv.accept_key %}" method="post">{% csrf_token %}
+                    <form class="inline" action="{% url 'invitation-remove' object.slug inv.accept_key %}" method="post">{% csrf_token %}
                         <button type="submit" class="link"><span>{% trans 'Delete' %}</span></button>
                     </form>
                 </li>
@@ -183,7 +184,7 @@
         
         {% endif %}
         
-        <p><a href="{% url invite-member object.slug %}">{% trans 'Invite a new member' %}</a></p>
+        <p><a href="{% url 'invite-member' object.slug %}">{% trans 'Invite a new member' %}</a></p>
         
  
     </div>

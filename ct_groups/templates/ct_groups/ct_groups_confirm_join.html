@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n forms %}
+{% load future %}
 
 {% block title %}{% trans 'Joined group' %}{% endblock %}
 
@@ -16,11 +17,11 @@
             <h1>{% trans 'Your group membership has not been approved.' %}</h1>
             {{ memb.moderation.response_text|default:"-"|linebreaks }}
         {% endif %}
-        <p><a href="{% url group group.slug %}">{% trans 'Continue' %}</a></p>
+        <p><a href="{% url 'group' group.slug %}">{% trans 'Continue' %}</a></p>
     {% else %}
         <h1>{% blocktrans with group.name as name %}You have now joined the '{{ name }}' group{% endblocktrans %}.</h1>
     
-        <p><a href="{% url group group.slug %}">{% trans 'Continue' %}</a> - {% trans 'you will see your name in the list of group members' %}.</p>
+        <p><a href="{% url 'group' group.slug %}">{% trans 'Continue' %}</a> - {% trans 'you will see your name in the list of group members' %}.</p>
     
     {% endif %}
     
@@ -31,7 +32,7 @@
 
         <h1>{% trans 'This group is closed' %}</h1>
 
-        <p><a href="{% url group group.slug %}">{% trans 'Continue' %}</a></p>
+        <p><a href="{% url 'group' group.slug %}">{% trans 'Continue' %}</a></p>
 
     {# ... or user is asking to join moderated group #}
     {% else %}

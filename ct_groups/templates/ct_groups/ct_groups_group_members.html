@@ -1,4 +1,6 @@
 {% load i18n ct_groups_tags %}
+{% load future %}
+
 <h2>{% trans 'Members' %}</h2>
 
 {% if object.get_active_members %}
@@ -22,16 +24,16 @@
 
 <div class="footer">
 {% if object|group_edit:user %}
-    <p><a class="action edit" href="{% url group-edit object.slug %}">{% trans 'Edit group and personal settings' %}</a></p>                        
+    <p><a class="action edit" href="{% url 'group-edit' object.slug %}">{% trans 'Edit group and personal settings' %}</a></p>                        
 {% else %}
     {% if object|membership_pending:user %}
         <p>{% trans 'Your group membership request is waiting for approval' %}.</p>
     {% else %}
         {% if object|has_member:user %}
-                <p><a class="action edit" href="{% url group-edit object.slug %}">{% trans 'Edit your group settings' %}</a></p>
+                <p><a class="action edit" href="{% url 'group-edit' object.slug %}">{% trans 'Edit your group settings' %}</a></p>
         {% else %}
 			{% if object.show_join_link %}
-	            <p><a class="action add" href="{% url join-group object.id %}">{% trans 'Join this group' %}.</a></p>
+	            <p><a class="action add" href="{% url 'join-group' object.id %}">{% trans 'Join this group' %}.</a></p>
 			{% endif %}
 		{% endif %}
         
@@ -39,6 +41,6 @@
 {% endif %}
 
 {% if object|contact_managers:user %}
-    <p><a class="action mail" href="{% url contact-managers object.slug %}">{% trans 'Contact the group managers' %}.</a></p>
+    <p><a class="action mail" href="{% url 'contact-managers' object.slug %}">{% trans 'Contact the group managers' %}.</a></p>
 {% endif %}
 </div>

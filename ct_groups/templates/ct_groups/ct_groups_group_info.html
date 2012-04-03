@@ -1,4 +1,6 @@
 {% load i18n markup tagging_tags %}
+{% load future %}
+
 <div class="groupinfo">
 {% if object.logo %}<img src="/media/{{ object.logo }}" class="grouplogo">{% endif %}
 
@@ -13,7 +15,7 @@
             <li class="entry-tags">
             <ul class="tags">
                 {% for tag in tag_list %}
-                    <li><a href="{% url tag tag.name %}">{{ tag.name }}</a></li>
+                    <li><a href="{% url 'tag' tag.name %}">{{ tag.name }}</a></li>
                 {% endfor %}
             </ul>
             </li>
