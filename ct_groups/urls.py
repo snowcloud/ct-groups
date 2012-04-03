@@ -5,6 +5,7 @@
 from django.db.models.query import QuerySet
 from django.conf import settings
 from django.conf.urls.defaults import *
+from django.views.generic.list import ListView
 # from django.contrib.auth.models import User
 # from django.contrib.comments.models import Comment
 
@@ -29,10 +30,10 @@ contact_managers_perm = group_perm('contact_managers', 'w')
 wiki_args = {'group_slug_field': 'slug', 'group_qs': CTGroup.objects.all(), 'ArticleFormClass': CTPageForm }
 
 urlpatterns = patterns('',
-    url(r'^$', 'django.views.generic.list_detail.object_list', 
-        dict(queryset=CTGroup.objects.all(), 
-        paginate_by=400,
-        template_name='ct_groups/ct_groups_index.html' ), name="groups"),    
+    url(r'^$', 
+        ListView.as_view(queryset=CTGroup.objects.all(), 
+                paginate_by=400,
+                template_name='ct_groups/ct_groups_index.html' ), name="groups"),    
 
     url(r'^process-digests/$', 'ct_groups.views.do_digests', name="process-digests"),
 
