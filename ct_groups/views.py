@@ -350,11 +350,11 @@ def contact_managers(request, group_slug):
     #                  template_name='contact_form/contact_form.html',
     #                  success_url=None, extra_context=None,
     #                  fail_silently=False):
-    
+    request.META["ct_group"] = group_slug
     return contact_form(request,
         form_class=CTGroupManagersContactForm,
-        success_url=reverse('contact-form-sent', kwargs={'group_slug': group_slug}),
-        extra_context= {'group_slug': group_slug})
+        success_url=reverse('contact-form-sent', kwargs={'group_slug': group_slug}))
+        # extra_context= {'group_slug': group_slug})
 
 
 

@@ -142,7 +142,9 @@ class CTGroupManagersContactForm(SCContactForm):
         
     def clean(self):
         cleaned_data = self.cleaned_data
-        group = get_object_or_404(CTGroup, slug=self.request.POST.get('group', None))
+        print self.request.META.get("ct_group")
+
+        group = get_object_or_404(CTGroup, slug=self.request.META.get("ct_group"))
         if not contact_managers(group, self.request.user):
             raise PermissionDenied()
         self.recipient_list = [m.user.email for m in group.get_managers()] or \
