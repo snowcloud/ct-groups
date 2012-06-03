@@ -344,31 +344,19 @@ def join(request, object_id):
 
 
 def contact_managers(request, group_slug):
-    """docstring for contact_managers"""
-    
-    # def contact_form(request, form_class=ContactForm,
-    #                  template_name='contact_form/contact_form.html',
-    #                  success_url=None, extra_context=None,
-    #                  fail_silently=False):
+    """
+    ContactForm won't take extra_context, but gets request
+    so using request.META to pass in group_slug
+    """
     request.META["ct_group"] = group_slug
     return contact_form(request,
         form_class=CTGroupManagersContactForm,
         success_url=reverse('contact-form-sent', kwargs={'group_slug': group_slug}))
-        # extra_context= {'group_slug': group_slug})
-
-
-
-
-    # url(r'^contact/$', contact_form, { 'form_class': SCContactForm }, name='contact_form'),
-    # url(r'^contact/sent/$', direct_to_template, { 'template': 'contact_form/contact_form_sent.html' },
-    #     name='contact_form_sent'),
 
 def contact_managers_sent(request, group_slug):
     """docstring for contact_managers_sent"""
     return render_to_response('ct_groups/group_contact_form_sent.html', RequestContext( request, {'group_slug': group_slug, }))
     
-
-
 @login_required
 def moderate_accept(request, group_slug, object_id):
     """docstring for moderate_accept"""
